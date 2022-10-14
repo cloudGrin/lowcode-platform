@@ -1,0 +1,35 @@
+{
+    "kind": "collectionType",
+    "collectionName": "project_user_roles",
+    "info": {
+        "singularName": "project-user-role",
+        "pluralName": "project-user-roles",
+        "displayName": "ProjectUserRole",
+        "description": ""
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "project": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "api::project.project"
+        },
+        "role": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "api::project-role.project-role"
+        },
+        "users_permissions_user": {
+            "type": "relation",
+            "relation": "oneToOne",
+            "target": "plugin::users-permissions.user"
+        },
+        "projectroleId": {
+            "type": "uid",
+            "required": true
+        }
+    }
+}
