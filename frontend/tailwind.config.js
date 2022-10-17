@@ -1,20 +1,25 @@
-const lessToJs = require("less-vars-to-js");
-const fs = require("fs");
-const path = require("path");
+const lessToJs = require('less-vars-to-js')
+const fs = require('fs')
+const path = require('path')
 
-const paletteLess = fs.readFileSync(
-  path.resolve(__dirname, "./styles/var.less"),
-  "utf8"
-);
+const paletteLess = fs.readFileSync(path.resolve(__dirname, './styles/var.less'), 'utf8')
 const palette = lessToJs(paletteLess, {
   resolveVariables: true,
-  stripPrefix: true,
-});
+  stripPrefix: true
+})
 
+/** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./components/**/*.js", "./pages/**/*.{ts,js,tsx,jsx}"],
+  content: ['./components/**/*.{ts,js,tsx,jsx}', './pages/**/*.{ts,js,tsx,jsx}'],
   theme: {
     extend: {
+      width: {
+        page_content: '1190px'
+      },
+      height: {
+        header: '34px',
+        footer: '131px'
+      },
       colors: {
         //主色调
         c_primary: palette.c_primary,
@@ -43,20 +48,14 @@ module.exports = {
         c_line_4: palette.c_line_4,
         c_999: palette.c_999,
         c_333: palette.c_333,
-        c_334: palette.c_334,
-      },
-    },
-    screens: {
-      sm: "640px",
-      md: "768px",
-      lg: "1024px",
-      xl: "1280px",
-    },
+        c_334: palette.c_334
+      }
+    }
   },
   variants: {
-    backgroundColor: ["hover"],
-    color: ["hover"],
-    margin: ["first"],
+    backgroundColor: ['hover'],
+    color: ['hover'],
+    margin: ['first']
   },
-  plugins: [],
-};
+  plugins: []
+}

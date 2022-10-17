@@ -23,5 +23,6 @@ interface AuthLocalResponse {
     blocked: boolean
     createdAt: Date
     updatedAt: Date
+    department?: string
   }
 }

@@ -1,0 +1,15 @@
+diff --git a/node_modules/axios/index.d.ts b/node_modules/axios/index.d.ts
+index abc4d93..2b1576e 100644
+--- a/node_modules/axios/index.d.ts
++++ b/node_modules/axios/index.d.ts
+@@ -309,6 +309,10 @@ export interface AxiosRequestConfig<D = any> {
+   transitional?: TransitionalOptions;
+   signal?: GenericAbortSignal;
+   insecureHTTPParser?: boolean;
++   /**
++  * 是否严格校验登录权限（配置此参数后，如果token无效则307跳转登录页面）
++  */
++  isStrictAuth?: boolean;
+   env?: {
+     FormData?: new (...args: any[]) => object;
+   };

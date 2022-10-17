@@ -4,6 +4,8 @@ import { useRequest } from 'ahooks'
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { baseConfig } from './config'
+import { getLoginState } from './utils'
+
 const getInstance: any = () => {
   const { result } = getInstance
   if (result) {
@@ -12,9 +14,18 @@ const getInstance: any = () => {
   }
 
   const requestInstance = axios.create(baseConfig)
+  const TokenUserInfo = getLoginState()
 
   requestInstance.interceptors.request.use((request) => {
-    return request
+    const token = TokenUserInfo.loginToken
+
+    return {
+      ...request,
+      headers: {
+        ...request.headers,
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    }
   })
 
   requestInstance.interceptors.response.use(
@@ -22,6 +33,16 @@ const getInstance: any = () => {
       return response.data
     },
     (error) => {
+      if (error.response.status === 401) {
+        const { isStrictAuth = true } = error.request
+
+        TokenUserInfo.removeUser()
+        if (isStrictAuth) {
+          location.href = '/login'
+        }
+        return Promise.reject(error)
+      }
+
       message.error(error.response.data.error.message || '错误')
       return Promise.reject(error)
     }

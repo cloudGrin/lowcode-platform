@@ -1,28 +1,25 @@
 import { Button, Form, Input } from 'antd'
-import type { NextPage } from 'next'
+import type { NextPageWithLayout } from 'next'
 import { useStrapiRequest } from '@/lib/request'
-import Cookies from 'js-cookie'
 import { useRouter } from 'next/router'
 import { LockOutlined, UserOutlined, MailOutlined } from '@ant-design/icons'
 import Link from 'next/link'
+import { getLoginState } from '@/lib/request/utils'
 
-const Register: NextPage = () => {
+const Register: NextPageWithLayout = () => {
   const router = useRouter()
   const { loading, run: goRegister } = useStrapiRequest(
     '/api/auth/local/register',
     (payload: ApiTypes['/api/auth/local/register']['request']) => ({
       data: payload,
-      method: 'POST'
+      method: 'POST',
+      isStrictAuth: false
     }),
     {
       manual: true,
       onSuccess: (data) => {
-        Cookies.set('jwtToken', data.jwt, {
-          expires: 7 // 7 day
-        })
-        Cookies.set('userInfo', JSON.stringify(data.user), {
-          expires: 7 // 7 day
-        })
+        getLoginState().setLoginToken(data.jwt)
+        getLoginState().setUserInfo(data.user)
         router.push('/')
       }
     }
@@ -90,5 +87,9 @@ const Register: NextPage = () => {
     </div>
   )
 }
+
+/** 自定义layout */
+
+Register.getLayout = (page) => page
 
 export default Register
