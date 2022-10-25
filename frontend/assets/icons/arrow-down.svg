@@ -1,8 +1,0 @@
-<svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <filter color-interpolation-filters="auto" id="a">
-      <feColorMatrix in="SourceGraphic" values="0 0 0 0 0.658824 0 0 0 0 0.686275 0 0 0 0 0.749020 0 0 0 1.000000 0" />
-    </filter>
-  </defs>
-  <path d="M3.207 4h5.586a.5.5 0 0 1 .353.854L6.354 7.646a.5.5 0 0 1-.708 0L2.854 4.854A.5.5 0 0 1 3.207 4z" fill="#3A3F4D" filter="url(#a)" fill-rule="evenodd" />
-</svg>
