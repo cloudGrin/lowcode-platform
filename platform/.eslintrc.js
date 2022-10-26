@@ -21,6 +21,12 @@ module.exports = {
   // Fine tune rules
   rules: {
     '@typescript-eslint/no-var-requires': 0,
-    '@typescript-eslint/no-empty-interface': 0
+    '@typescript-eslint/no-empty-interface': 0,
+    'react/no-unknown-property': [
+      2,
+      {
+        ignore: ['jsx']
+      }
+    ]
   }
 }

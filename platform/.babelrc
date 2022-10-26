@@ -1,7 +1,4 @@
 {
-  "presets": [
-    "@babel/env",
-    "@babel/preset-react",
-    "@babel/preset-typescript"
-  ]
+  "presets": ["@babel/env", "@babel/preset-react", "@babel/preset-typescript"],
+  "plugins": [["styled-jsx/babel", { "plugins": ["styled-jsx-plugin-postcss"] }]]
 }

@@ -3,7 +3,7 @@
 /*! purgecss end ignore */
 
 @tailwind utilities;
-
+/* 
 #engine,
 body {
   position: fixed;
@@ -21,4 +21,4 @@ body {
   -webkit-text-size-adjust: none;
   -webkit-touch-callout: none;
   -webkit-font-smoothing: antialiased;
-}
+} */
