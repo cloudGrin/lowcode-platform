@@ -1,5 +1,5 @@
 {
   "upgrade": false,
-  "reject": [],
+  "reject": ["lodash"],
   "target": "minor"
 }

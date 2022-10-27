@@ -12,24 +12,21 @@
   },
   "pluginOptions": {},
   "attributes": {
+    "projectRole": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::project-role.project-role",
+      "configurable": false
+    },
     "project": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::project.project"
     },
-    "role": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::project-role.project-role"
-    },
-    "users_permissions_user": {
+    "user": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user"
-    },
-    "projectroleId": {
-      "type": "uid",
-      "required": true
     }
   }
 }

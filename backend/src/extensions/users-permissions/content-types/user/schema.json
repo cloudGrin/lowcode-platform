@@ -62,13 +62,6 @@
       "target": "plugin::users-permissions.role",
       "inversedBy": "users",
       "configurable": false
-    },
-    "department": {
-      "type": "enumeration",
-      "enum": [
-        "IT"
-      ],
-      "default": "IT"
     }
   }
 }

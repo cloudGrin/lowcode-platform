@@ -2,12 +2,11 @@ import React from 'react'
 import { getLoginState, strapiRequestInstance } from '@/lib/request'
 import Login from '@/pages/login'
 import Platform from '@/pages/platform'
-import MyProjects from '@/pages/platform/children/myProjects'
-import PlatformManage from '@/pages/platform/children/platformManage'
+import ErrorPage from '@/pages/platform/errorPage'
 import Register from '@/pages/register'
 import { createBrowserRouter, redirect } from 'react-router-dom'
-import ErrorPage from '@/pages/platform/errorPage'
-import ErrorPageForPlatform from '@/pages/platform/children/errorPage'
+
+import platformChildrenRoutes from '@/pages/platform/routes'
 
 async function authLoader() {
   const TokenUserInfo = getLoginState()
@@ -43,21 +42,7 @@ const router = createBrowserRouter(
       element: <Platform />,
       id: 'platform',
       errorElement: <ErrorPage />,
-      children: [
-        {
-          errorElement: <ErrorPageForPlatform />,
-          children: [
-            {
-              path: '',
-              element: <MyProjects />
-            },
-            {
-              path: 'platformManage',
-              element: <PlatformManage />
-            }
-          ]
-        }
-      ]
+      children: platformChildrenRoutes
     },
     {
       path: '/login',

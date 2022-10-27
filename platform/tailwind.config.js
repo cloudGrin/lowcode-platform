@@ -20,12 +20,8 @@ module.exports = {
   },
   theme: {
     extend: {
-      width: {
-        page_content: '1190px'
-      },
-      height: {
-        header: '34px',
-        footer: '131px'
+      screens: {
+        content: '1180px'
       },
       colors: {
         //主色调

@@ -13,10 +13,7 @@ interface UserMeResponse {
   id: number
   username: string
   email: string
-  provider: string
-  confirmed: boolean
-  blocked: boolean
-  createdAt: Date
-  updatedAt: Date
-  department?: string
+  isSuperAdmin: boolean
+  isAdmin: boolean
+  canCreateProject: boolean
 }

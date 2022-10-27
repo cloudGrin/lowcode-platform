@@ -4,7 +4,7 @@
   "info": {
     "singularName": "project-role",
     "pluralName": "project-roles",
-    "displayName": "Role",
+    "displayName": "ProjectRole",
     "description": ""
   },
   "options": {
@@ -12,12 +12,14 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "roleName": {
+    "name": {
       "type": "string",
-      "unique": true
+      "unique": true,
+      "configurable": false
     },
     "description": {
-      "type": "text"
+      "type": "text",
+      "configurable": false
     }
   }
 }

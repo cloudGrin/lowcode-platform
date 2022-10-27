@@ -4,7 +4,7 @@
   "info": {
     "singularName": "project",
     "pluralName": "projects",
-    "displayName": "project",
+    "displayName": "Project",
     "description": ""
   },
   "options": {
@@ -14,24 +14,14 @@
   "attributes": {
     "name": {
       "type": "string",
-      "unique": true
+      "unique": false,
+      "configurable": false,
+      "required": true
     },
     "description": {
-      "type": "text"
-    },
-    "image": {
-      "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": [
-        "images"
-      ]
-    },
-    "templateId": {
-      "type": "string"
-    },
-    "theme": {
-      "type": "string"
+      "type": "text",
+      "configurable": false,
+      "maxLength": 300
     }
   }
 }
