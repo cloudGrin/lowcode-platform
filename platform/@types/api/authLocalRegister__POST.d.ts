@@ -1,19 +1,19 @@
 interface ApiTypes {
-  ['/api/auth/local/register__POST']: AuthLocalRegister
+  ['/api/auth/local/register__POST']: ApiAuthLocalRegister__POST
 }
 
-interface AuthLocalRegister {
-  request: AuthLocalRegisterRequest
-  response: AuthLocalRegisterResponse
+interface ApiAuthLocalRegister__POST {
+  request: ApiAuthLocalRegisterRequest__POST
+  response: ApiAuthLocalRegisterResponse__POST
 }
 
-interface AuthLocalRegisterRequest {
+interface ApiAuthLocalRegisterRequest__POST {
   username: string
   email: string
   password: string
 }
 
-interface AuthLocalRegisterResponse {
+interface ApiAuthLocalRegisterResponse__POST {
   jwt: string
   user: {
     id: number

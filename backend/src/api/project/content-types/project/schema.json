@@ -22,6 +22,10 @@
       "type": "text",
       "configurable": false,
       "maxLength": 300
+    },
+    "appId": {
+      "type": "uid",
+      "required": false
     }
   }
 }

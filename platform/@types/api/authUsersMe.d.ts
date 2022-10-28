@@ -1,15 +1,15 @@
 interface ApiTypes {
-  ['/api/users/me']: UserMe
+  ['/api/users/me']: ApiUserMe
 }
 
-interface UserMe {
-  request: UserMeRequest
-  response: UserMeResponse
+interface ApiUserMe {
+  request: ApiUserMeRequest
+  response: ApiUserMeResponse
 }
 
-interface UserMeRequest {}
+interface ApiUserMeRequest {}
 
-interface UserMeResponse {
+interface ApiUserMeResponse {
   id: number
   username: string
   email: string

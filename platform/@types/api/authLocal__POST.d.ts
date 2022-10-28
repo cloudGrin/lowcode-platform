@@ -1,18 +1,18 @@
 interface ApiTypes {
-  ['/api/auth/local__POST']: AuthLocal
+  ['/api/auth/local__POST']: ApiAuthLocal__POST
 }
 
-interface AuthLocal {
-  request: AuthLocalRequest
-  response: AuthLocalResponse
+interface ApiAuthLocal__POST {
+  request: ApiAuthLocalRequest__POST
+  response: ApiAuthLocalResponse__POST
 }
 
-interface AuthLocalRequest {
+interface ApiAuthLocalRequest__POST {
   identifier: string
   password: string
 }
 
-interface AuthLocalResponse {
+interface ApiAuthLocalResponse__POST {
   jwt: string
   user: {
     id: number

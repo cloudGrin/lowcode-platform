@@ -1,50 +1,45 @@
 interface ApiTypes {
-  ['/api/projects']: Projects
+  ['/api/projects']: ApiProjects
 }
 
-interface Projects {
-  request: ProjectsRequest
-  response: ProjectsResponse
-}
-
-interface ProjectsRequest {}
-
-interface ProjectsResponse {
-  data: Data[]
-  meta: Meta
-}
-
-export interface ProjectRole {
-  id: number
-  name: string
-}
-
-export interface User {
-  id: number
-  username: string
-  projectRole: ProjectRole
-}
-
-export interface Attribute {
-  name: string
-  description: string
-  createdAt: string
-  updatedAt: string
-  users: User[]
-}
-
-export interface Data {
-  id: number
-  attributes: Attribute
-}
-
-export interface Pagination {
+interface ApiPagination {
   page: number
   pageSize: number
-  pageCount: number
-  total: number
 }
 
-export interface Meta {
-  pagination: Pagination
+interface ApiProjects {
+  request: ApiProjectsRequest
+  response: ApiProjectsResponse
+}
+
+interface ApiProjectsRequest {
+  pagination?: ApiPagination
+}
+
+interface ApiProjectsResponse {
+  data: {
+    id: number
+    attributes: {
+      name: string
+      description: string
+      createdAt: string
+      updatedAt: string
+      users: {
+        id: number
+        username: string
+        projectRole: {
+          id: number
+          name: string
+        }
+      }[]
+    }
+  }[]
+  meta: {
+    pagination: {
+      page: number
+      pageSize: number
+      pageCount: number
+      total: number
+    }
+  }
 }

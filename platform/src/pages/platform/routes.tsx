@@ -1,30 +1,19 @@
-import { strapiRequestInstance } from '@/lib/request'
 import React from 'react'
 import type { RouteObject } from 'react-router'
 
-import ErrorPageForPlatform from './children/errorPage'
-import MyProjects from './children/myProjects'
-import PlatformManage from './children/platformManage'
-
-async function projectLoader() {
-  const allProjects = await strapiRequestInstance('/api/projects', {
-    params: {
-      pagination: {
-        page: 1,
-        pageSize: 100
-      }
-    }
-  })
-  return { allProjects }
-}
+import ErrorPageForPlatform from './errorPage'
+import MyProjects from './myProjects'
+import PlatformManage from './platformManage'
+import Platform from './index'
 
 const routes: RouteObject[] = [
   {
+    path: '',
+    element: <Platform />,
     errorElement: <ErrorPageForPlatform />,
     children: [
       {
         path: '',
-        loader: projectLoader,
         element: <MyProjects />
       },
       {

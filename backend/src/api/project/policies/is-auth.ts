@@ -40,22 +40,21 @@ export default async (policyContext, config, { strapi }) => {
 };
 
 async function isProjectBelongsToUser(strapi, dataId, userId) {
-  const entry = await strapi.service("api::project.project").find({
-    populate: {
-      users: true,
-    },
-    filters: {
-      id: dataId,
-      users: {
-        id: {
-          $eq: userId,
+  const count = await strapi.db
+    .query("api::project-user-role.project-user-role")
+    .count({
+      where: {
+        project: {
+          id: dataId,
+        },
+        user: {
+          id: userId,
+        },
+        projectRole: {
+          name: "master",
         },
       },
-    },
-  });
-  if (entry.pagination.total > 0) {
-    // 查询不到说明管理员不属于这个项目
-    return true;
-  }
-  return false;
+    });
+
+  return count > 0;
 }

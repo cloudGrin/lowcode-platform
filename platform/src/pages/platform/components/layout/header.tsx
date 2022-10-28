@@ -6,7 +6,7 @@ import { getLoginState } from '@/lib/request'
 
 export default function Header() {
   const navigate = useNavigate()
-  const { userInfo } = (useRouteLoaderData('platform') as any) || {}
+  const { userInfo } = (useRouteLoaderData('userAuth') as any) || {}
   const goLogout = useCallback(() => {
     getLoginState().removeUser()
     navigate('/login')

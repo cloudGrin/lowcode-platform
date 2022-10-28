@@ -79,7 +79,7 @@
     "@alilc/lowcode-setter-title": "1.0.2",
     "ahooks": "^3.7.2",
     "antd": "4.23.6",
-    "axios": "1.1.3",
+    "axios": "^1.1.3",
     "classnames": "^2.3.2",
     "react-router-dom": "6.4.2",
     "styled-jsx": "^5.1.0",

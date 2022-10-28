@@ -5,15 +5,21 @@ import type { AxiosRequestConfig, AxiosResponse } from 'axios'
 import axios from 'axios'
 import { baseConfig } from './config'
 import { getLoginState } from './utils'
+import { template } from 'lodash'
 
 const requestInstance = axios.create(baseConfig)
 const TokenUserInfo = getLoginState()
 
 requestInstance.interceptors.request.use((request) => {
   const token = TokenUserInfo.loginToken
-  const { needAuth = true } = request
+  const { needAuth = true, urlValue, url } = request
+  let urlFormat = url
+  if (urlValue) {
+    urlFormat = template(url)(urlValue)
+  }
   return {
     ...request,
+    url: urlFormat,
     headers: {
       ...request.headers,
       ...(token && needAuth ? { Authorization: `Bearer ${token}` } : {})
@@ -26,17 +32,17 @@ requestInstance.interceptors.response.use(
     return response.data
   },
   (error) => {
+    const { needAuth = true, hideErrorMessage = false } = error.config
     if (error.response.status === 401) {
-      const { needAuth = true } = error.request
-
       TokenUserInfo.removeUser()
       if (needAuth) {
         location.href = '/login'
       }
       return Promise.reject(error)
     }
-
-    message.error(error.response.data.error.message || '错误')
+    if (!hideErrorMessage) {
+      message.error(error.response.data.error.message || '错误')
+    }
     return Promise.reject(error)
   }
 )
@@ -79,19 +85,19 @@ type TypeCombineService<T extends keyof ApiTypes, V extends any[] = any> = (
   ...argv: V
 ) => AxiosRequestConfigOmitMt<ApiTypes[T]['request']>
 
+function useStrapiRequest<T extends keyof ApiTypes, P extends any[] = any>(
+  path: T,
+  service?: TypeCombineService<T, P>,
+  options?: Options<ApiTypes[T]['response'], P>
+): Result<ApiTypes[T]['response'], P>
+
 function useStrapiRequest<T extends keyof ApiTypes, P extends any[] = any, U = any, UU extends U = any>(
   path: T,
   service?: TypeCombineService<T, P>,
   options?: Options<UU, P> & {
     formatResult: (res: ApiTypes[T]['response']) => U
   }
-): Result<U, P>
-
-function useStrapiRequest<T extends keyof ApiTypes, P extends any[] = any>(
-  path: T,
-  service?: TypeCombineService<T, P>,
-  options?: Options<ApiTypes[T]['response'], P>
-): Result<ApiTypes[T]['response'], P>
+): Result<string, P>
 
 /**
  *

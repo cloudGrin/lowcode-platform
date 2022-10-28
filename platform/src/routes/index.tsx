@@ -1,12 +1,12 @@
 import React from 'react'
 import { getLoginState, strapiRequestInstance } from '@/lib/request'
 import Login from '@/pages/login'
-import Platform from '@/pages/platform'
-import ErrorPage from '@/pages/platform/errorPage'
 import Register from '@/pages/register'
 import { createBrowserRouter, redirect } from 'react-router-dom'
+import RootErrorPage from './errorPage'
+import UserAuth from './userAuth'
 
-import platformChildrenRoutes from '@/pages/platform/routes'
+import userAuthChildrenRoutes from '@/pages/platform/routes'
 
 async function authLoader() {
   const TokenUserInfo = getLoginState()
@@ -37,21 +37,25 @@ async function loginLoader() {
 const router = createBrowserRouter(
   [
     {
-      path: '/',
-      loader: authLoader,
-      element: <Platform />,
-      id: 'platform',
-      errorElement: <ErrorPage />,
-      children: platformChildrenRoutes
-    },
-    {
-      path: '/login',
-      loader: loginLoader,
-      element: <Login />
-    },
-    {
-      path: '/register',
-      element: <Register />
+      errorElement: <RootErrorPage />,
+      children: [
+        {
+          path: '/',
+          loader: authLoader,
+          element: <UserAuth />,
+          id: 'userAuth',
+          children: userAuthChildrenRoutes
+        },
+        {
+          path: '/login',
+          loader: loginLoader,
+          element: <Login />
+        },
+        {
+          path: '/register',
+          element: <Register />
+        }
+      ]
     }
   ],
   {}
