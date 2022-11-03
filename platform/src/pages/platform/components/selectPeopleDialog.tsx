@@ -1,5 +1,5 @@
 import { Modal, Table } from 'antd'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 const columns = [
   {
@@ -56,6 +56,11 @@ const SelectPeopleDialog: React.FC<{
   const handleCancel = useCallback(() => {
     setOpen(false)
   }, [])
+
+  useEffect(() => {
+    setSelectedRowKeys([])
+  }, [userOptions])
+
   return (
     <Modal title='选择人员' open={open} onOk={handleOk} onCancel={handleCancel} width='600px'>
       <Table
@@ -70,4 +75,4 @@ const SelectPeopleDialog: React.FC<{
   )
 }
 
-export default SelectPeopleDialog
+export default React.memo(SelectPeopleDialog)

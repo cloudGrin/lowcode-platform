@@ -91,14 +91,6 @@ function useStrapiRequest<T extends keyof ApiTypes, P extends any[] = any>(
   options?: Options<ApiTypes[T]['response'], P>
 ): Result<ApiTypes[T]['response'], P>
 
-function useStrapiRequest<T extends keyof ApiTypes, P extends any[] = any, U = any, UU extends U = any>(
-  path: T,
-  service?: TypeCombineService<T, P>,
-  options?: Options<UU, P> & {
-    formatResult: (res: ApiTypes[T]['response']) => U
-  }
-): Result<string, P>
-
 /**
  *
  * @param path 接口path
