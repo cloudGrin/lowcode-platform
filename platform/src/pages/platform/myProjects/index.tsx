@@ -1,17 +1,17 @@
-import { Button, Row, Col, Tooltip, Card, Popover, Modal, Input, message } from 'antd'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { useRouteLoaderData, useLoaderData } from 'react-router-dom'
-import {
-  PlusOutlined,
-  EllipsisOutlined,
-  CodeOutlined,
-  SettingOutlined,
-  EyeOutlined,
-  DeleteOutlined
-} from '@ant-design/icons'
-import AddOrEditProjectDialog from './components/addOrEditProjectDialog'
-import { chunk } from 'lodash'
 import { useStrapiRequest } from '@/lib/request'
+import {
+  CodeOutlined,
+  DeleteOutlined,
+  EllipsisOutlined,
+  EyeOutlined,
+  PlusOutlined,
+  SettingOutlined
+} from '@ant-design/icons'
+import { Button, Card, Col, Input, message, Modal, Popover, Row, Tooltip } from 'antd'
+import { chunk } from 'lodash'
+import React, { useMemo, useRef, useState } from 'react'
+import { useRouteLoaderData } from 'react-router-dom'
+import AddOrEditProjectDialog from './components/addOrEditProjectDialog'
 
 const MyProjects: React.FC = () => {
   const { userInfo } = (useRouteLoaderData('userAuth') as { userInfo: ApiTypes['/api/users/me']['response'] }) || {}
@@ -47,17 +47,21 @@ const MyProjects: React.FC = () => {
           <div className='max-w-[1180px] flex mx-auto h-[80px] items-center justify-between py-[24px]'>
             <div className=''>
               <span className='text-[18px] text-[#171a1d] font-medium'> Hi {userInfo.username}</span>
-              {userInfo.canCreateProject && (
+              {userInfo.isApplicationAdmin && (
                 <span className='text-[14px] ml-[15px] text-[#111f2c8f]'>你可以从这里开始创建应用～</span>
               )}
             </div>
             <div className='flex'>
-              <Tooltip placement='top' title='无权限创建应用' open={userInfo.canCreateProject ? false : undefined}>
+              <Tooltip
+                placement='top'
+                title='无权限创建应用，请联系管理员'
+                open={userInfo.isApplicationAdmin ? false : undefined}
+              >
                 <Button
                   size='large'
                   icon={<PlusOutlined />}
                   className='flex items-center'
-                  disabled={!userInfo.canCreateProject}
+                  disabled={!userInfo.isApplicationAdmin}
                   onClick={() => setOpen(true)}
                 >
                   创建应用

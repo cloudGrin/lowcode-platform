@@ -54,13 +54,13 @@ type AxiosRequestConfigOmitMt<T = any> = Omit<AxiosRequestConfig, 'params' | 'da
 function strapiRequestInstance<T extends keyof ApiTypes>(
   path: T,
   config?: AxiosRequestConfig
-): Promise<AxiosResponse<ApiTypes[T]['response'], any>>
+): Promise<ApiTypes[T]['response']>
 
 function strapiRequestInstance<T extends keyof ApiTypes>(
   path: T,
   payload: ApiTypes[T]['request'],
   config: AxiosRequestConfig
-): Promise<AxiosResponse<ApiTypes[T]['response'], any>>
+): Promise<ApiTypes[T]['response']>
 
 function strapiRequestInstance(path: any, payload?: any, config?: any): any {
   const [url, method = 'GET'] = path.split('__')

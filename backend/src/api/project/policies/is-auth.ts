@@ -10,20 +10,25 @@ export default async (policyContext, config, { strapi }) => {
     routerPath,
     req: { method },
   } = policyContext;
-  const isSuperAdmin = roleName === "SuperAdmin";
-  if (isSuperAdmin) {
-    // 超级管理员
+  const isPlatformAdmin = ["SuperAdmin", "PlatformAdmin"].includes(
+    roleName
+  );
+  if (isPlatformAdmin) {
+    // 平台管理员和超管可以增删改
     return true;
   }
 
-  const isAdmin = roleName === "Admin";
-  if (routerPath === "/api/projects" && method === "POST" && isAdmin) {
+  const isApplicationAdmin = roleName === "ApplicationAdmin";
+  // 应用管理员可以新增
+  if (routerPath === "/api/projects" && method === "POST" && isApplicationAdmin) {
     // 新增
     return true;
-  } else if (
+  } 
+  // 应用管理员且是该应用的管理员才可以删除
+  else if (
     routerPath === "/api/projects/:id" &&
     method === "DELETE" &&
-    isAdmin &&
+    isApplicationAdmin &&
     (await isProjectBelongsToUser(strapi, dataId, userId))
   ) {
     // 删除

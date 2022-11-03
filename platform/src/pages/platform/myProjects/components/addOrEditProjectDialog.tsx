@@ -1,6 +1,6 @@
 import { useStrapiRequest } from '@/lib/request'
 import { Button, Modal, Form, Input, message } from 'antd'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 const AddOrEditProjectDialog: React.FC<{
   open: boolean
@@ -17,7 +17,7 @@ const AddOrEditProjectDialog: React.FC<{
       manual: true
     }
   )
-  const handleOk = async () => {
+  const handleOk = useCallback(async () => {
     try {
       const values = await form.validateFields()
       await createProject({
@@ -29,11 +29,11 @@ const AddOrEditProjectDialog: React.FC<{
     } catch (errorInfo) {
       console.log('Failed:', errorInfo)
     }
-  }
+  }, [])
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setOpen(false)
-  }
+  }, [])
   return (
     <Modal title='创建应用' open={open} onOk={handleOk} confirmLoading={loading} onCancel={handleCancel}>
       <Form layout='vertical' form={form}>

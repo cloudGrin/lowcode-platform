@@ -10,6 +10,9 @@ const webPort = process.env.DEV_SERVER_PORT || 8000
 
 module.exports = merge(commonConfig, {
   mode: 'development',
+  output: {
+    publicPath: '/'
+  },
   devServer: {
     port: webPort,
     client: {

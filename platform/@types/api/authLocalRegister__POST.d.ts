@@ -19,8 +19,8 @@ interface ApiAuthLocalRegisterResponse__POST {
     id: number
     username: string
     email: string
+    isPlatformAdmin: boolean
+    isApplicationAdmin: boolean
     isSuperAdmin: boolean
-    isAdmin: boolean
-    canCreateProject: boolean
   }
 }

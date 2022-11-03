@@ -6,15 +6,15 @@ import { getLoginState } from '@/lib/request'
 
 export default function Header() {
   const navigate = useNavigate()
-  const { userInfo } = (useRouteLoaderData('userAuth') as any) || {}
+  const { userInfo } = (useRouteLoaderData('userAuth') as { userInfo: ApiTypes['/api/users/me']['response'] }) || {}
   const goLogout = useCallback(() => {
     getLoginState().removeUser()
     navigate('/login')
   }, [])
 
   return (
-    <div className='fixed top-0 left-0 w-full min-w-[835px] bg-white shadow-sm'>
-      <div className='relative flex items-center justify-between w-full px-[16px] h-[52px]'>
+    <header className='fixed top-0 left-0 w-full min-w-[835px] bg-white shadow-sm z-[9]'>
+      <div className='relative flex items-center justify-between w-full px-[16px] h-header'>
         {/* logo */}
         <div className='flex items-center h-full'>
           <Link to='/' className='w-full h-full'>
@@ -24,13 +24,18 @@ export default function Header() {
         {/* tabNav TODO */}
         {/* setting and user */}
         <div className='flex items-center'>
-          <NavLink to='platformManage' className={({ isActive }) => (isActive ? 'active-class-name' : undefined)}>
-            <Tooltip placement='bottom' title='平台管理'>
-              <button className='w-[32px] h-[32px] ml-[8px] rounded-[6px] text-[#878f95] hover:bg-[#e5e6e8] hover:text-[#171a1d] transition-all'>
-                <SettingOutlined className='text-[20px] align-middle' />
-              </button>
-            </Tooltip>
-          </NavLink>
+          {userInfo.isPlatformAdmin && (
+            <NavLink
+              to='platformManage/basicInfo'
+              className={({ isActive }) => (isActive ? 'active-class-name' : undefined)}
+            >
+              <Tooltip placement='bottom' title='平台管理'>
+                <button className='w-[32px] h-[32px] ml-[8px] rounded-[6px] text-[#878f95] hover:bg-[#e5e6e8] hover:text-[#171a1d] transition-all'>
+                  <SettingOutlined className='text-[20px] align-middle' />
+                </button>
+              </Tooltip>
+            </NavLink>
+          )}
           <Popover
             placement='bottomRight'
             content={
@@ -63,6 +68,6 @@ export default function Header() {
           `}</style>
         </div>
       </div>
-    </div>
+    </header>
   )
 }

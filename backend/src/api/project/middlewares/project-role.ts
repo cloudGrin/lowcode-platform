@@ -8,11 +8,17 @@ export default (config, { strapi }) => {
       } = {},
     } = context.state;
     const isSuperAdmin = roleName === "SuperAdmin";
-    const isAdmin = roleName === "Admin";
+    const isPlatformAdmin = ["SuperAdmin", "PlatformAdmin"].includes(
+      roleName
+    );
+    const isApplicationAdmin = ["SuperAdmin", "PlatformAdmin","ApplicationAdmin"].includes(
+      roleName
+    );
     context.state.selfGlobalState = {
       isGetUser: !!userId,
       isSuperAdmin,
-      isAdmin,
+      isPlatformAdmin,
+      isApplicationAdmin,
       username: username,
       userId,
     };

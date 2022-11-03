@@ -57,11 +57,11 @@ export default factories.createCoreController(
   ({ strapi }) => ({
     /**
      * 权限：登录用户
-     * 结果：超管查所有的；其余只能查自己关联的项目
+     * 结果：平台管理员查所有的；其余只能查自己关联的项目
      */
     async find(ctx) {
-      const { userId, isSuperAdmin } = ctx.state.selfGlobalState;
-      if (!isSuperAdmin) {
+      const { userId, isPlatformAdmin } = ctx.state.selfGlobalState;
+      if (!isPlatformAdmin) {
         const { results: projectUserRoleResults = [], pagination } =
           (await strapi
             .service("api::project-user-role.project-user-role")
@@ -182,7 +182,7 @@ export default factories.createCoreController(
      * 权限：超管、平台管理员
      */
     async create(ctx) {
-      const { data } = ctx.request.body || {};
+      const { data } = ctx.request.body;
       const { userId } = ctx.state.selfGlobalState;
       const { name, description } = data || {};
       const createProjectRes = (await strapi

@@ -27,6 +27,7 @@ module.exports = {
       {
         ignore: ['jsx']
       }
-    ]
+    ],
+    '@typescript-eslint/no-non-null-assertion': 0
   }
 }

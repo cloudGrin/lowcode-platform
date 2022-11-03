@@ -20,6 +20,9 @@ module.exports = {
   },
   theme: {
     extend: {
+      height: {
+        header: '52px'
+      },
       screens: {
         content: '1180px'
       },
