@@ -11,7 +11,14 @@ function formatProjectUserRoleResult(results) {
         projects,
         {
           projectRole: { id: roleId, name: roleName } = {} as any,
-          project: { id, name: projectName, createdAt, updatedAt, description },
+          project: {
+            id,
+            name: projectName,
+            createdAt,
+            updatedAt,
+            description,
+            appId,
+          },
           user: { id: userId, username },
         }
       ) => {
@@ -28,6 +35,7 @@ function formatProjectUserRoleResult(results) {
           projects[id] = {
             id,
             attributes: {
+              appId,
               name: projectName,
               description,
               createdAt,
@@ -61,172 +69,320 @@ export default factories.createCoreController(
      */
     async find(ctx) {
       const { userId, isPlatformAdmin } = ctx.state.selfGlobalState;
-      if (!isPlatformAdmin) {
-        const { results: projectUserRoleResults = [], pagination } =
-          (await strapi
+      try {
+        if (!isPlatformAdmin) {
+          const { results: projectUserRoleResults = [], pagination } =
+            (await strapi
+              .service("api::project-user-role.project-user-role")
+              .find({
+                pagination: ctx.query.pagination,
+                populate: {
+                  user: true,
+                  project: true,
+                },
+                // sort: "updatedAt:desc",
+                filters: {
+                  user: {
+                    id: {
+                      $eq: userId,
+                    },
+                  },
+                },
+              })) as any;
+          const projectIds = [
+            ...new Set(
+              projectUserRoleResults
+                .map(({ project }) => project?.id)
+                .filter(Boolean)
+            ),
+          ];
+          const { results = [] } = (await strapi
             .service("api::project-user-role.project-user-role")
             .find({
-              pagination: ctx.query.pagination,
+              pagination: false,
               populate: {
                 user: true,
                 project: true,
+                projectRole: true,
               },
               // sort: "updatedAt:desc",
               filters: {
-                user: {
+                project: {
                   id: {
-                    $eq: userId,
+                    $in: projectIds,
                   },
                 },
               },
             })) as any;
-        const projectIds = [
-          ...new Set(
-            projectUserRoleResults
-              .map(({ project }) => project?.id)
-              .filter(Boolean)
-          ),
-        ];
-        const { results = [] } = (await strapi
-          .service("api::project-user-role.project-user-role")
-          .find({
-            pagination: false,
-            populate: {
-              user: true,
-              project: true,
-              projectRole: true,
+          return {
+            data: formatProjectUserRoleResult(results),
+            meta: {
+              pagination,
             },
-            // sort: "updatedAt:desc",
-            filters: {
-              project: {
-                id: {
-                  $in: projectIds,
+          };
+        } else {
+          const { results: projects = [], pagination } = (await strapi
+            .service("api::project.project")
+            .find({
+              pagination: ctx.query.pagination,
+              // sort: "updatedAt:desc",
+            })) as any;
+          const projectIds = projects.map((i) => i.id);
+          const { results = [] } = (await strapi
+            .service("api::project-user-role.project-user-role")
+            .find({
+              pagination: false,
+              populate: {
+                user: true,
+                project: true,
+                projectRole: true,
+              },
+              // sort: "updatedAt:desc",
+              filters: {
+                project: {
+                  id: {
+                    $in: projectIds,
+                  },
                 },
               },
+            })) as any;
+          return {
+            data: formatProjectUserRoleResult(results),
+            meta: {
+              pagination,
             },
-          })) as any;
-        return {
-          data: formatProjectUserRoleResult(results),
-          meta: {
-            pagination,
-          },
-        };
-      } else {
-        const { results: projects = [], pagination } = (await strapi
-          .service("api::project.project")
-          .find({
-            pagination: ctx.query.pagination,
-            // sort: "updatedAt:desc",
-          })) as any;
-        const projectIds = projects.map((i) => i.id);
-        const { results = [] } = (await strapi
-          .service("api::project-user-role.project-user-role")
-          .find({
-            pagination: false,
-            populate: {
-              user: true,
-              project: true,
-              projectRole: true,
-            },
-            // sort: "updatedAt:desc",
-            filters: {
-              project: {
-                id: {
-                  $in: projectIds,
-                },
-              },
-            },
-          })) as any;
-        return {
-          data: formatProjectUserRoleResult(results),
-          meta: {
-            pagination,
+          };
+        }
+      } catch (error) {
+        console.log(error);
+        ctx.status = 500;
+        ctx.body = {
+          data: null,
+          error: {
+            status: 500,
+            message: "发生错误",
           },
         };
       }
     },
-
     /**
-     * 权限： 超管、平台管理员且是该项目的master角色
+     * 权限：平台管理员或该项目成员
+     * 根据appId查询应用信息及应用关联用户
      */
-    async delete(ctx) {
-      const projectId = ctx.params.id;
-      let result;
-      async function deleteOne() {
-        return await strapi.db
-          .query("api::project-user-role.project-user-role")
-          .delete({
-            where: {
+    async findByAppId(ctx) {
+      const { appId } = ctx.params;
+      try {
+        const { results: projects } = (await strapi
+          .service("api::project.project")
+          .find({
+            pagination: false,
+            filters: {
+              appId,
+            },
+          })) as any;
+
+        if (projects.length === 0) {
+          ctx.status = 404;
+          ctx.body = {
+            data: null,
+            error: {
+              status: 404,
+              name: "NotFoundError",
+              message: "Not Found",
+              details: {},
+            },
+          };
+          return;
+        }
+        const projectId = projects[0].id;
+
+        const { results = [] } = (await strapi
+          .service("api::project-user-role.project-user-role")
+          .find({
+            pagination: false,
+            populate: {
+              user: true,
+              project: true,
+              projectRole: true,
+            },
+            // sort: "updatedAt:desc",
+            filters: {
               project: {
                 id: projectId,
               },
             },
-          });
+          })) as any;
+        const data = Object.values(
+          formatProjectUserRoleResult(results)
+        )[0] as any;
+        return {
+          data: {
+            id: data.id,
+            ...data.attributes,
+          },
+        };
+      } catch (error) {
+        console.log(error);
+        ctx.status = 500;
+        ctx.body = {
+          data: null,
+          error: {
+            status: 500,
+            message: "发生错误",
+          },
+        };
       }
-      // 批量删除
-      do {
-        result = await deleteOne();
-      } while (result);
-
-      await strapi.db.query("api::project.project").delete({
-        where: {
-          id: projectId,
-        },
-      });
-      return {
-        isSuccess: true,
-      };
     },
 
     /**
-     * 权限：超管、平台管理员
+     * 权限： 应用管理员且是该项目的master角色
+     */
+    async delete(ctx) {
+      const projectId = ctx.params.id;
+      let result;
+      try {
+        async function deleteOne() {
+          return await strapi.db
+            .query("api::project-user-role.project-user-role")
+            .delete({
+              where: {
+                project: {
+                  id: projectId,
+                },
+              },
+            });
+        }
+        // 批量删除
+        do {
+          result = await deleteOne();
+        } while (result);
+
+        await strapi.db.query("api::project.project").delete({
+          where: {
+            id: projectId,
+          },
+        });
+        return {
+          data: {
+            success: true,
+          },
+        };
+      } catch (error) {
+        console.log(error);
+        ctx.status = 500;
+        ctx.body = {
+          data: null,
+          error: {
+            status: 500,
+            message: "发生错误",
+          },
+        };
+      }
+    },
+
+    /**
+     * 权限：应用管理员
      */
     async create(ctx) {
-      const { data } = ctx.request.body;
+      const { name, description } = ctx.request.body;
       const { userId } = ctx.state.selfGlobalState;
-      const { name, description } = data || {};
-      const createProjectRes = (await strapi
-        .service("api::project.project")
-        .create({
+      try {
+        const createProjectRes = (await strapi
+          .service("api::project.project")
+          .create({
+            data: {
+              name,
+              description,
+              appId: `APP_${uuidv4().replace("-", "_")}`,
+            },
+          })) as any;
+        const {
+          id: projectId,
+          name: projectName,
+          description: projectDesc,
+          appId,
+        } = createProjectRes;
+        const projectRoleRes = await strapi.db
+          .query("api::project-role.project-role")
+          .findOne({
+            where: {
+              name: "master",
+            },
+          });
+        const { id: roleId } = projectRoleRes;
+        await strapi
+          .service("api::project-user-role.project-user-role")
+          .create({
+            data: {
+              user: {
+                id: userId,
+              },
+              project: {
+                id: projectId,
+              },
+              projectRole: {
+                id: roleId,
+              },
+            },
+          });
+        return {
+          data: {
+            id: projectId,
+            name: projectName,
+            description: projectDesc,
+            appId,
+          },
+        };
+      } catch (error) {
+        console.log(error);
+        ctx.status = 500;
+        ctx.body = {
+          data: null,
+          error: {
+            status: 500,
+            message: "发生错误",
+          },
+        };
+      }
+    },
+    /**
+     * 权限：该项目的master角色
+     */
+    async update(ctx) {
+      const { name, description } = ctx.request.body;
+      const { id } = ctx.params;
+
+      try {
+        const {
+          appId,
+          description: projectDesc,
+          id: projectId,
+          name: projectName,
+        } = (await strapi.service("api::project.project").update(id, {
           data: {
             name,
             description,
-            appId: uuidv4(),
           },
         })) as any;
-      const {
-        id: projectId,
-        name: projectName,
-        description: projectDesc,
-        appId,
-      } = createProjectRes;
-      const projectRoleRes = await strapi.db
-        .query("api::project-role.project-role")
-        .findOne({
-          where: {
-            name: "master",
-          },
-        });
-      const { id: roleId } = projectRoleRes;
-      await strapi.service("api::project-user-role.project-user-role").create({
-        data: {
-          user: {
-            id: userId,
-          },
-          project: {
+        return {
+          data: {
+            appId,
+            description: projectDesc,
             id: projectId,
+            name: projectName,
           },
-          projectRole: {
-            id: roleId,
+        };
+      } catch (error) {
+        console.log(error);
+        ctx.status = 500;
+        ctx.body = {
+          data: null,
+          error: {
+            status: 500,
+            message: "发生错误",
           },
-        },
-      });
-      return {
-        id: projectId,
-        name: projectName,
-        description: projectDesc,
-        appId,
-      };
+        };
+      }
     },
   })
 );

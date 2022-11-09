@@ -31,15 +31,19 @@ async function handlerJwtUser(ctx, next) {
   await next();
   const userInfo = await getUserInfoAndRole(ctx.body.user.id);
   ctx.body = {
-    jwt: ctx.body.jwt,
-    user: userInfo,
+    data: {
+      jwt: ctx.body.jwt,
+      user: userInfo,
+    },
   };
 }
 
 async function handlerUser(ctx, next) {
   await next();
   const userInfo = await getUserInfoAndRole(ctx.body.id);
-  ctx.body = userInfo;
+  ctx.body = {
+    data: userInfo,
+  };
 }
 
 module.exports = (plugin) => {
@@ -179,19 +183,50 @@ module.exports = (plugin) => {
             do {
               result = await updateRole(userIdsCopy.shift());
             } while (userIdsCopy.length > 0);
-            ctx.send({ success: true });
+            ctx.send({
+              data: {
+                success: true,
+              },
+            });
           } catch (error) {
-            debugger;
-            ctx.send({ success: false, errorMessage: "发生错误" });
+            ctx.status = 500;
+            ctx.body = {
+              data: null,
+              error: {
+                status: 500,
+                message: "发生错误",
+              },
+            };
           }
         } else {
-          ctx.send({ success: false, errorMessage: "无权限" });
+          ctx.status = 403;
+          ctx.body = {
+            data: null,
+            error: {
+              status: 403,
+              message: "无权限",
+            },
+          };
         }
       } else {
-        ctx.send({ success: false, errorMessage: "无权限" });
+        ctx.status = 403;
+        ctx.body = {
+          data: null,
+          error: {
+            status: 403,
+            message: "无权限",
+          },
+        };
       }
     } else {
-      ctx.send({ success: false, errorMessage: "参数错误" });
+      ctx.status = 400;
+      ctx.body = {
+        data: null,
+        error: {
+          status: 400,
+          message: "参数错误",
+        },
+      };
     }
   };
 

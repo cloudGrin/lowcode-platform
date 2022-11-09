@@ -47,7 +47,7 @@ requestInstance.interceptors.response.use(
   }
 )
 
-type AxiosRequestConfigOmitMt<T = any> = Omit<AxiosRequestConfig, 'params' | 'data'> & {
+type AxiosRequestConfigCustom<T = any> = Omit<AxiosRequestConfig, 'params' | 'data'> & {
   payload?: T
 }
 
@@ -83,7 +83,7 @@ function strapiRequestInstance(path: any, payload?: any, config?: any): any {
 /** useRequest */
 type TypeCombineService<T extends keyof ApiTypes, V extends any[] = any> = (
   ...argv: V
-) => AxiosRequestConfigOmitMt<ApiTypes[T]['request']>
+) => AxiosRequestConfigCustom<ApiTypes[T]['request']>
 
 function useStrapiRequest<T extends keyof ApiTypes, P extends any[] = any>(
   path: T,

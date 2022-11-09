@@ -6,11 +6,12 @@ import { getLoginState } from '@/lib/request'
 
 export default function Header() {
   const navigate = useNavigate()
-  const { userInfo } = (useRouteLoaderData('userAuth') as { userInfo: ApiTypes['/api/users/me']['response'] }) || {}
+  const { userInfo } =
+    (useRouteLoaderData('userAuth') as { userInfo: ApiTypes['/api/users/me']['response']['data'] }) || {}
   const goLogout = useCallback(() => {
     getLoginState().removeUser()
     navigate('/login')
-  }, [])
+  }, [navigate])
 
   return (
     <header className='fixed top-0 left-0 w-full min-w-[835px] bg-white shadow-sm z-[9]'>
@@ -18,7 +19,7 @@ export default function Header() {
         {/* logo */}
         <div className='flex items-center h-full'>
           <Link to='/' className='w-full h-full'>
-            <div className='w-[112px] h-full bg-[length:112px_32px] bg-[url(https://img.alicdn.com/imgextra/i1/O1CN011JtI4G1eY0HEBujoj_!!6000000003882-55-tps-297-85.svg)] bg-no-repeat bg-left'></div>
+            <div className='w-[85px] h-full bg-[length:85px_50px] bg-[url("@/assets/image/logo.png")] bg-no-repeat bg-left'></div>
           </Link>
         </div>
         {/* tabNav TODO */}
@@ -39,9 +40,9 @@ export default function Header() {
           <Popover
             placement='bottomRight'
             content={
-              <div className='w-[140px]'>
+              <div className='w-[150px]'>
                 <div className='flex items-center'>
-                  <span className='w-[36px] h-[36px] bg-[url("//img.alicdn.com/tfs/TB1mKVJSpXXXXcwaXXXXXXXXXXX-78-80.jpg_80x80.jpg")] rounded-[6px] align-top inline-block bg-cover'></span>
+                  <span className='w-[36px] h-[36px] bg-[url("@/assets/image/avatar.jpg")] rounded-[6px] align-top inline-block bg-cover'></span>
                   <div className='ml-[8px] text-[16px]'>{userInfo.username}</div>
                 </div>
                 <Divider className='my-[12px]' />
@@ -57,7 +58,7 @@ export default function Header() {
             trigger='hover'
           >
             <button className='w-[32px] h-[32px] ml-[8px] rounded-[6px] text-[#878f95] hover:bg-[#f1f2f3] transition-all'>
-              <span className='w-[24px] h-[24px] bg-[url("//img.alicdn.com/tfs/TB1mKVJSpXXXXcwaXXXXXXXXXXX-78-80.jpg_80x80.jpg")] rounded-[6px] align-top inline-block bg-cover'></span>
+              <span className='w-[24px] h-[24px] bg-[url("@/assets/image/avatar.jpg")] rounded-[6px] align-top inline-block bg-cover'></span>
             </button>
           </Popover>
           <style jsx>{`

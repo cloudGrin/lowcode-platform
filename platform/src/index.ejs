@@ -6,15 +6,15 @@
     <title><%= htmlWebpackPlugin.options.title %></title>
     <% if (useFor == 'designer') { %>
     <!-- 低代码引擎的页面框架样式 -->
-    <link rel="stylesheet" href="https://alifd.alicdn.com/npm/@alilc/lowcode-engine@1.0.14/dist/css/engine-core.css" />
+    <link rel="stylesheet" href="https://alifd.alicdn.com/npm/@alilc/lowcode-engine@1.0.16/dist/css/engine-core.css" />
     <!-- Fusion Next 控件样式 -->
     <link rel="stylesheet" href="https://g.alicdn.com/code/lib/alifd__next/1.23.24/next.min.css" />
     <!-- 低代码引擎的页面主题样式，可以替换为 theme-lowcode-dark -->
-    <link rel="stylesheet" href="https://alifd.alicdn.com/npm/@alifd/theme-lowcode-light/0.2.0/next.min.css" />
+    <link rel="stylesheet" href="https://alifd.alicdn.com/npm/@alifd/theme-lowcode-light/0.2.1/next.min.css" />
     <!-- 低代码引擎官方扩展的样式 -->
     <link
       rel="stylesheet"
-      href="https://alifd.alicdn.com/npm/@alilc/lowcode-engine-ext@1.0.4/dist/css/engine-ext.css"
+      href="https://alifd.alicdn.com/npm/@alilc/lowcode-engine-ext@1.0.5/dist/css/engine-ext.css"
     />
     <% } %>
   </head>
@@ -41,8 +41,8 @@
     <script src="https://g.alicdn.com/code/lib/alifd__next/1.23.24/next-with-locales.min.js"></script>
     <% } %> <% if (useFor == 'designer') { %>
 
-    <script src="https://alifd.alicdn.com/npm/@alilc/lowcode-engine@1.0.14/dist/js/engine-core.js"></script>
-    <script src="https://alifd.alicdn.com/npm/@alilc/lowcode-engine-ext@1.0.4/dist/js/engine-ext.js"></script>
+    <script src="https://alifd.alicdn.com/npm/@alilc/lowcode-engine@1.0.16/dist/js/engine-core.js"></script>
+    <script src="https://alifd.alicdn.com/npm/@alilc/lowcode-engine-ext@1.0.5/dist/js/engine-ext.js"></script>
     <% } %>
   </body>
 </html>

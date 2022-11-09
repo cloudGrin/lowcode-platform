@@ -8,13 +8,16 @@ import {
   SettingOutlined
 } from '@ant-design/icons'
 import { Button, Card, Col, Input, message, Modal, Popover, Row, Tooltip } from 'antd'
+import classNames from 'classnames'
 import { chunk } from 'lodash'
 import React, { useMemo, useRef, useState } from 'react'
-import { useRouteLoaderData } from 'react-router-dom'
+import { useRouteLoaderData, useNavigate } from 'react-router-dom'
 import AddOrEditProjectDialog from './components/addOrEditProjectDialog'
 
 const MyProjects: React.FC = () => {
-  const { userInfo } = (useRouteLoaderData('userAuth') as { userInfo: ApiTypes['/api/users/me']['response'] }) || {}
+  const navigate = useNavigate()
+  const { userInfo } =
+    (useRouteLoaderData('userAuth') as { userInfo: ApiTypes['/api/users/me']['response']['data'] }) || {}
 
   const { runAsync: getMyProjects, data: allProjects } = useStrapiRequest('/api/projects', () => ({
     payload: {
@@ -43,7 +46,7 @@ const MyProjects: React.FC = () => {
   return (
     <>
       <div className='bg-white '>
-        <div className='h-[80px] bg-[url("https://img.alicdn.com/imgextra/i4/O1CN01kaZkjR1n5uTZVwBR6_!!6000000005039-2-tps-5760-320.png")] bg-cover'>
+        <div className='h-[80px] bg-cover bg-[url("@/assets/image/myAppBg.png")]'>
           <div className='max-w-[1180px] flex mx-auto h-[80px] items-center justify-between py-[24px]'>
             <div className=''>
               <span className='text-[18px] text-[#171a1d] font-medium'> Hi {userInfo.username}</span>
@@ -83,6 +86,9 @@ const MyProjects: React.FC = () => {
                         height: '156px',
                         padding: '16px'
                       }}
+                      onClick={() => {
+                        navigate(`${col.attributes.appId}/admin`)
+                      }}
                     >
                       <div className='flex flex-col justify-between h-full'>
                         <div className='flex items-center'>
@@ -100,7 +106,13 @@ const MyProjects: React.FC = () => {
                             overlayInnerStyle={{ padding: '10px 6px' }}
                             content={
                               <div className='w-[110px]'>
-                                <div className='option'>
+                                <div
+                                  className='option'
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    navigate(`${col.attributes.appId}/admin/appSetting/basicSetting`)
+                                  }}
+                                >
                                   <SettingOutlined className='align-middle text-[18px]' />
                                   <span className='ml-[6px]'>应用设置</span>
                                 </div>
@@ -110,7 +122,8 @@ const MyProjects: React.FC = () => {
                                 </div>
                                 <div
                                   className='option !text-c_error'
-                                  onClick={() =>
+                                  onClick={(e) => {
+                                    e.stopPropagation()
                                     Modal.confirm({
                                       width: 525,
                                       content: (
@@ -131,8 +144,12 @@ const MyProjects: React.FC = () => {
                                       onOk: () => {
                                         if (inputValue.current === col.attributes.name) {
                                           return deleteProject(col.id)
-                                            .then(() => {
-                                              message.success('删除成功')
+                                            .then((res) => {
+                                              if (res.data.success) {
+                                                message.success('删除成功')
+                                              } else {
+                                                message.error('删除失败')
+                                              }
                                               getMyProjects()
                                             })
                                             .catch((error) => {
@@ -150,7 +167,7 @@ const MyProjects: React.FC = () => {
                                         loading: deleteProjectLoading
                                       }
                                     })
-                                  }
+                                  }}
                                 >
                                   <DeleteOutlined className='align-middle text-[18px]' />
                                   <span className='ml-[6px]'>删除应用</span>
@@ -163,7 +180,12 @@ const MyProjects: React.FC = () => {
                               </div>
                             }
                           >
-                            <button className='w-[32px] h-[32px] rounded-[6px] hover:bg-[#f1f2f3] text-center transition-all'>
+                            <button
+                              className='w-[32px] h-[32px] rounded-[6px] hover:bg-[#f1f2f3] text-center transition-all'
+                              onClick={(e) => {
+                                e.stopPropagation()
+                              }}
+                            >
                               <EllipsisOutlined className='text-[26px] text-[#878f95]' />
                             </button>
                           </Popover>

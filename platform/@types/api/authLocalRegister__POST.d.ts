@@ -14,13 +14,15 @@ interface ApiAuthLocalRegisterRequest__POST {
 }
 
 interface ApiAuthLocalRegisterResponse__POST {
-  jwt: string
-  user: {
-    id: number
-    username: string
-    email: string
-    isPlatformAdmin: boolean
-    isApplicationAdmin: boolean
-    isSuperAdmin: boolean
+  data: {
+    jwt: string
+    user: {
+      id: number
+      username: string
+      email: string
+      isPlatformAdmin: boolean
+      isApplicationAdmin: boolean
+      isSuperAdmin: boolean
+    }
   }
 }

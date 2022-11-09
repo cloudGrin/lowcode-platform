@@ -25,7 +25,8 @@
     },
     "appId": {
       "type": "uid",
-      "required": false
+      "required": true,
+      "configurable": false
     }
   }
 }

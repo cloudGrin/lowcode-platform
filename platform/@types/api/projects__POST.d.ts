@@ -8,15 +8,15 @@ interface ApiProjects__POST {
 }
 
 interface ApiProjectsRequest__POST {
-  data: {
-    name: string
-    description?: string
-  }
+  name: string
+  description?: string
 }
 
 interface ApiProjectsResponse__POST {
-  id: number
-  name: string
-  description: string
-  appId: string
+  data: {
+    id: number
+    name: string
+    description: string
+    appId: string
+  }
 }

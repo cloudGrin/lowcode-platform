@@ -9,4 +9,8 @@ interface ApiProjectsId__DELETE {
 
 interface ApiProjectsIdRequest__DELETE {}
 
-interface ApiProjectsIdResponse__DELETE {}
+interface ApiProjectsIdResponse__DELETE {
+  data: {
+    success: boolean
+  }
+}

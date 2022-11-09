@@ -13,6 +13,7 @@ interface ApiUsersRoleRequest {
 }
 
 interface ApiUsersRoleResponse {
-  success: boolean
-  errorMessage: string
+  data: {
+    success: boolean
+  }
 }

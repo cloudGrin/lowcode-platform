@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import { UserOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { Menu } from 'antd'
-import { SettingOutlined, UserOutlined } from '@ant-design/icons'
-import { useLocation, useNavigate, Outlet, useMatch } from 'react-router-dom'
+import React from 'react'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 type MenuItem = Required<MenuProps>['items'][number]
 

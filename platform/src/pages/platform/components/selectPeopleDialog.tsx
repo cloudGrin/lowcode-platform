@@ -51,11 +51,11 @@ const SelectPeopleDialog: React.FC<{
     } catch (errorInfo) {
       console.log('Failed:', errorInfo)
     }
-  }, [selectedRowKeys])
+  }, [onOk, selectedRowKeys])
 
   const handleCancel = useCallback(() => {
     setOpen(false)
-  }, [])
+  }, [setOpen])
 
   useEffect(() => {
     setSelectedRowKeys([])

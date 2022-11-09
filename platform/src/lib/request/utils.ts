@@ -13,7 +13,7 @@ export function getLoginState() {
      * 用户id
      */
     get userInfo() {
-      return JSON.parse(Cookies.get('userInfo') || '""') as ApiTypes['/api/users/me']['response']
+      return JSON.parse(Cookies.get('userInfo') || '""') as ApiTypes['/api/users/me']['response']['data']
     }
 
     /**

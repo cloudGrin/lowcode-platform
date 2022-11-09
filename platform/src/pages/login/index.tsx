@@ -15,8 +15,8 @@ const Login: React.FC = () => {
     {
       manual: true,
       onSuccess: (data) => {
-        getLoginState().setLoginToken(data.jwt)
-        getLoginState().setUserInfo(data.user)
+        getLoginState().setLoginToken(data.data.jwt)
+        getLoginState().setUserInfo(data.data.user)
         navigate('/')
       }
     }

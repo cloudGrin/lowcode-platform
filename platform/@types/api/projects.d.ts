@@ -20,6 +20,7 @@ interface ApiProjectsResponse {
   data: {
     id: number
     attributes: {
+      appId: string
       name: string
       description: string
       createdAt: string

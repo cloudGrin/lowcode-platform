@@ -13,13 +13,15 @@ interface ApiAuthLocalRequest__POST {
 }
 
 interface ApiAuthLocalResponse__POST {
-  jwt: string
-  user: {
-    id: number
-    username: string
-    email: string
-    isPlatformAdmin: boolean
-    isApplicationAdmin: boolean
-    isSuperAdmin: boolean
+  data: {
+    jwt: string
+    user: {
+      id: number
+      username: string
+      email: string
+      isPlatformAdmin: boolean
+      isApplicationAdmin: boolean
+      isSuperAdmin: boolean
+    }
   }
 }

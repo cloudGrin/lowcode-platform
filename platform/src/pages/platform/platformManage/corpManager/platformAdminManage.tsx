@@ -1,8 +1,8 @@
 import DescriptionTip from '@/components/descriptionTip'
 import { strapiRequestInstance, useStrapiRequest } from '@/lib/request'
-import { Button, message, Modal, Table, Tabs, Tag, Tooltip } from 'antd'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SelectPeopleDialog from '@/pages/platform/components/selectPeopleDialog'
+import { Button, Table, Tag, Tooltip } from 'antd'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useUserRole } from './hooks'
 const commonColumns = [
   {
@@ -24,6 +24,11 @@ const commonColumns = [
 
 function getPlatformAdmins() {
   return strapiRequestInstance('/api/users/platformAdmin')
+    .then((res) => res.data)
+    .catch((error) => {
+      console.log(error)
+      return []
+    })
 }
 
 const PlatformAdminManage: React.FC<{ tabType: 'application' | 'platform' }> = ({ tabType }) => {
@@ -50,13 +55,13 @@ const PlatformAdminManage: React.FC<{ tabType: 'application' | 'platform' }> = (
   const [addUsersRole, removeUsersRole] = useUserRole({
     addSuccessCb: () => {
       setOpen(false)
-      getPlatformAdmins().then((res) => {
-        setAdmins(res.data)
+      getPlatformAdmins().then((data) => {
+        setAdmins(data)
       })
     },
     removeSuccessCb: () => {
-      getPlatformAdmins().then((res) => {
-        setAdmins(res.data)
+      getPlatformAdmins().then((data) => {
+        setAdmins(data)
       })
     }
   })
@@ -97,7 +102,7 @@ const PlatformAdminManage: React.FC<{ tabType: 'application' | 'platform' }> = (
   const openAddPeopleDialog = useCallback(() => {
     getUsersForAdmin()
     setOpen(true)
-  }, [])
+  }, [getUsersForAdmin])
 
   const onOk = useCallback(
     (userIds: React.Key[]) => {
@@ -108,8 +113,8 @@ const PlatformAdminManage: React.FC<{ tabType: 'application' | 'platform' }> = (
 
   useEffect(() => {
     if (tabType === 'platform') {
-      getPlatformAdmins().then((res) => {
-        setAdmins(res.data)
+      getPlatformAdmins().then((data) => {
+        setAdmins(data)
       })
     }
   }, [tabType])

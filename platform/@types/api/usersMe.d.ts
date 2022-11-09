@@ -10,10 +10,12 @@ interface ApiUsersMe {
 interface ApiUsersMeRequest {}
 
 interface ApiUsersMeResponse {
-  id: number
-  username: string
-  email: string
-  isPlatformAdmin: boolean
-  isApplicationAdmin: boolean
-  isSuperAdmin: boolean
+  data: {
+    id: number
+    username: string
+    email: string
+    isPlatformAdmin: boolean
+    isApplicationAdmin: boolean
+    isSuperAdmin: boolean
+  }
 }

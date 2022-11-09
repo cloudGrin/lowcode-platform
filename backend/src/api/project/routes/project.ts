@@ -8,27 +8,19 @@ export default factories.createCoreRouter("api::project.project", {
   only: ["find", "findOne", "create", "update", "delete"],
   config: {
     create: {
-      middlewares: ["api::project.project-role"],
-      // policies: ["is-can-create"],
-      policies: ["is-auth"],
+      middlewares: ["api::project.auth", "api::project.project-role"],
     },
     delete: {
-      middlewares: ["api::project.project-role"],
-      // policies: ["is-can-delete"],
-      policies: ["is-auth"],
+      middlewares: ["api::project.auth", "api::project.project-role"],
     },
     update: {
-      middlewares: ["api::project.project-role"],
-      // policies: ["is-can-findone-update"],
-      policies: ["is-auth"],
+      middlewares: ["api::project.auth", "api::project.project-role"],
     },
     find: {
-      middlewares: ["api::project.project-role"],
+      middlewares: ["api::project.auth", "api::project.project-role"],
     },
     findOne: {
-      middlewares: ["api::project.project-role"],
-      // policies: ["is-can-findone-update"],
-      policies: ["is-auth"],
+      middlewares: ["api::project.auth", "api::project.project-role"],
     },
   },
 });

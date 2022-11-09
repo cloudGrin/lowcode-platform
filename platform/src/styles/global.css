@@ -22,3 +22,22 @@ body {
   -webkit-touch-callout: none;
   -webkit-font-smoothing: antialiased;
 } */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(23, 26, 29, 0.24);
+  border-radius: 6px;
+  border-style: dashed;
+  border-color: transparent;
+  border-width: 2px;
+  background-clip: padding-box;
+}
+
+html,
+body {
+  color: #171a1d;
+}

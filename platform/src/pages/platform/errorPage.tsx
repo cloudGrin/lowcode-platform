@@ -4,7 +4,7 @@ import { useRouteError, isRouteErrorResponse } from 'react-router-dom'
 export default function ErrorPage() {
   const error = useRouteError()
 
-  if (isRouteErrorResponse(error) && error.status === 401) {
+  if (isRouteErrorResponse(error)) {
     // the response json is automatically parsed to
     // `error.data`, you also have access to the status
     return (

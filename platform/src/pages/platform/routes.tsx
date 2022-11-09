@@ -1,14 +1,13 @@
-import React from 'react'
 import type { RouteObject } from 'react-router'
 
 import ErrorPageForPlatform from './errorPage'
+import Platform from './index'
 import MyProjects from './myProjects'
 import PlatformManage from './platformManage'
-import Platform from './index'
 // import BasicInfo from './platformManage/basicInfo'
-import CorpManager from './platformManage/corpManager'
-import { Navigate } from 'react-router-dom'
 import { getLoginState } from '@/lib/request'
+import { Navigate } from 'react-router-dom'
+import CorpManager from './platformManage/corpManager'
 
 async function authPlatformAdminLoader() {
   const TokenUserInfo = getLoginState()
@@ -25,7 +24,7 @@ const routes: RouteObject[] = [
     errorElement: <ErrorPageForPlatform />,
     children: [
       {
-        path: 'myApp',
+        index: true,
         element: <MyProjects />
       },
       {
@@ -50,14 +49,6 @@ const routes: RouteObject[] = [
             element: <Navigate to='corpManager' replace />
           }
         ]
-      },
-      {
-        path: '',
-        element: <Navigate to='myApp' replace />
-      },
-      {
-        path: '*',
-        element: <Navigate to='myApp' replace />
       }
     ]
   }
