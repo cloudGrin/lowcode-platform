@@ -58,6 +58,22 @@ module.exports = (plugin) => {
       (i) => i.path === path
     ).config.middlewares = [handlerUser];
   });
+  ["/users"].forEach((path) => {
+    plugin.routes["content-api"].routes.find(
+      (i) => i.path === path
+    ).config.middlewares = [
+      async function (ctx, next) {
+        await next();
+        ctx.body = {
+          data: ctx.body.map((user) => ({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+          })),
+        };
+      },
+    ];
+  });
 
   plugin.controllers.user.findApplicationAdmin = async (ctx) => {
     let result = await getService("user").fetchAll({

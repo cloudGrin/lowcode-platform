@@ -13,9 +13,9 @@ import { Navigate } from 'react-router-dom'
 
 async function projectLoader({ params }: LoaderFunctionArgs) {
   try {
-    const result = await strapiRequestInstance('/api/projects/appId/${appId}', {
+    const result = await strapiRequestInstance('/api/projects/${id}', {
       urlValue: {
-        appId: params.appId!
+        id: params.id!
       }
     })
     return {
@@ -29,7 +29,7 @@ async function projectLoader({ params }: LoaderFunctionArgs) {
 const routes: RouteObject[] = [
   {
     errorElement: <ErrorPageForProject />,
-    path: ':appId/admin',
+    path: ':id/admin',
     element: <Project />,
     loader: projectLoader,
     id: 'project',

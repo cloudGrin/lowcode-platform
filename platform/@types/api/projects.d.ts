@@ -19,21 +19,9 @@ interface ApiProjectsRequest {
 interface ApiProjectsResponse {
   data: {
     id: number
-    attributes: {
-      appId: string
-      name: string
-      description: string
-      createdAt: string
-      updatedAt: string
-      users: {
-        id: number
-        username: string
-        projectRole: {
-          id: number
-          name: string
-        }
-      }[]
-    }
+    appId: string
+    name: string
+    description: string
   }[]
   meta: {
     pagination: {

@@ -8,7 +8,6 @@ import {
   SettingOutlined
 } from '@ant-design/icons'
 import { Button, Card, Col, Input, message, Modal, Popover, Row, Tooltip } from 'antd'
-import classNames from 'classnames'
 import { chunk } from 'lodash'
 import React, { useMemo, useRef, useState } from 'react'
 import { useRouteLoaderData, useNavigate } from 'react-router-dom'
@@ -87,7 +86,7 @@ const MyProjects: React.FC = () => {
                         padding: '16px'
                       }}
                       onClick={() => {
-                        navigate(`${col.attributes.appId}/admin`)
+                        navigate(`${col.id}/admin`)
                       }}
                     >
                       <div className='flex flex-col justify-between h-full'>
@@ -96,10 +95,10 @@ const MyProjects: React.FC = () => {
                             <CodeOutlined className='text-[26px] text-white' />
                           </div>
                           <div className='w-[80%] overflow-hidden whitespace-nowrap text-ellipsis font-medium text-[#171a1d] text-[16px]'>
-                            {col.attributes.name}
+                            {col.name}
                           </div>
                         </div>
-                        <div className='text-[12px] text-[#a2a3a5] overflow-hidden'>{col.attributes.description}</div>
+                        <div className='text-[12px] text-[#a2a3a5] overflow-hidden'>{col.description}</div>
                         <div className='flex justify-end'>
                           <Popover
                             placement='bottom'
@@ -110,7 +109,7 @@ const MyProjects: React.FC = () => {
                                   className='option'
                                   onClick={(e) => {
                                     e.stopPropagation()
-                                    navigate(`${col.attributes.appId}/admin/appSetting/basicSetting`)
+                                    navigate(`${col.id}/admin/appSetting/basicSetting`)
                                   }}
                                 >
                                   <SettingOutlined className='align-middle text-[18px]' />
@@ -129,7 +128,7 @@ const MyProjects: React.FC = () => {
                                       content: (
                                         <>
                                           <div className='text-[#747677] text-[14px] my-[10px]'>
-                                            如确定删除，请输入应用名称：{col.attributes.name}
+                                            如确定删除，请输入应用名称：{col.name}
                                           </div>
                                           <Input
                                             placeholder='请输入'
@@ -142,7 +141,7 @@ const MyProjects: React.FC = () => {
                                       ),
                                       title: <span className='text-[18px] leading-[22px]'>你确定要删除应用么？</span>,
                                       onOk: () => {
-                                        if (inputValue.current === col.attributes.name) {
+                                        if (inputValue.current === col.name) {
                                           return deleteProject(col.id)
                                             .then((res) => {
                                               if (res.data.success) {

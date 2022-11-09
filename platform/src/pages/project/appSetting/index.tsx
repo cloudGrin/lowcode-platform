@@ -23,16 +23,13 @@ function getItem(
 }
 
 const items: MenuItem[] = [
-  getItem('基础设置', '/APP_\\S+/admin/appSetting/basicSetting', <SettingOutlined className='!text-[16px]' />),
-  getItem('应用权限', '/APP_\\S+/admin/appSetting/applyPermission', <TeamOutlined className='!text-[16px]' />)
+  getItem('基础设置', '/\\d+/admin/appSetting/basicSetting', <SettingOutlined className='!text-[16px]' />),
+  getItem('应用权限', '/\\d+/admin/appSetting/applyPermission', <TeamOutlined className='!text-[16px]' />)
 ]
 
 const PlatformManage: React.FC = () => {
-  const { projectInfo } =
-    (useRouteLoaderData('project') as { projectInfo: ApiTypes['/api/projects/appId/${appId}']['response']['data'] }) ||
-    {}
+  const { projectInfo } = (useRouteLoaderData('project') as { projectInfo: ApiProjectsIdResponse['data'] }) || {}
   const { pathname } = useLocation()
-  console.log(pathname)
 
   const navigate = useNavigate()
 
@@ -48,9 +45,9 @@ const PlatformManage: React.FC = () => {
   const jumpRoute = useCallback(
     (e) => {
       const item = items.find((tab) => tab!.key === e.key)!
-      navigate((item.key as string).replace('APP_\\S+', projectInfo.appId))
+      navigate((item.key as string).replace('\\d+', projectInfo.id + ''))
     },
-    [navigate, projectInfo.appId]
+    [navigate, projectInfo.id]
   )
 
   return (

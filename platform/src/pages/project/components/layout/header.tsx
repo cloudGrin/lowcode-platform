@@ -6,26 +6,24 @@ import { useLocation, useRouteLoaderData, useNavigate, Link } from 'react-router
 const tabs = [
   {
     label: '页面管理',
-    key: '/APP_\\S+/admin((/\\S+)|(/?))',
-    routePath: '/APP_\\S+/admin',
+    key: '/\\d+/admin((/\\S+)|(/?))',
+    routePath: '/\\d+/admin',
     matchOrder: 3
   },
   {
     label: '应用设置',
-    key: '/APP_\\S+/admin/appSetting',
+    key: '/\\d+/admin/appSetting',
     matchOrder: 2
   },
   {
     label: '应用发布',
-    key: '/APP_\\S+/admin/appPublish',
+    key: '/\\d+/admin/appPublish',
     matchOrder: 1
   }
 ]
 
 export default function Header() {
-  const { projectInfo } =
-    (useRouteLoaderData('project') as { projectInfo: ApiTypes['/api/projects/appId/${appId}']['response']['data'] }) ||
-    {}
+  const { projectInfo } = (useRouteLoaderData('project') as { projectInfo: ApiProjectsIdResponse['data'] }) || {}
   const { pathname } = useLocation()
   const navigate = useNavigate()
 
@@ -41,9 +39,9 @@ export default function Header() {
   const jumpRoute = useCallback(
     (v: any) => {
       const item = tabs.find((tab) => tab.key === v)!
-      navigate((item.routePath ?? item.key).replace('APP_\\S+', projectInfo.appId))
+      navigate((item.routePath ?? item.key).replace('\\d+', projectInfo.id + ''))
     },
-    [navigate, projectInfo.appId]
+    [navigate, projectInfo.id]
   )
 
   return (

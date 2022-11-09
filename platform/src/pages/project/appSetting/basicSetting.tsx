@@ -1,12 +1,11 @@
 import { useStrapiRequest } from '@/lib/request'
 import { Button, Form, Input, message } from 'antd'
 import React, { useCallback, useEffect } from 'react'
-import { useRouteLoaderData } from 'react-router-dom'
+import { useRevalidator, useRouteLoaderData } from 'react-router-dom'
 
 const BasicSetting: React.FC = () => {
-  const { projectInfo } =
-    (useRouteLoaderData('project') as { projectInfo: ApiTypes['/api/projects/appId/${appId}']['response']['data'] }) ||
-    {}
+  const { projectInfo } = (useRouteLoaderData('project') as { projectInfo: ApiProjectsIdResponse['data'] }) || {}
+  const revalidator = useRevalidator()
   const [form] = Form.useForm()
 
   const setInitForm = useCallback(() => {
@@ -37,16 +36,17 @@ const BasicSetting: React.FC = () => {
       const values = await form.validateFields()
       await createProject(values)
       message.success('修改成功')
+      revalidator.revalidate()
     } catch (errorInfo) {
       console.log('Failed:', errorInfo)
       // message.success('新增失败')
     }
-  }, [createProject, form])
+  }, [createProject, form, revalidator])
 
   return (
     <div className='h-full'>
       <div className='overflow-y-auto h-[calc(100%-64px)] rounded-[6px]'>
-        <div className='bg-white rounded-[6px]'>
+        <div className='bg-white rounded-[6px] min-h-full'>
           <div className='p-[24px_24px_0]'>
             <span className='inline-block max-w-[calc(100%-50px)] text-[18px] leading-[28px] overflow-hidden text-ellipsis whitespace-nowrap align-top font-medium'>
               基础属性
@@ -64,7 +64,7 @@ const BasicSetting: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className='h-[64px] bg-white absolute w-[100vw] shadow-[0 -1px 0 0 rgb(126 134 142 / 16%)] left-0 bottom-0 flex justify-center items-center'>
+      <div className='h-[64px] bg-white absolute w-[100vw] shadow-[0_-1px_0_0_rgb(126_134_142_/_16%)] left-0 bottom-0 flex justify-center items-center'>
         <Button type='primary' size='large' className='text-[14px] leading-none' loading={loading} onClick={confirm}>
           保存
         </Button>
