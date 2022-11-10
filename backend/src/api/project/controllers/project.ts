@@ -40,7 +40,6 @@ export default factories.createCoreController(
                 .filter(Boolean)
             ),
           ];
-          console.log(projectUserRoleResults);
           const { results = [] } = (await strapi
             .service("api::project.project")
             .find({

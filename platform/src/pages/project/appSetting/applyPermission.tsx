@@ -1,10 +1,11 @@
 import { useStrapiRequest } from '@/lib/request'
-import { message, Spin } from 'antd'
+import { message, Modal, Spin } from 'antd'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useRouteLoaderData } from 'react-router-dom'
+import { useRouteLoaderData, useNavigate } from 'react-router-dom'
 import SetMember from './components/setMember'
 
 const ApplyPermission: React.FC = () => {
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [type, setType] = useState<'master' | 'developer'>('master')
 
@@ -12,6 +13,9 @@ const ApplyPermission: React.FC = () => {
     (useRouteLoaderData('project') as {
       projectInfo: ApiProjectsIdResponse['data']
     }) || {}
+
+  const { userInfo } =
+    (useRouteLoaderData('userAuth') as { userInfo: ApiTypes['/api/users/me']['response']['data'] }) || {}
 
   const {
     run: getUsers,
@@ -31,7 +35,7 @@ const ApplyPermission: React.FC = () => {
     return data?.data?.[type].map((i) => i.id)
   }, [data?.data, type])
 
-  const { run: setMembersApi, loading: setMembersApiLoading } = useStrapiRequest(
+  const { runAsync: setMembersApi, loading: setMembersApiLoading } = useStrapiRequest(
     '/api/projects/${id}/setMembers__PUT',
     (userIds) => ({
       urlValue: {
@@ -56,9 +60,33 @@ const ApplyPermission: React.FC = () => {
 
   const setMembers = useCallback(
     (userIds) => {
-      setMembersApi(userIds)
+      if (type === 'master' && !userIds.length) {
+        message.error('不可以为空')
+        return
+      }
+      if (
+        type === 'master' &&
+        !userIds.includes(userInfo.id) &&
+        data?.data.master.find((user) => user.id === userInfo.id) &&
+        !data?.data.developer.find((user) => user.id === userInfo.id) &&
+        !userInfo.isPlatformAdmin
+      ) {
+        Modal.confirm({
+          width: 350,
+          title: <span className='text-[16px] font-normal'>确定要移除自己吗？</span>,
+          onOk: () => {
+            setMembersApi(userIds).then((res) => {
+              if (res.data.success) {
+                navigate('/')
+              }
+            })
+          }
+        })
+      } else {
+        setMembersApi(userIds)
+      }
     },
-    [setMembersApi]
+    [data, setMembersApi, type, userInfo, navigate]
   )
 
   useEffect(() => {
