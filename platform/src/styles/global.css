@@ -41,3 +41,7 @@ html,
 body {
   color: #171a1d;
 }
+
+svg {
+  fill: currentColor;
+}

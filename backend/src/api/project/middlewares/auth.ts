@@ -6,7 +6,7 @@ export default (config, { strapi }) => {
       },
       params: { id: projectId, appId },
       routerPath,
-      req: { method },
+      request: { method },
     } = context;
 
     if (!isPlatformAdmin) {

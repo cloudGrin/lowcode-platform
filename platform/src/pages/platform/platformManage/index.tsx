@@ -47,7 +47,7 @@ const PlatformManage: React.FC = () => {
   }
 
   return (
-    <div className='flex'>
+    <div className='flex h-[calc(100vh-theme(height.header))]'>
       <aside>
         <div className='pt-[16px] pb-[8px] h-full border-r-[1px] border-r-[#f1f2f3]'>
           <Menu
@@ -64,9 +64,6 @@ const PlatformManage: React.FC = () => {
         <Outlet />
       </section>
       <style jsx>{`
-        div {
-          height: calc(100vh - theme(height.header));
-        }
         div :global(.ant-menu .ant-menu-item-group-title) {
           padding: 0 24px;
           height: 30px;

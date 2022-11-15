@@ -13,6 +13,7 @@
     "@strapi/plugin-i18n": "4.5.0",
     "@strapi/plugin-users-permissions": "4.5.0",
     "@strapi/strapi": "4.5.0",
+    "lodash": "^4.17.21",
     "pg": "8.8.0",
     "uuid": "^9.0.0"
   },

@@ -1,10 +1,195 @@
-import React from 'react'
+import linkPageImg from '@/assets/image/linkPage.png'
+import newPageImg from '@/assets/image/newPage.png'
+import { ItemId, TreeData, TreeItem } from '@atlaskit/tree'
+import { Card, Col, Row } from 'antd'
+import { produce } from 'immer'
+import React, { useCallback } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import MenuManage from './menuManage'
+import AddRoute from './components/addRouteDialog'
+
+import { useStrapiRequest } from '@/lib/request'
+import { useState } from 'react'
+
 const PageManage: React.FC = () => {
+  const [type, setType] = useState<'LOADING' | 'EMPTY' | 'HAVE_DATA'>('LOADING')
+  const [open, setOpen] = useState(false)
+  const [navType, setNavType] = useState<ApiProjectRouteType>('NAV')
+
+  const { id, routeId } = useParams()
+  const navigate = useNavigate()
+
+  const [tree, setTree] = useState<TreeData>()
+
+  const [activeNav, setActiveNav] = useState<TreeItem>()
+
+  const { runAsync: getNavListApi } = useStrapiRequest(
+    '/api/project-routes',
+    () => ({
+      payload: {
+        projectId: id!
+      }
+    }),
+    {
+      refreshDeps: [id],
+      onSuccess(res) {
+        if (res) {
+          // 以前展开的分组需要继续展开
+          for (const [uuid, item] of Object.entries(res?.data?.items ?? {})) {
+            const preItem = tree?.items?.[uuid]
+            if (preItem) {
+              item.isExpanded = preItem.isExpanded
+            }
+          }
+          setTree(res.data as TreeData)
+          handleTreeAndRouteId(res.data as TreeData)
+        } else {
+          setType('EMPTY')
+        }
+      },
+      onError() {
+        setType('EMPTY')
+      }
+    }
+  )
+
+  const jump = useCallback(
+    (path) => {
+      if (path === '' && routeId === 'empty') {
+        return
+      }
+
+      navigate(`/${id}/admin/${path}`)
+    },
+    [id, navigate, routeId]
+  )
+
+  const handleTreeAndRouteId = useCallback(
+    (tree: TreeData) => {
+      let currentNav = tree?.items?.[routeId as ItemId] as TreeItem | undefined
+      if (!currentNav || currentNav.data.type === 'NAV') {
+        // 去第一个页面
+        currentNav = findFirstPage(tree)
+      }
+      if (currentNav && currentNav.data.type !== 'NAV') {
+        // 找到对应页面
+        setActiveNav(currentNav)
+        if (routeId !== currentNav.id) {
+          jump(currentNav.id)
+        }
+        const uuidPath = getAncestorIds(tree!.items, [currentNav!.id]).slice(1)
+        setTree(
+          produce((draft) => {
+            for (const item of Object.values(draft?.items ?? {})) {
+              if (uuidPath.includes(item.id)) {
+                item.isExpanded = true
+              }
+            }
+          })
+        )
+        setType('HAVE_DATA')
+      } else {
+        // 跳转到 EMPTY
+
+        jump('')
+
+        setType('EMPTY')
+      }
+    },
+    [jump, routeId]
+  )
+
   return (
-    <div className=''>
-      <div>PageManage</div>
-    </div>
+    <>
+      {type === 'EMPTY' ? (
+        <div className='p-[16px] bg-[#f1f2f3] h-[calc(100vh-theme(height.header))]'>
+          <div className='text-[24px] text-[#171a1d] leading-[36px] pt-[60px] text-center'>
+            从创建第一个页面开始，构建应用
+          </div>
+          <div className='w-[95%] max-w-[930px] mx-auto my-[30px]'>
+            <Row className='' gutter={24}>
+              <Col span='12'>
+                <Card
+                  hoverable
+                  className='flex flex-col justify-center text-center h-[200px]'
+                  bodyStyle={{ padding: 0 }}
+                  onClick={() => {
+                    setNavType('PAGE')
+                    setOpen(true)
+                  }}
+                >
+                  <img alt='customPage' src={newPageImg} className='w-[72px] mx-auto' />
+                  <div className='text-[18px] text-[#171a1d] mt-[20px]'>新建页面</div>
+                  <div className='text-[14px] text-[#a2a3a5] leading-[21px] mt-[8px]'>可视化搭建页面</div>
+                </Card>
+              </Col>
+              <Col span='12'>
+                <Card
+                  hoverable
+                  className='flex flex-col justify-center text-center h-[200px]'
+                  bodyStyle={{ padding: 0 }}
+                  onClick={() => {
+                    setNavType('LINK')
+                    setOpen(true)
+                  }}
+                >
+                  <img alt='customPage' src={linkPageImg} className='w-[72px] mx-auto' />
+                  <div className='text-[18px] text-[#171a1d] mt-[20px]'>添加外部链接</div>
+                  <div className='text-[14px] text-[#a2a3a5] leading-[21px] mt-[8px]'>从本站点链接到外部</div>
+                </Card>
+              </Col>
+            </Row>
+          </div>
+        </div>
+      ) : type === 'HAVE_DATA' ? (
+        <div className='flex bg-[#f1f2f3] h-[calc(100vh-theme(height.header))]'>
+          <div className=' bg-c_white flex-[0_1_220px] border-r-[1px] border-[#f1f2f3] p-[16px_0_8px] h-full overflow-hidden'>
+            <MenuManage
+              tree={tree}
+              setTree={setTree}
+              getNavListApi={getNavListApi}
+              activeNav={activeNav}
+              setActiveNav={setActiveNav}
+              setOpen={setOpen}
+              setNavType={setNavType}
+            />
+          </div>
+          <div className='self-start flex-auto bg-c_white'>{activeNav?.data.title}</div>
+        </div>
+      ) : (
+        <></>
+      )}
+      <AddRoute open={open} setOpen={setOpen} type={navType} onOk={getNavListApi} tree={tree} />
+    </>
   )
 }
 
 export default PageManage
+
+function getAncestorIds(items: TreeData['items'], ids: ItemId[]): ItemId[] {
+  for (const [id, config] of Object.entries(items)) {
+    if (!ids.includes(id)) {
+      if (config.children.includes(ids[ids.length - 1])) {
+        return getAncestorIds(items, [...ids, id])
+      }
+    }
+  }
+  return ids
+}
+
+function findFirstPage(tree: TreeData): TreeItem | undefined {
+  for (const uuid of tree?.items?.[tree.rootId]?.children ?? []) {
+    const item = tree.items[uuid]
+    if (item && item?.data?.type !== 'NAV') {
+      return item
+    } else if (item && !!item.children?.length) {
+      const result = findFirstPage({
+        rootId: item.id,
+        items: tree.items
+      })
+      if (result) {
+        return result
+      }
+    }
+  }
+}

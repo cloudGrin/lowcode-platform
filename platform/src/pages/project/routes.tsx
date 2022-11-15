@@ -4,7 +4,6 @@ import { strapiRequestInstance } from '@/lib/request'
 import AppSetting from './appSetting'
 import BasicSetting from './appSetting/basicSetting'
 import ApplyPermission from './appSetting/applyPermission'
-import Empty from './empty'
 import ErrorPageForProject from './errorPage'
 import Project from './index'
 import PageManage from './pageManage'
@@ -58,7 +57,7 @@ const routes: RouteObject[] = [
       },
       {
         path: '',
-        element: <Empty />
+        element: <Navigate to='empty' replace />
       },
       {
         path: ':routeId',
