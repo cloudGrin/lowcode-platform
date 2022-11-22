@@ -1,17 +1,20 @@
 import { useStrapiRequest } from '@/lib/request'
 import { Button, Form, Input, message } from 'antd'
-import React, { useCallback, useEffect } from 'react'
-import { useRevalidator, useRouteLoaderData } from 'react-router-dom'
+import React, { useCallback, useContext, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import { InfoContext } from '../projectInfoVersionsContext'
 
 const BasicSetting: React.FC = () => {
-  const { projectInfo } = (useRouteLoaderData('project') as { projectInfo: ApiProjectsIdResponse['data'] }) || {}
-  const revalidator = useRevalidator()
+  const { id } = useParams()
+
+  const [projectInfo, getProjectInfo] = useContext(InfoContext)
+
   const [form] = Form.useForm()
 
   const setInitForm = useCallback(() => {
     form.setFieldsValue({
-      name: projectInfo.name,
-      description: projectInfo.description
+      name: projectInfo?.name,
+      description: projectInfo?.description
     })
   }, [form, projectInfo])
 
@@ -24,7 +27,7 @@ const BasicSetting: React.FC = () => {
     (payload: ApiProjectsIdRequest__PUT) => ({
       payload,
       urlValue: {
-        id: projectInfo.id
+        id: id as string
       }
     }),
     {
@@ -36,12 +39,12 @@ const BasicSetting: React.FC = () => {
       const values = await form.validateFields()
       await createProject(values)
       message.success('修改成功')
-      revalidator.revalidate()
+      getProjectInfo()
     } catch (errorInfo) {
       console.log('Failed:', errorInfo)
       // message.success('新增失败')
     }
-  }, [createProject, form, revalidator])
+  }, [createProject, form, getProjectInfo])
 
   return (
     <div className='h-full'>

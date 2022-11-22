@@ -2,64 +2,34 @@ export default (config, { strapi }) => {
   return async (context, next) => {
     const {
       state: {
-        selfGlobalState: { isPlatformAdmin, isApplicationAdmin, userId },
+        selfGlobalState: { isPlatformAdmin, userId },
       },
-      params: { id: projectId, appId },
       routerPath,
-      request: { method },
+      request: {
+        method,
+        query: { projectId },
+        body: { projectId: bodyProjectId },
+      },
     } = context;
-
+    // 平台管理员无视规则
     if (!isPlatformAdmin) {
-      // 应用管理员可以新增
+      // 查询
       if (
-        routerPath === "/api/projects" &&
-        method === "POST" &&
-        isApplicationAdmin
+        routerPath === "/api/project-versions" &&
+        !!projectId &&
+        "GET" === method
       ) {
         await next();
         return;
       }
-      // 应用管理员且是该应用的管理员才可以删除
+      // 发布新版本
       else if (
-        routerPath === "/api/projects/:id" &&
-        method === "DELETE" &&
-        isApplicationAdmin &&
+        routerPath === "/api/project-versions" &&
+        !!bodyProjectId &&
+        "POST" === method &&
         (await isProjectBelongsToUser({
           strapi,
-          projectId,
-          userId,
-          isNeedProjectMaster: true,
-        }))
-      ) {
-        await next();
-        return;
-      }
-      // 查询单个 (无权限)
-      else if (routerPath === "/api/projects/:id" && "GET" === method) {
-        await next();
-        return;
-      }
-      // 编辑
-      else if (
-        routerPath === "/api/projects/:id" &&
-        "PUT" === method &&
-        (await isProjectBelongsToUser({
-          strapi,
-          projectId,
-          userId,
-          isNeedProjectMaster: true,
-        }))
-      ) {
-        await next();
-        return;
-      }
-      // 设置成员
-      else if (
-        routerPath === "/api/projects/:id/setMembers" &&
-        "PUT" === method &&
-        (await isProjectBelongsToUser({
-          strapi,
-          projectId,
+          projectId: bodyProjectId,
           userId,
           isNeedProjectMaster: true,
         }))

@@ -1,8 +1,9 @@
 import { CodeOutlined, UserOutlined, UnorderedListOutlined, SettingOutlined } from '@ant-design/icons'
 import { Button, Divider, Popover, Tabs } from 'antd'
+import { useContext } from 'react'
 import { useCallback, useMemo } from 'react'
-import { useLocation, useRouteLoaderData, useNavigate, Link } from 'react-router-dom'
-
+import { useLocation, useNavigate, Link, useParams } from 'react-router-dom'
+import { InfoContext } from '../../projectInfoVersionsContext'
 const tabs = [
   {
     label: '页面管理',
@@ -23,9 +24,10 @@ const tabs = [
 ]
 
 export default function Header() {
-  const { projectInfo } = (useRouteLoaderData('project') as { projectInfo: ApiProjectsIdResponse['data'] }) || {}
+  const [projectInfo] = useContext(InfoContext)
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const { id } = useParams()
 
   const activeKey = useMemo(() => {
     for (const tab of [...tabs].sort((a, b) => a.matchOrder - b.matchOrder)) {
@@ -39,9 +41,9 @@ export default function Header() {
   const jumpRoute = useCallback(
     (v: any) => {
       const item = tabs.find((tab) => tab.key === v)!
-      navigate((item.routePath ?? item.key).replace('\\d+', projectInfo.id + ''))
+      navigate((item.routePath ?? item.key).replace('\\d+', id + ''))
     },
-    [navigate, projectInfo.id]
+    [navigate, id]
   )
 
   return (
@@ -79,7 +81,7 @@ export default function Header() {
               <CodeOutlined className='text-[16px] text-white' />
             </div>
             <span className='ml-[8px] text-[#171a1d] text-[14px] max-w-[126px] text-ellipsis whitespace-nowrap overflow-hidden'>
-              {projectInfo.name}
+              {projectInfo?.name}
             </span>
           </div>
         </div>

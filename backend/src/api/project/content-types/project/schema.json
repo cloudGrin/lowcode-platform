@@ -27,6 +27,15 @@
       "type": "uid",
       "required": true,
       "configurable": false
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "ONLINE",
+        "DELETE"
+      ],
+      "default": "ONLINE",
+      "required": true
     }
   }
 }

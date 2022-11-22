@@ -44,7 +44,7 @@ const MyProjects: React.FC = () => {
   )
   return (
     <>
-      <div className='bg-white '>
+      <div className='min-h-[calc(100vh-52px)] bg-white'>
         <div className='h-[80px] bg-cover bg-[url("@/assets/image/myAppBg.png")]'>
           <div className='max-w-[1180px] flex mx-auto h-[80px] items-center justify-between py-[24px]'>
             <div className=''>
@@ -86,7 +86,7 @@ const MyProjects: React.FC = () => {
                         padding: '16px'
                       }}
                       onClick={() => {
-                        navigate(`${col.id}/admin`)
+                        navigate(`${col.id}/admin/empty`)
                       }}
                     >
                       <div className='flex flex-col justify-between h-full'>

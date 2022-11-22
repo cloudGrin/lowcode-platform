@@ -49,6 +49,21 @@
     "isNewPage": {
       "type": "boolean",
       "default": false
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": [
+        "ONLINE",
+        "DELETE"
+      ],
+      "default": "ONLINE",
+      "required": true
+    },
+    "versions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::page-version.page-version",
+      "mappedBy": "route"
     }
   }
 }

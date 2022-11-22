@@ -21,6 +21,7 @@ export default factories.createCoreController(
             pagination: false,
             populate: {
               project: false,
+              versions: false,
             },
             sort: {
               listOrder: "desc",
@@ -31,8 +32,44 @@ export default factories.createCoreController(
                   $eq: projectId,
                 },
               },
+              status: "ONLINE",
             },
           })) as any;
+
+        for (let route of projectRouteResult) {
+          if (route.type === "PAGE") {
+            const { results: pageVersionResult = [] } = (await strapi
+              .service("api::page-version.page-version")
+              .find({
+                fields: ["id", "createdAt"],
+                pagination: {
+                  page: 1,
+                  pageSize: 1,
+                },
+                populate: {
+                  route: true,
+                },
+                sort: {
+                  id: "desc",
+                },
+                filters: {
+                  route: {
+                    id: {
+                      $eq: route.id,
+                    },
+                  },
+                },
+              })) as any;
+            pageVersionResult.forEach((version) => {
+              projectRouteResult.find(
+                (route) => route.id === version.route.id
+              )!.version = {
+                id: version.id,
+                createdAt: version.createdAt,
+              };
+            });
+          }
+        }
 
         const { listHaveOrder } = formatProjectRouteResult(projectRouteResult);
 
@@ -75,9 +112,12 @@ export default factories.createCoreController(
             },
           };
         } else {
-          await strapi.db.query("api::project-route.project-route").delete({
+          await strapi.db.query("api::project-route.project-route").update({
             where: {
               navUuid,
+            },
+            data: {
+              status: "DELETE",
             },
           });
           return {
@@ -133,6 +173,7 @@ export default factories.createCoreController(
                   $eq: projectId,
                 },
               },
+              status: "ONLINE",
             },
           })) as any;
 
@@ -166,6 +207,7 @@ export default factories.createCoreController(
               project: {
                 id: projectId,
               },
+              status: "ONLINE",
             },
           })) as any;
         return {
@@ -216,6 +258,7 @@ export default factories.createCoreController(
                   $eq: projectId,
                 },
               },
+              status: "ONLINE",
             },
           })) as any;
         // 初步校验
@@ -302,7 +345,7 @@ export default factories.createCoreController(
      * 权限：该应用的master角色
      */
     async update(ctx) {
-      const { title } = ctx.request.body;
+      const { title, url, isNewPage } = ctx.request.body;
       const { id } = ctx.params;
 
       try {
@@ -311,6 +354,8 @@ export default factories.createCoreController(
           .update(id, {
             data: {
               title,
+              url,
+              isNewPage,
             },
           })) as any;
         return {
@@ -349,7 +394,7 @@ function formatProjectRouteResult(navList: any[]) {
     for (let i = copyList.length - 1; i >= 0; i--) {
       if (copyList[i].parentNavUuid === pendingCheckUuid[y]) {
         const curPath = listOrderPath[pendingCheckUuid[y]];
-        const item = copyList[i];
+        const { createdAt, updatedAt, publishedAt, ...item } = copyList[i];
         const itemIsNav = item.type === groupTypeName;
         const curPathChildren = lodashGet(listHaveOrder, [
           ...curPath,

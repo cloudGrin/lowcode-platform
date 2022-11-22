@@ -54,6 +54,7 @@ export default factories.createCoreController(
                 id: {
                   $in: projectIds,
                 },
+                status: "ONLINE",
               },
             })) as any;
           return {
@@ -67,6 +68,9 @@ export default factories.createCoreController(
             .service("api::project.project")
             .find({
               pagination: ctx.query.pagination,
+              filters: {
+                status: "ONLINE",
+              },
               // sort: "updatedAt:desc",
             })) as any;
 
@@ -103,7 +107,7 @@ export default factories.createCoreController(
           },
         })) as any;
 
-        if (results.length === 0) {
+        if (results.length === 0 || results[0].status === "DELETE") {
           ctx.status = 404;
           ctx.body = {
             data: null,
@@ -175,27 +179,27 @@ export default factories.createCoreController(
      */
     async delete(ctx) {
       const projectId = ctx.params.id;
-      let result;
+      // let result;
       try {
-        async function deleteOne() {
-          return await strapi.db
-            .query("api::project-user-role.project-user-role")
-            .delete({
-              where: {
-                project: {
-                  id: projectId,
-                },
-              },
-            });
-        }
-        // 批量删除
-        do {
-          result = await deleteOne();
-        } while (result);
+        // async function deleteOne() {
+        //   return await strapi.db
+        //     .query("api::project-user-role.project-user-role")
+        //     .delete({
+        //       where: {
+        //         project: {
+        //           id: projectId,
+        //         },
+        //       },
+        //     });
+        // }
+        // // 批量删除
+        // do {
+        //   result = await deleteOne();
+        // } while (result);
 
-        await strapi.db.query("api::project.project").delete({
-          where: {
-            id: projectId,
+        await strapi.service("api::project.project").update(projectId, {
+          data: {
+            status: "DELETE",
           },
         });
         return {
@@ -230,6 +234,7 @@ export default factories.createCoreController(
               name,
               description,
               appId: `APP_${uuidv4().replace("-", "_")}`,
+              status: "ONLINE",
             },
           })) as any;
         const {

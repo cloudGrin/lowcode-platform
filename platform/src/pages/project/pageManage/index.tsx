@@ -5,11 +5,12 @@ import { Card, Col, Row } from 'antd'
 import { produce } from 'immer'
 import React, { useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import MenuManage from './menuManage'
 import AddRoute from './components/addRouteDialog'
+import MenuManage from './components/menuManage'
 
 import { useStrapiRequest } from '@/lib/request'
 import { useState } from 'react'
+import PageView from './components/pageView'
 
 const PageManage: React.FC = () => {
   const [type, setType] = useState<'LOADING' | 'EMPTY' | 'HAVE_DATA'>('LOADING')
@@ -21,7 +22,10 @@ const PageManage: React.FC = () => {
 
   const [tree, setTree] = useState<TreeData>()
 
-  const [activeNav, setActiveNav] = useState<TreeItem>()
+  const [activeNav, setActiveNav] = useState<{
+    data: TreeItem
+    type: 'dev' | 'prod'
+  }>()
 
   const { runAsync: getNavListApi } = useStrapiRequest(
     '/api/project-routes',
@@ -59,7 +63,7 @@ const PageManage: React.FC = () => {
         return
       }
 
-      navigate(`/${id}/admin/${path}`)
+      navigate(`/${id}/admin/${path}`, { replace: true })
     },
     [id, navigate, routeId]
   )
@@ -73,7 +77,10 @@ const PageManage: React.FC = () => {
       }
       if (currentNav && currentNav.data.type !== 'NAV') {
         // 找到对应页面
-        setActiveNav(currentNav)
+        setActiveNav({
+          data: currentNav,
+          type: 'dev'
+        })
         if (routeId !== currentNav.id) {
           jump(currentNav.id)
         }
@@ -154,7 +161,7 @@ const PageManage: React.FC = () => {
               setNavType={setNavType}
             />
           </div>
-          <div className='self-start flex-auto bg-c_white'>{activeNav?.data.title}</div>
+          <PageView activeNav={activeNav} setActiveNav={setActiveNav} />
         </div>
       ) : (
         <></>

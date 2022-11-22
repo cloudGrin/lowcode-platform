@@ -1,37 +1,19 @@
-import type { LoaderFunctionArgs, RouteObject } from 'react-router'
+import type { RouteObject } from 'react-router'
 
-import { strapiRequestInstance } from '@/lib/request'
+import { Navigate } from 'react-router-dom'
 import AppSetting from './appSetting'
-import BasicSetting from './appSetting/basicSetting'
 import ApplyPermission from './appSetting/applyPermission'
+import BasicSetting from './appSetting/basicSetting'
 import ErrorPageForProject from './errorPage'
 import Project from './index'
 import PageManage from './pageManage'
 import Publish from './publish'
-import { Navigate } from 'react-router-dom'
-
-async function projectLoader({ params }: LoaderFunctionArgs) {
-  try {
-    const result = await strapiRequestInstance('/api/projects/${id}', {
-      urlValue: {
-        id: params.id!
-      }
-    })
-    return {
-      projectInfo: result.data
-    }
-  } catch (error) {
-    throw new Response('NOT FOUND', { status: 404 })
-  }
-}
 
 const routes: RouteObject[] = [
   {
     errorElement: <ErrorPageForProject />,
     path: ':id/admin',
     element: <Project />,
-    loader: projectLoader,
-    id: 'project',
     children: [
       {
         path: 'appSetting',

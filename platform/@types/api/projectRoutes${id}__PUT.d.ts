@@ -8,7 +8,9 @@ interface ApiProjectRoutesId__PUT {
 }
 
 interface ApiProjectRoutesIdRequest__PUT {
-  title: string
+  title?: string
+  url?: string
+  isNewPage?: boolean
 }
 
 interface ApiProjectRoutesIdResponse__PUT {

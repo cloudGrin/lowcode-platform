@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "page_versions",
+  "info": {
+    "singularName": "page-version",
+    "pluralName": "page-versions",
+    "displayName": "PageVersion"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "description": {
+      "type": "text"
+    },
+    "schema": {
+      "type": "json"
+    },
+    "route": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::project-route.project-route",
+      "inversedBy": "versions"
+    }
+  }
+}

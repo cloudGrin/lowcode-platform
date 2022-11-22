@@ -1,18 +1,14 @@
 import { useStrapiRequest } from '@/lib/request'
 import { message, Modal, Spin } from 'antd'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useRouteLoaderData, useNavigate } from 'react-router-dom'
+import { useNavigate, useParams, useRouteLoaderData } from 'react-router-dom'
 import SetMember from './components/setMember'
 
 const ApplyPermission: React.FC = () => {
+  const { id } = useParams()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [type, setType] = useState<'master' | 'developer'>('master')
-
-  const { projectInfo } =
-    (useRouteLoaderData('project') as {
-      projectInfo: ApiProjectsIdResponse['data']
-    }) || {}
 
   const { userInfo } =
     (useRouteLoaderData('userAuth') as { userInfo: ApiTypes['/api/users/me']['response']['data'] }) || {}
@@ -25,7 +21,7 @@ const ApplyPermission: React.FC = () => {
     '/api/projects/${id}/users',
     () => ({
       urlValue: {
-        id: projectInfo.id
+        id: id as string
       }
     }),
     { manual: true }
@@ -39,7 +35,7 @@ const ApplyPermission: React.FC = () => {
     '/api/projects/${id}/setMembers__PUT',
     (userIds) => ({
       urlValue: {
-        id: projectInfo.id
+        id: id as string
       },
       payload: {
         memberIds: userIds,

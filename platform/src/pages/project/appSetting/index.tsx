@@ -1,8 +1,9 @@
 import { TeamOutlined, SettingOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { Menu } from 'antd'
-import React, { useCallback, useMemo } from 'react'
-import { Outlet, useLocation, useNavigate, useRouteLoaderData } from 'react-router-dom'
+import React, { useCallback, useContext, useMemo } from 'react'
+import { Outlet, useLocation, useNavigate, useParams, useRouteLoaderData } from 'react-router-dom'
+import { InfoContext } from '../projectInfoVersionsContext'
 
 type MenuItem = Required<MenuProps>['items'][number]
 
@@ -28,7 +29,8 @@ const items: MenuItem[] = [
 ]
 
 const PlatformManage: React.FC = () => {
-  const { projectInfo } = (useRouteLoaderData('project') as { projectInfo: ApiProjectsIdResponse['data'] }) || {}
+  const { id } = useParams()
+
   const { pathname } = useLocation()
 
   const navigate = useNavigate()
@@ -45,14 +47,14 @@ const PlatformManage: React.FC = () => {
   const jumpRoute = useCallback(
     (e) => {
       const item = items.find((tab) => tab!.key === e.key)!
-      navigate((item.key as string).replace('\\d+', projectInfo.id + ''))
+      navigate((item.key as string).replace('\\d+', id + ''))
     },
-    [navigate, projectInfo.id]
+    [navigate, id]
   )
 
   return (
     <div className='flex h-[calc(100vh-theme(height.header))]'>
-      <aside>
+      <aside className='bg-c_white'>
         <div className='pt-[16px] pb-[8px] h-full border-r-[1px] border-r-[#f1f2f3]'>
           <Menu
             className='h-full'

@@ -1,5 +1,5 @@
 import Icon from '@/components/icon'
-import { strapiRequestInstance, useStrapiRequest } from '@/lib/request'
+import { strapiRequestInstance } from '@/lib/request'
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons'
 import type {
   ItemId,
@@ -10,10 +10,13 @@ import type {
   TreeSourcePosition
 } from '@atlaskit/tree'
 import Tree, { moveItemOnTree, mutateTree } from '@atlaskit/tree'
-import { Button, Divider, Form, Input, message, Modal, Popover } from 'antd'
+import { Button, Divider, Form, Input, message, Modal, Popover, Tabs } from 'antd'
 import classNames from 'classnames'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
+import { useEffect } from 'react'
+import { useContext } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { VersionsContext } from '../../projectInfoVersionsContext'
 
 const PADDING_PER_LEVEL = 22
 
@@ -46,27 +49,52 @@ function removeRouteApi({ uuid, successCb }: { uuid: ItemId; successCb?: () => v
 const PureTreeFc: React.FC<{
   tree?: TreeData
   setTree: React.Dispatch<React.SetStateAction<TreeData | undefined>>
-  setActiveNav: React.Dispatch<React.SetStateAction<TreeItem | undefined>>
   getNavListApi: () => Promise<ApiProjectRoutesResponse>
-  activeNav?: TreeItem
+  activeNav?: {
+    data: TreeItem
+    type: 'dev' | 'prod'
+  }
+  setActiveNav: React.Dispatch<
+    React.SetStateAction<
+      | {
+          data: TreeItem
+          type: 'dev' | 'prod'
+        }
+      | undefined
+    >
+  >
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   setNavType: React.Dispatch<React.SetStateAction<ApiProjectRouteType>>
 }> = ({ tree, setTree, getNavListApi, activeNav, setActiveNav, setOpen, setNavType }) => {
+  const [activeTab, setActiveTab] = useState<'prod' | 'dev'>('dev')
   const { id } = useParams()
   const navigate = useNavigate()
+  const [versions] = useContext(VersionsContext)
+  const [prodTreeData, setProdTreeData] = useState<TreeData>()
+  const activeTree = useMemo(() => {
+    return activeTab === 'dev' ? tree : prodTreeData
+  }, [activeTab, prodTreeData, tree])
 
   const onExpand = useCallback(
     (itemId: ItemId) => {
-      setTree(mutateTree(tree!, itemId, { isExpanded: true }))
+      if (activeTab === 'dev') {
+        setTree(mutateTree(tree!, itemId, { isExpanded: true }))
+      } else {
+        setProdTreeData(mutateTree(prodTreeData!, itemId, { isExpanded: true }))
+      }
     },
-    [setTree, tree]
+    [activeTab, prodTreeData, setTree, tree]
   )
 
   const onCollapse = useCallback(
     (itemId: ItemId) => {
-      setTree(mutateTree(tree!, itemId, { isExpanded: false }))
+      if (activeTab === 'dev') {
+        setTree(mutateTree(tree!, itemId, { isExpanded: false }))
+      } else {
+        setProdTreeData(mutateTree(prodTreeData!, itemId, { isExpanded: false }))
+      }
     },
-    [setTree, tree]
+    [activeTab, prodTreeData, setTree, tree]
   )
 
   const onDragEnd = useCallback(
@@ -115,7 +143,7 @@ const PureTreeFc: React.FC<{
         }
       }
     },
-    [getNavListApi, tree]
+    [getNavListApi, setTree, tree]
   )
 
   const [changeTitleId, setChangeTitleId] = useState()
@@ -167,15 +195,20 @@ const PureTreeFc: React.FC<{
           className={classNames(
             'flex items-center h-[40px] hover:bg-[#f1f2f3] rounded-[6px] mb-[4px]',
             snapshot.isDragging ? ['bg-[#f1f2f3e6]'] : undefined,
-            activeNav && activeNav.id === item.id ? ['bg-[#f1f2f3]'] : undefined
+            activeNav && activeNav.data.id === item.id && activeNav.type === activeTab ? ['bg-[#f1f2f3]'] : undefined
           )}
           onClick={() => {
             if (item.data.type === 'NAV') {
               item.isExpanded ? onCollapse(item.id) : onExpand(item.id)
             } else {
-              if (item.id !== activeNav?.id) {
+              if (item.id !== activeNav?.data?.id) {
                 navigate(`/${id}/admin/${item.id}`)
-                setActiveNav(item)
+              }
+              if (item.id !== activeNav?.data?.id || activeNav.type !== activeTab) {
+                setActiveNav({
+                  type: activeTab,
+                  data: item
+                })
               }
             }
           }}
@@ -242,7 +275,12 @@ const PureTreeFc: React.FC<{
                 {item.data ? item.data.title : ''}
               </div>
             </Popover>
-            <div className='px-[2px] flex-none pr-[10px] actions hidden'>
+            <div
+              className={classNames(
+                'px-[2px] flex-none pr-[10px] actions hidden',
+                activeTab === 'dev' ? 'hidden' : '!hidden'
+              )}
+            >
               <Popover
                 placement='bottomRight'
                 content={
@@ -292,37 +330,54 @@ const PureTreeFc: React.FC<{
         </div>
       )
     },
-    [activeNav, changeTitleId, navigate, id, setActiveNav, changeTitle, removeRoute]
+    [activeNav, changeTitleId, activeTab, navigate, id, setActiveNav, changeTitle, removeRoute]
+  )
+
+  const [tabs, setTabs] = useState([
+    {
+      label: '开发中',
+      key: 'dev'
+    }
+  ])
+
+  useEffect(() => {
+    setTabs([
+      ...(!!versions?.length
+        ? [
+            {
+              label: `版本(${versions[0].version})`,
+              key: 'prod'
+            }
+          ]
+        : []),
+      {
+        label: '开发中',
+        key: 'dev'
+      }
+    ])
+    if (!!versions?.length) {
+      setProdTreeData(versions[0].navList as TreeData)
+    }
+  }, [versions])
+
+  const changeTab = useCallback(
+    (val) => {
+      setActiveTab(val)
+    },
+    [setActiveTab]
   )
 
   return (
     <div className='flex flex-col w-full h-full'>
-      <div className='p-[8px_19px] flex-auto overflow-y-auto mr-[-10px] tree-wrap'>
-        {tree && (
-          <Tree
-            tree={tree}
-            renderItem={renderItem}
-            onExpand={onExpand}
-            onCollapse={onCollapse}
-            onDragEnd={onDragEnd}
-            offsetPerLevel={PADDING_PER_LEVEL}
-            isDragEnabled
-            isNestingEnabled
-          />
-        )}
-        <style jsx>{`
-          .tree-wrap > :global(div) {
-            height: 100%;
-          }
-        `}</style>
-      </div>
-      <div className='h-[32px] flex-none px-[19px] flex items-center py-[30px] bg-c_white'>
+      <div className='h-[32px] flex-none px-[19px] flex items-center justify-between bg-c_white'>
+        <Tabs className='' activeKey={activeTab} centered items={tabs} onChange={changeTab} />
         <Popover
           placement='topRight'
           content={
             <div className='w-[120px]'>
               <div
                 onClick={() => {
+                  setActiveTab('dev')
                   setNavType('PAGE')
                   setOpen(true)
                 }}
@@ -333,6 +388,7 @@ const PureTreeFc: React.FC<{
               </div>
               <div
                 onClick={() => {
+                  setActiveTab('dev')
                   setNavType('LINK')
                   setOpen(true)
                 }}
@@ -344,6 +400,7 @@ const PureTreeFc: React.FC<{
               <Divider className='my-[12px]' />
               <div
                 onClick={() => {
+                  setActiveTab('dev')
                   setNavType('NAV')
                   setOpen(true)
                 }}
@@ -356,11 +413,59 @@ const PureTreeFc: React.FC<{
           }
           trigger='hover'
         >
-          <div className='w-full h-[32px] bg-[#5caef5] rounded-[6px] justify-center flex items-center cursor-pointer'>
-            <span className='text-c_white text-[14px]'>添加路由</span>
-            <PlusOutlined className='text-[16px] text-white ml-[10px]' />
+          <div className='w-[32px] h-[32px] bg-[#0089ff] rounded-[6px] justify-center flex items-center cursor-pointer'>
+            <PlusOutlined className='text-[16px] text-white' />
           </div>
         </Popover>
+        <style jsx>{`
+          div :global(.ant-tabs-nav) {
+            margin-bottom: 0;
+            height: 100%;
+          }
+          div :global(.ant-tabs-content-holder) {
+            display: none;
+          }
+          div :global(.ant-tabs-top > .ant-tabs-nav::before) {
+            border-bottom: none;
+          }
+
+          div :global(.ant-tabs-nav) {
+            margin-bottom: 0;
+            padding: 0;
+          }
+          div :global(.ant-tabs-tab) {
+            font-size: 12px;
+            padding: 8px;
+          }
+          div :global(.ant-tabs-tab .ant-tabs-tab-btn) {
+            color: #747677;
+            font-weight: 400;
+          }
+          div :global(.ant-tabs-tab + .ant-tabs-tab) {
+            margin: 0 0 0 6px;
+          }
+          div :global(.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn) {
+            color: #171a1d;
+          }
+        `}</style>
+      </div>
+      <div className='p-[8px_19px] flex-auto overflow-y-auto mr-[-10px] tree-wrap'>
+        <Tree
+          tree={activeTree}
+          renderItem={renderItem}
+          onExpand={onExpand}
+          onCollapse={onCollapse}
+          onDragEnd={onDragEnd}
+          offsetPerLevel={PADDING_PER_LEVEL}
+          isDragEnabled={activeTab === 'dev'}
+          isNestingEnabled
+        />
+
+        <style jsx>{`
+          .tree-wrap > :global(div) {
+            height: 100%;
+          }
+        `}</style>
       </div>
     </div>
   )

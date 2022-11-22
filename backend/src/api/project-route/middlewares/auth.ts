@@ -8,18 +8,13 @@ export default (config, { strapi }) => {
       routerPath,
       request: {
         method,
-        query: { projectId },
         body: { projectId: bodyProjectId, currentId },
       },
     } = context;
     // 平台管理员无视规则
     if (!isPlatformAdmin) {
-      // 查询
-      if (
-        routerPath === "/api/project-routes" &&
-        "GET" === method &&
-        (await isProjectBelongsToUser({ strapi, projectId, userId }))
-      ) {
+      // 查询 (无权限)
+      if (routerPath === "/api/project-routes" && "GET" === method) {
         await next();
         return;
       }
@@ -72,6 +67,7 @@ export default (config, { strapi }) => {
       else if (
         routerPath === "/api/project-routes" &&
         "POST" === method &&
+        !!bodyProjectId &&
         (await isProjectBelongsToUser({
           strapi,
           projectId: bodyProjectId,
@@ -84,7 +80,8 @@ export default (config, { strapi }) => {
       // 改变顺序
       else if (
         routerPath === "/api/project-routes/updateOrder" &&
-        "POST" === method
+        "POST" === method &&
+        !!currentId
       ) {
         const projectRoute = await strapi.db
           .query("api::project-route.project-route")

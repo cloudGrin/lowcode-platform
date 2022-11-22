@@ -33,6 +33,7 @@ module.exports = {
     'react-hooks/rules-of-hooks': 2,
     'react-hooks/exhaustive-deps': 1,
     '@typescript-eslint/no-explicit-any': 0,
-    'react/react-in-jsx-scope': 'off'
+    'react/react-in-jsx-scope': 'off',
+    '@typescript-eslint/no-empty-function': 0
   }
 }
