@@ -8,6 +8,7 @@ export default function Header() {
   const navigate = useNavigate()
   const { userInfo } =
     (useRouteLoaderData('userAuth') as { userInfo: ApiTypes['/api/users/me']['response']['data'] }) || {}
+  console.log(userInfo)
   const goLogout = useCallback(() => {
     getLoginState().removeUser()
     navigate('/login')

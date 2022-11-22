@@ -11,20 +11,14 @@ import projectRoutes from '@/pages/project/routes'
 async function authLoader() {
   const TokenUserInfo = getLoginState()
   if (TokenUserInfo.loginToken) {
-    let userInfo
-    const userInfoFromCookie = TokenUserInfo.userInfo
-    if (userInfoFromCookie) {
-      userInfo = userInfoFromCookie
-    } else {
-      try {
-        userInfo = await strapiRequestInstance('/api/users/me')
-        TokenUserInfo.setUserInfo(userInfo.data)
-      } catch (error) {
-        console.log(error)
+    try {
+      const res = await strapiRequestInstance('/api/users/me')
+      TokenUserInfo.setUserInfo(res.data)
+      return {
+        userInfo: res.data
       }
-    }
-    return {
-      userInfo
+    } catch (error) {
+      console.log(error)
     }
   } else {
     return redirect('/login')

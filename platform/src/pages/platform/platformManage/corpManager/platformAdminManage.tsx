@@ -1,9 +1,11 @@
 import DescriptionTip from '@/components/descriptionTip'
 import { strapiRequestInstance, useStrapiRequest } from '@/lib/request'
 import SelectPeopleDialog from '@/pages/platform/components/selectPeopleDialog'
-import { Button, Table, Tag, Tooltip } from 'antd'
+import { Button, Modal, Table, Tag, Tooltip } from 'antd'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate, useRouteLoaderData, useRevalidator } from 'react-router-dom'
 import { useUserRole } from './hooks'
+
 const commonColumns = [
   {
     title: '用户名',
@@ -35,7 +37,10 @@ const PlatformAdminManage: React.FC<{ tabType: 'application' | 'platform' }> = (
   const [admins, setAdmins] = useState<ApiUsersPlatformAdminResponse['data']>([])
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
   const [open, setOpen] = useState(false)
-
+  const navigate = useNavigate()
+  const revalidator = useRevalidator()
+  const { userInfo } =
+    (useRouteLoaderData('userAuth') as { userInfo: ApiTypes['/api/users/me']['response']['data'] }) || {}
   const rowSelection = useMemo(
     () => ({
       selectedRowKeys: selectedRowKeys,
@@ -59,12 +64,35 @@ const PlatformAdminManage: React.FC<{ tabType: 'application' | 'platform' }> = (
         setAdmins(data)
       })
     },
-    removeSuccessCb: () => {
-      getPlatformAdmins().then((data) => {
-        setAdmins(data)
-      })
-    }
+    isNeedRemoveConfirm: false
   })
+
+  const removeUsersRolePre = useCallback(
+    (...rest: Parameters<typeof removeUsersRole>) => {
+      const isIncludMe = rest[1].includes(userInfo.id)
+      Modal.confirm({
+        width: 350,
+        title: (
+          <span className='text-[16px] font-normal'>
+            {isIncludMe ? '确定要移除包含自己的成员吗？' : '确定要移除成员吗？'}
+          </span>
+        ),
+        onOk: () => {
+          removeUsersRole(...rest).then(() => {
+            if (isIncludMe) {
+              navigate('/')
+              revalidator.revalidate()
+            } else {
+              getPlatformAdmins().then((data) => {
+                setAdmins(data)
+              })
+            }
+          })
+        }
+      })
+    },
+    [navigate, removeUsersRole, revalidator, userInfo]
+  )
 
   const columns = useMemo(() => {
     return [
@@ -78,7 +106,7 @@ const PlatformAdminManage: React.FC<{ tabType: 'application' | 'platform' }> = (
             return (
               <span
                 className='cursor-pointer text-c_primary text-[14px]'
-                onClick={() => removeUsersRole('ApplicationAdmin', [record.id])}
+                onClick={() => removeUsersRolePre('ApplicationAdmin', [record.id])}
               >
                 移除成员
               </span>
@@ -87,7 +115,7 @@ const PlatformAdminManage: React.FC<{ tabType: 'application' | 'platform' }> = (
         }
       }
     ]
-  }, [removeUsersRole])
+  }, [removeUsersRolePre])
 
   const {
     loading: usersOptionsLoading,
@@ -133,7 +161,7 @@ const PlatformAdminManage: React.FC<{ tabType: 'application' | 'platform' }> = (
         <Button type='primary' className='mr-[8px]' size='large' onClick={openAddPeopleDialog}>
           添加成员
         </Button>
-        <Button size='large' onClick={() => removeUsersRole('ApplicationAdmin', selectedRowKeys)}>
+        <Button size='large' onClick={() => removeUsersRolePre('ApplicationAdmin', selectedRowKeys)}>
           删除
         </Button>
       </div>

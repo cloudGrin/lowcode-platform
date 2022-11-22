@@ -31,7 +31,7 @@ export function getLoginState() {
      * 设置用户信息
      * @param {string} val 用户信息
      */
-    setUserInfo(val: {}): this {
+    setUserInfo(val: Record<string, any>): this {
       Cookies.set('userInfo', JSON.stringify(val), {
         expires: 7 // 7 day
       })

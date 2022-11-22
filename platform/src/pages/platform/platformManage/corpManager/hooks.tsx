@@ -4,10 +4,12 @@ import React, { useCallback } from 'react'
 
 export function useUserRole({
   addSuccessCb,
-  removeSuccessCb
+  removeSuccessCb,
+  isNeedRemoveConfirm = true
 }: {
   addSuccessCb?: () => void
   removeSuccessCb?: () => void
+  isNeedRemoveConfirm?: boolean
 }) {
   const addUsersRole = useCallback(
     (type: ApiUsersRoleRequest['toRole'], userIds: React.Key[]) => {
@@ -36,35 +38,49 @@ export function useUserRole({
 
   const removeUsersRole = useCallback(
     (type: ApiUsersRoleRequest['toRole'], userIds: React.Key[]) => {
-      return new Promise((resolve) => {
-        Modal.confirm({
-          width: 350,
-          title: <span className='text-[16px] font-normal'>确定要移除成员吗？</span>,
-          onOk: () => {
-            strapiRequestInstance(
-              '/api/users/role__PUT',
-              {
-                toRole: type,
-                userIds: userIds as number[]
-              },
-              {}
-            )
-              .then((res) => {
-                if (res.data.success) {
-                  message.success('移除成功')
-                  resolve('')
-                  removeSuccessCb && removeSuccessCb()
-                }
-              })
-              .catch((error) => {
-                console.log(error)
-              })
+      function removeApi() {
+        return strapiRequestInstance(
+          '/api/users/role__PUT',
+          {
+            toRole: type,
+            userIds: userIds as number[]
+          },
+          {}
+        ).then((res) => {
+          if (res.data.success) {
+            message.success('移除成功')
+            removeSuccessCb && removeSuccessCb()
           }
         })
+      }
+      return new Promise((resolve) => {
+        if (isNeedRemoveConfirm) {
+          Modal.confirm({
+            width: 350,
+            title: <span className='text-[16px] font-normal'>确定要移除成员吗？</span>,
+            onOk: () => {
+              removeApi()
+                .then(() => {
+                  resolve('')
+                })
+                .catch((error) => {
+                  console.log(error)
+                })
+            }
+          })
+        } else {
+          removeApi()
+            .then(() => {
+              resolve('')
+            })
+            .catch((error) => {
+              console.log(error)
+            })
+        }
       })
     },
-    [removeSuccessCb]
+    [isNeedRemoveConfirm, removeSuccessCb]
   )
 
-  return [addUsersRole, removeUsersRole]
+  return [addUsersRole, removeUsersRole] as const
 }
