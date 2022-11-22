@@ -32,7 +32,7 @@ export default function Header() {
               className={({ isActive }) => (isActive ? 'active-class-name' : undefined)}
             >
               <Tooltip placement='bottom' title='平台管理'>
-                <button className='w-[32px] h-[32px] ml-[8px] rounded-[6px] text-[#878f95] hover:bg-[#e5e6e8] hover:text-[#171a1d] transition-all'>
+                <button className='w-[32px] h-[32px] ml-[8px] rounded-[6px] text-[#878f95] hover:bg-[#e5e6e8] hover:text-[#171a1d] transition-all leading-none'>
                   <SettingOutlined className='text-[20px] align-middle' />
                 </button>
               </Tooltip>

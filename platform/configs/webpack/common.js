@@ -97,14 +97,7 @@ module.exports = {
           },
           {
             loader: 'less-loader',
-            options: {
-              lessOptions: {
-                javascriptEnabled: true
-              },
-              additionalData: (content) => {
-                return `${content}\n\n@import '${resolve(__dirname, '../../src/styles/antd-custom.less')}';`
-              }
-            }
+            options: {}
           }
         ]
       },

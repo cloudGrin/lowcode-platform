@@ -47,7 +47,7 @@ const PlatformManage: React.FC = () => {
   }
 
   return (
-    <div className='flex'>
+    <div className='flex min-h-[calc(100vh-62px)]'>
       <aside className='bg-c_white'>
         <div className='pt-[16px] pb-[8px] h-full border-r-[1px] border-r-[#f1f2f3]'>
           <Menu

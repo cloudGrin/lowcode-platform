@@ -73,9 +73,10 @@ const CorpManager: React.FC = () => {
         }
         :global(.corp-manager .ant-tabs-content-holder) {
           background-color: #f1f2f3;
+          padding: 16px;
         }
+
         :global(.corp-manager .ant-tabs-content) {
-          margin: 16px;
           background-color: #fff;
           padding: 24px;
           border-radius: 6px;

@@ -1,26 +1,54 @@
-import { ConfigProvider } from 'antd'
-import zhCN from 'antd/lib/locale/zh_CN'
+import { ConfigProvider, List, theme } from 'antd'
+import zhCN from 'antd/locale/zh_CN'
 import 'moment/locale/zh-cn'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { RouterProvider } from 'react-router-dom'
 import router from '@/routes'
-
+import themeToken from '@/styles/var.json'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const request = require.context('@/assets/svg', false, /\.svg$/)
 request.keys().forEach(request)
-/* prettier-ignore-start */
-/** 以下css引入顺序请勿修改，会导致bug */
-import '@/styles/base.css'
-import 'antd/dist/antd.less'
-import '@/styles/antd-reset.less'
 import '@/styles/global.css'
-/* prettier-ignore-end */
+import '@/styles/antd-reset.css'
 
 ReactDOM.render(
   <React.StrictMode>
-    <ConfigProvider locale={zhCN} autoInsertSpaceInButton={false}>
+    <ConfigProvider
+      locale={zhCN}
+      autoInsertSpaceInButton={false}
+      theme={{
+        token: {
+          /**  全局主色 */
+          colorPrimary: themeToken.c_primary,
+          /**  链接色 */
+          colorLink: themeToken.c_info,
+          /**  a标签:hover颜色 */
+          colorLinkHover: themeToken.c_primary,
+          /**  成功色 */
+          colorSuccess: themeToken.c_success,
+          /**  警告色 */
+          colorWarning: themeToken.c_warning,
+          /**  错误色 */
+          colorError: themeToken.c_error,
+          /**  主字号 */
+          fontSize: 12,
+          /**  一级文本色 */
+          colorText: themeToken.c_level_1,
+          /** 二级文本色 */
+          colorTextSecondary: themeToken.c_level_2,
+          /**  失效色 */
+          colorTextDisabled: themeToken.c_level_4,
+          /**  边框色 */
+          colorBorder: themeToken.c_line_1,
+          /**  height rules */
+          controlHeightSM: 32,
+          controlHeight: 36,
+          controlHeightLG: 40
+        }
+      }}
+    >
       <RouterProvider router={router} />
     </ConfigProvider>
   </React.StrictMode>,

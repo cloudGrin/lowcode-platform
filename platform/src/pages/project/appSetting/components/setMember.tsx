@@ -119,6 +119,9 @@ const SelectPeopleDialog: React.FC<{
           :global(.set-member-wrap .ant-tag > span) {
             vertical-align: middle;
           }
+          :global(.set-member-wrap .ant-checkbox-group) {
+            display: block;
+          }
         `}
       </style>
     </Modal>

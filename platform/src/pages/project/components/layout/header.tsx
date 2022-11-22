@@ -124,9 +124,9 @@ export default function Header() {
           }
           div :global(.ant-tabs-content-holder) {
             background-color: #f1f2f3;
+            padding: 16px;
           }
           div :global(.ant-tabs-content) {
-            margin: 16px;
             background-color: #fff;
             padding: 24px;
             border-radius: 6px;

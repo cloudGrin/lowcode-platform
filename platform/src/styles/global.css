@@ -1,8 +1,8 @@
-/*! purgecss start ignore */
+@tailwind base;
 @tailwind components;
-/*! purgecss end ignore */
 
 @tailwind utilities;
+
 /* 
 #engine,
 body {
@@ -45,4 +45,8 @@ body {
 
 svg {
   fill: currentColor;
+}
+
+button.ant-btn-primary {
+  background-color: theme(colors.c_primary);
 }
