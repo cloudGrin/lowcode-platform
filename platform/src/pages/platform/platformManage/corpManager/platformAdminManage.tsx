@@ -69,27 +69,27 @@ const PlatformAdminManage: React.FC<{ tabType: 'application' | 'platform' }> = (
 
   const removeUsersRolePre = useCallback(
     (...rest: Parameters<typeof removeUsersRole>) => {
-      const isIncludMe = rest[1].includes(userInfo.id)
-      Modal.confirm({
-        width: 350,
-        title: (
-          <span className='text-[16px] font-normal'>
-            {isIncludMe ? '确定要移除包含自己的成员吗？' : '确定要移除成员吗？'}
-          </span>
-        ),
-        onOk: () => {
-          removeUsersRole(...rest).then(() => {
-            if (isIncludMe) {
-              navigate('/')
-              revalidator.revalidate()
-            } else {
-              getPlatformAdmins().then((data) => {
-                setAdmins(data)
-              })
-            }
-          })
-        }
-      })
+      if (!!rest[1].length) {
+        const isIncludMe = rest[1].includes(userInfo.id)
+        Modal.confirm({
+          width: 350,
+          title: (
+            <span className='font-normal'>{isIncludMe ? '确定要移除包含自己的成员吗？' : '确定要移除成员吗？'}</span>
+          ),
+          onOk: () => {
+            removeUsersRole(...rest).then(() => {
+              if (isIncludMe) {
+                navigate('/')
+                revalidator.revalidate()
+              } else {
+                getPlatformAdmins().then((data) => {
+                  setAdmins(data)
+                })
+              }
+            })
+          }
+        })
+      }
     },
     [navigate, removeUsersRole, revalidator, userInfo]
   )

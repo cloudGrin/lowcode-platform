@@ -97,7 +97,7 @@ const Publish: React.FC = () => {
 
   const setInitForm = useCallback(() => {
     form.setFieldsValue({
-      version: semver.inc(versions?.[0].version ?? '0.0.0', 'patch'),
+      version: semver.inc(versions?.[0]?.version ?? '0.0.0', 'patch'),
       description: ''
     })
   }, [form, versions])

@@ -55,19 +55,21 @@ export function useUserRole({
       }
       return new Promise((resolve) => {
         if (isNeedRemoveConfirm) {
-          Modal.confirm({
-            width: 350,
-            title: <span className='text-[16px] font-normal'>确定要移除成员吗？</span>,
-            onOk: () => {
-              removeApi()
-                .then(() => {
-                  resolve('')
-                })
-                .catch((error) => {
-                  console.log(error)
-                })
-            }
-          })
+          if (!!userIds.length) {
+            Modal.confirm({
+              width: 350,
+              title: <span className='font-normal'>确定要移除成员吗？</span>,
+              onOk: () => {
+                removeApi()
+                  .then(() => {
+                    resolve('')
+                  })
+                  .catch((error) => {
+                    console.log(error)
+                  })
+              }
+            })
+          }
         } else {
           removeApi()
             .then(() => {
