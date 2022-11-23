@@ -1,0 +1,17 @@
+diff --git a/node_modules/axios/index.d.ts b/node_modules/axios/index.d.ts
+index 8a2f126..9bea1cd 100644
+--- a/node_modules/axios/index.d.ts
++++ b/node_modules/axios/index.d.ts
+@@ -317,6 +317,12 @@ export interface AxiosRequestConfig<D = any> {
+   transitional?: TransitionalOptions;
+   signal?: GenericAbortSignal;
+   insecureHTTPParser?: boolean;
++  /**
++   * 接口是否登录鉴权（配置此参数后，会携带jwtToken）
++   */
++  needAuth?: boolean;
++  urlValue?: Record<string, string | number>;
++  hideErrorMessage?: boolean;
+   env?: {
+     FormData?: new (...args: any[]) => object;
+   };

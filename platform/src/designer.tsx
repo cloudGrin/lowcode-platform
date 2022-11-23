@@ -1,11 +1,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Designer from './pages/designer'
-// import Preview from './pages/preview'
+import Designer from './pages/engine/designer'
+import '@/styles/global.css'
+import '@/styles/antd-reset.css'
 
 ReactDOM.render(
   <React.StrictMode>
-    <Designer />
+    <div className='relative h-[100vh] overflow-hidden'>
+      <Designer />
+    </div>
   </React.StrictMode>,
   document.getElementById('root')
 )

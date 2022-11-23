@@ -1,0 +1,36 @@
+import { ILowCodePluginContext } from '@alilc/lowcode-engine'
+import { Button } from 'antd'
+import { saveSchema } from '../../../helper'
+
+// 保存功能示例
+const PreviewSamplePlugin = (ctx: ILowCodePluginContext) => {
+  return {
+    async init() {
+      const { skeleton, config } = ctx
+      const doPreview = () => {
+        saveSchema()
+        setTimeout(() => {
+          window.open(`./preview.html${location.search}`)
+        }, 500)
+      }
+      skeleton.add({
+        name: 'previewSample',
+        area: 'topArea',
+        type: 'Widget',
+        props: {
+          align: 'right'
+        },
+        content: (
+          <Button type='primary' onClick={() => doPreview()}>
+            预览
+          </Button>
+        )
+      })
+    }
+  }
+}
+PreviewSamplePlugin.pluginName = 'PreviewSamplePlugin'
+PreviewSamplePlugin.meta = {
+  dependencies: ['EditorInitPlugin']
+}
+export default PreviewSamplePlugin

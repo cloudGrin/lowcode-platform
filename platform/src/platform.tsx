@@ -1,6 +1,5 @@
 import { ConfigProvider, List, theme } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-import 'moment/locale/zh-cn'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { RouterProvider } from 'react-router-dom'

@@ -1,5 +1,4 @@
 const constants = require('./src/styles/var.json')
-const plugin = require('tailwindcss/plugin')
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -11,7 +10,7 @@ module.exports = {
       './src/pages/**/*.{html,js,ts,jsx,tsx}',
       './src/components/**/*.{html,js,ts,jsx,tsx}',
       './src/index.html',
-      './src/main.tsx'
+      './src/*.tsx'
     ]
   },
   theme: {

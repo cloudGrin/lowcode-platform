@@ -4,46 +4,43 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title><%= htmlWebpackPlugin.options.title %></title>
+
     <% if (useFor == 'designer') { %>
     <!-- 低代码引擎的页面框架样式 -->
-    <link rel="stylesheet" href="https://alifd.alicdn.com/npm/@alilc/lowcode-engine@1.0.16/dist/css/engine-core.css" />
+    <link rel="stylesheet" href="https://alifd.alicdn.com/npm/@alilc/lowcode-engine@latest/dist/css/engine-core.css" />
     <!-- Fusion Next 控件样式 -->
-    <link rel="stylesheet" href="https://g.alicdn.com/code/lib/alifd__next/1.23.24/next.min.css" />
+    <link rel="stylesheet" href="https://g.alicdn.com/code/lib/alifd__next/1.26.4/next.min.css" />
     <!-- 低代码引擎的页面主题样式，可以替换为 theme-lowcode-dark -->
     <link rel="stylesheet" href="https://alifd.alicdn.com/npm/@alifd/theme-lowcode-light/0.2.1/next.min.css" />
     <!-- 低代码引擎官方扩展的样式 -->
     <link
       rel="stylesheet"
-      href="https://alifd.alicdn.com/npm/@alilc/lowcode-engine-ext@1.0.5/dist/css/engine-ext.css"
+      href="https://alifd.alicdn.com/npm/@alilc/lowcode-engine-ext@latest/dist/css/engine-ext.css"
     />
     <% } %>
   </head>
   <body>
     <div id="root"></div>
+
     <% if (webpackConfig.mode == 'production') { %>
     <script crossorigin src="https://unpkg.com/react@16.14.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16.14.0/umd/react-dom.production.min.js"></script>
     <% } else { %>
     <script crossorigin src="https://unpkg.com/react@16.14.0/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16.14.0/umd/react-dom.development.js"></script>
-    <% } %> <% if (useFor == 'designer') { %>
-    <script src="https://g.alicdn.com/code/lib/rax/1.1.0/rax.umd.min.js"></script>
-    <% } %> 
+    <% } %>
+
     <script src="https://g.alicdn.com/code/lib/prop-types/15.7.2/prop-types.js"></script>
     <script>
       React.PropTypes = PropTypes
     </script>
-    <% if (useFor == 'designer' || useFor == 'preview') { %>
-    <script src="https://g.alicdn.com/platform/c/react15-polyfill/0.0.1/dist/index.js"></script>
-    <% } %>
-    <script src="https://g.alicdn.com/mylib/moment/2.29.1/min/moment.min.js"></script>
     <script src="https://g.alicdn.com/platform/c/lodash/4.6.1/lodash.min.js"></script>
-    <% if (useFor == 'designer' || useFor == 'preview') { %>
-    <script src="https://g.alicdn.com/code/lib/alifd__next/1.23.24/next-with-locales.min.js"></script>
-    <% } %> <% if (useFor == 'designer') { %>
 
-    <script src="https://alifd.alicdn.com/npm/@alilc/lowcode-engine@1.0.16/dist/js/engine-core.js"></script>
-    <script src="https://alifd.alicdn.com/npm/@alilc/lowcode-engine-ext@1.0.5/dist/js/engine-ext.js"></script>
+    <% if (useFor == 'designer') { %>
+    <script src="https://g.alicdn.com/mylib/moment/2.29.1/min/moment.min.js"></script>
+    <script src="https://g.alicdn.com/code/lib/alifd__next/1.26.4/next-with-locales.min.js"></script>
+    <script src="https://alifd.alicdn.com/npm/@alilc/lowcode-engine@latest/dist/js/engine-core.js"></script>
+    <script src="https://alifd.alicdn.com/npm/@alilc/lowcode-engine-ext@latest/dist/js/engine-ext.js"></script>
     <% } %>
   </body>
 </html>
