@@ -4,7 +4,8 @@
   "info": {
     "singularName": "page-version",
     "pluralName": "page-versions",
-    "displayName": "PageVersion"
+    "displayName": "PageVersion",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -22,6 +23,11 @@
       "relation": "manyToOne",
       "target": "api::project-route.project-route",
       "inversedBy": "versions"
+    },
+    "operator": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
     }
   }
 }

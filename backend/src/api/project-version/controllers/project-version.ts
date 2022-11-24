@@ -49,10 +49,14 @@ export default factories.createCoreController(
       }
     },
     /**
-     * 权限：应用管理员
+     * 权限：该应用主管理员
      */
     async create(ctx) {
       const { projectId, version, description } = ctx.request.body;
+      const {
+        selfGlobalState: { userId },
+      } = ctx.state;
+
       if (!description || semver.valid(version) === null) {
         ctx.status = 400;
         ctx.body = {
@@ -77,7 +81,6 @@ export default factories.createCoreController(
               },
             },
           })) as any;
-        // TODO pageVersion
         await strapi.service("api::project-version.project-version").create({
           data: {
             project: {
@@ -86,6 +89,9 @@ export default factories.createCoreController(
             version,
             description,
             navList: projectRouteResult,
+            operator: {
+              id: userId,
+            },
           },
         });
 

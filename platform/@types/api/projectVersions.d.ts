@@ -40,7 +40,6 @@ interface ApiProjectVersionsResponse {
         }
       >
     }
-    routeToVersions: Record<string, any>
   }[]
   meta: {
     pagination: {

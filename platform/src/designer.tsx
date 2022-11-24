@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import Designer from './pages/engine/designer'
+import '@/styles/base.css'
 import '@/styles/global.css'
 import '@/styles/antd-reset.css'
 

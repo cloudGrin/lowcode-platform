@@ -3,18 +3,51 @@ import { message, Spin } from 'antd'
 import React, { useEffect, useRef, useState } from 'react'
 import registerPlugins from './plugin'
 import createAxiosHandler from '../datasource-axios-handler'
+import { useStrapiRequest } from '@/lib/request'
+import useQuery from '@/hooks/useQuery'
 
 const Designer: React.FC = () => {
   const isInited = useRef<boolean>(false)
   /** 插件是否已初始化成功，因为必须要等插件初始化后才能渲染 Workbench */
   const [hasPluginInited, setHasPluginInited] = useState(false)
+  const query = useQuery()
+
+  const { data: projectResult, loading: projectLoading } = useStrapiRequest(
+    '/api/projects/${id}',
+    () => ({
+      urlValue: {
+        id: query.get('projectId') as string
+      }
+    }),
+    {
+      refreshDeps: [query]
+    }
+  )
+
+  const { data: pageVersionsResult, loading: pageVersionsLoading } = useStrapiRequest(
+    '/api/page-versions/latest',
+    () => ({
+      payload: {
+        navUuid: query.get('navUuid') as string,
+        pagination: {
+          page: 1,
+          pageSize: 1
+        }
+      }
+    }),
+    {
+      refreshDeps: [query]
+    }
+  )
 
   useEffect(() => {
-    // 防止热更新重新注册插件报错
-    if (isInited.current) return
-    async function initPlugins() {
+    async function initPlugins(projectResult: any, pageVersionsResult: any) {
       try {
-        await registerPlugins()
+        await registerPlugins({
+          project: projectResult.data,
+          schema: pageVersionsResult.data.schema,
+          navUuid: query.get('navUuid')
+        })
         config.setConfig({
           // designMode: 'live',
           /**
@@ -68,8 +101,13 @@ const Designer: React.FC = () => {
         message.error('插件初始化失败')
       }
     }
-    initPlugins()
-  }, [])
+    if (projectResult && pageVersionsResult) {
+      // 防止热更新重新注册插件报错
+      if (isInited.current) return
+
+      initPlugins(projectResult, pageVersionsResult)
+    }
+  }, [projectResult, pageVersionsResult, query])
 
   if (!hasPluginInited) {
     return <Spin />

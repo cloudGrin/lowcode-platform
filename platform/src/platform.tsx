@@ -9,6 +9,7 @@ import themeToken from '@/styles/var.json'
 // @ts-ignore
 const request = require.context('@/assets/svg', false, /\.svg$/)
 request.keys().forEach(request)
+import '@/styles/base.css'
 import '@/styles/global.css'
 import '@/styles/antd-reset.css'
 

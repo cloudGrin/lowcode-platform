@@ -24,12 +24,14 @@
       "type": "json",
       "required": true
     },
-    "routeToVersions": {
-      "type": "json"
-    },
     "version": {
       "type": "string",
       "required": true
+    },
+    "operator": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
     }
   }
 }

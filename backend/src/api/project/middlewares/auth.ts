@@ -34,11 +34,11 @@ export default (config, { strapi }) => {
         await next();
         return;
       }
-      // 查询单个 (无权限)
-      else if (routerPath === "/api/projects/:id" && "GET" === method) {
-        await next();
-        return;
-      }
+      // // 查询单个 (无权限)
+      // else if (routerPath === "/api/projects/:id" && "GET" === method) {
+      //   await next();
+      //   return;
+      // }
       // 编辑
       else if (
         routerPath === "/api/projects/:id" &&

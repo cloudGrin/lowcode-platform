@@ -11,8 +11,10 @@ import DefaultSettersRegistryPlugin from './plugins/plugin-default-setters-regis
 import PreviewSamplePlugin from './plugins/plugin-preview-sample'
 import SaveSamplePlugin from './plugins/plugin-save-sample'
 
-export default async function registerPlugins() {
-  await plugins.register(EditorInitPlugin)
+export default async function registerPlugins({ project, schema, navUuid }: any) {
+  await plugins.register(EditorInitPlugin, {
+    schema
+  })
 
   // 设置内置 setter 和事件绑定、插件绑定面板
   await plugins.register(DefaultSettersRegistryPlugin)
@@ -40,7 +42,7 @@ export default async function registerPlugins() {
 
   await plugins.register(CodeEditorPlugin)
 
-  await plugins.register(SaveSamplePlugin)
+  await plugins.register(SaveSamplePlugin, { navUuid })
 
-  await plugins.register(PreviewSamplePlugin)
+  await plugins.register(PreviewSamplePlugin, { navUuid })
 }

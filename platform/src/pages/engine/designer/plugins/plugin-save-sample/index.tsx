@@ -1,13 +1,12 @@
 import { ILowCodePluginContext } from '@alilc/lowcode-engine'
 import { Button } from 'antd'
-import { saveSchema, resetSchema } from '../../../helper'
+import { saveSchema } from '../../../helper'
 
 // 保存功能示例
-const SaveSamplePlugin = (ctx: ILowCodePluginContext) => {
+const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
   return {
     async init() {
       const { skeleton, hotkey, config } = ctx
-
       skeleton.add({
         name: 'saveSample',
         area: 'topArea',
@@ -15,26 +14,40 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext) => {
         props: {
           align: 'right'
         },
-        content: <Button onClick={() => saveSchema()}>保存到本地</Button>
-      })
-      skeleton.add({
-        name: 'resetSchema',
-        area: 'topArea',
-        type: 'Widget',
-        props: {
-          align: 'right'
-        },
-        content: <Button onClick={() => resetSchema()}>重置页面</Button>
+        content: (
+          <Button
+            onClick={() =>
+              saveSchema({
+                navUuid: options.navUuid
+              })
+            }
+          >
+            保存到云端
+          </Button>
+        )
       })
       hotkey.bind('command+s', (e) => {
         e.preventDefault()
-        saveSchema()
+        saveSchema({
+          navUuid: options.navUuid
+        })
       })
     }
   }
 }
 SaveSamplePlugin.pluginName = 'SaveSamplePlugin'
 SaveSamplePlugin.meta = {
-  dependencies: ['EditorInitPlugin']
+  dependencies: ['EditorInitPlugin'],
+  preferenceDeclaration: {
+    title: '插件配置',
+    properties: [
+      {
+        key: 'navUuid',
+        type: 'string',
+        description: '页面uuid'
+      }
+    ]
+  }
 }
+
 export default SaveSamplePlugin

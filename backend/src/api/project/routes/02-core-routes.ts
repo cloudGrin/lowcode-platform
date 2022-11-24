@@ -27,7 +27,7 @@ export default factories.createCoreRouter("api::project.project", {
       middlewares: ["api::project.project-role"],
     },
     findOne: {
-      middlewares: ["api::project.project-role", "api::project.auth"],
+      auth: false
     },
   },
 });

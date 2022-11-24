@@ -1,10 +1,11 @@
 import { TreeItem } from '@atlaskit/tree'
 import { Button, Checkbox, Dropdown, Form, Input, MenuProps, message, Modal, Tooltip } from 'antd'
-import { FC, useCallback, useState } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import { SettingOutlined, DownOutlined } from '@ant-design/icons'
 import Icon from '@/components/icon'
 import { useStrapiRequest } from '@/lib/request'
 import produce from 'immer'
+import { useParams } from 'react-router-dom'
 
 const onMenuClick: MenuProps['onClick'] = (e) => {
   console.log('click', e)
@@ -38,6 +39,7 @@ const PageView: FC<{
     >
   >
 }> = ({ activeNav, setActiveNav }) => {
+  const { id } = useParams()
   const [open, setOpen] = useState(false)
 
   const pageType = activeNav?.data?.data.type as 'PAGE' | 'LINK'
@@ -80,6 +82,14 @@ const PageView: FC<{
     }
   }, [form, updateRouteApi, setActiveNav])
 
+  const iframeUrl = useMemo(() => {
+    if (activeNav?.data.data.type === 'PAGE') {
+      return `${location.origin}/pagePreview?navUuid=${activeNav?.data?.id}`
+    } else if (activeNav?.data.data.type === 'LINK') {
+      return activeNav?.data?.data.url
+    }
+  }, [activeNav])
+
   return (
     <div className='flex flex-col flex-auto'>
       <div className='bg-c_white p-[23px_24px] h-[74px] flex items-center justify-between flex-none'>
@@ -98,6 +108,9 @@ const PageView: FC<{
                 type='primary'
                 menu={{ items: pageActions, onClick: onMenuClick }}
                 icon={<DownOutlined />}
+                onClick={() => {
+                  location.href = `/pageDesigner?navUuid=${activeNav?.data.id}&projectId=${id}`
+                }}
               >
                 编辑自定义页
               </Dropdown.Button>
@@ -111,8 +124,7 @@ const PageView: FC<{
       </div>
       <div className='h-[calc(100%-74px)] p-[16px] overflow-hidden'>
         <div className='w-full h-full'>
-          {/* TODO Schema preview */}
-          <iframe src={activeNav?.data?.data.url} className='w-full h-full' />
+          <iframe src={iframeUrl} className='w-full h-full' />
         </div>
       </div>
       <Modal

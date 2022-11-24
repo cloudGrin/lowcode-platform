@@ -94,7 +94,7 @@ export default factories.createCoreController(
       }
     },
     /**
-     * 权限：平台管理员或该应用成员
+     * 权限：无权限
      * 根据id查询应用信息
      */
     async findOne(ctx) {
