@@ -1,4 +1,5 @@
 import Icon from '@/components/icon'
+import useQuery from '@/hooks/useQuery'
 import { strapiRequestInstance } from '@/lib/request'
 import { PlusOutlined, SettingOutlined } from '@ant-design/icons'
 import type {
@@ -9,16 +10,16 @@ import type {
   TreeItem,
   TreeSourcePosition
 } from '@atlaskit/tree'
-import Tree, { moveItemOnTree, mutateTree } from '@atlaskit/tree'
+import { moveItemOnTree, mutateTree } from '@atlaskit/tree'
+import { useMemoizedFn } from 'ahooks'
 import { Button, Divider, Form, Input, message, Modal, Popover, Tabs } from 'antd'
 import classNames from 'classnames'
-import React, { useCallback, useMemo, useState } from 'react'
-import { useEffect } from 'react'
-import { useContext } from 'react'
+import produce from 'immer'
+import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { VersionsContext } from '../../projectInfoVersionsContext'
-
-const PADDING_PER_LEVEL = 22
+import { getAncestorIds } from '../utils'
+import TreeWrapper from './treeWrapper'
 
 function removeRouteApi({ uuid, successCb }: { uuid: ItemId; successCb?: () => void }) {
   return new Promise((resolve) => {
@@ -50,140 +51,127 @@ const PureTreeFc: React.FC<{
   tree?: TreeData
   setTree: React.Dispatch<React.SetStateAction<TreeData | undefined>>
   getNavListApi: () => Promise<ApiProjectRoutesResponse>
-  activeNav?: {
-    data: TreeItem
-    type: 'dev' | 'prod'
-  }
-  setActiveNav: React.Dispatch<
-    React.SetStateAction<
-      | {
-          data: TreeItem
-          type: 'dev' | 'prod'
-        }
-      | undefined
-    >
-  >
+  activeNav?: TreeItem
+  setActiveNav: React.Dispatch<React.SetStateAction<TreeItem | undefined>>
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   setNavType: React.Dispatch<React.SetStateAction<ApiProjectRouteType>>
 }> = ({ tree, setTree, getNavListApi, activeNav, setActiveNav, setOpen, setNavType }) => {
   const [activeTab, setActiveTab] = useState<'prod' | 'dev'>('dev')
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const [versions] = useContext(VersionsContext)
+  const [tabs, setTabs] = useState([
+    {
+      label: '开发中',
+      key: 'dev'
+    }
+  ])
   const [prodTreeData, setProdTreeData] = useState<TreeData>()
+  const [changeTitleId, setChangeTitleId] = useState()
+  const { id, routeId } = useParams()
+  const navigate = useNavigate()
+  const query = useQuery()
+  const [versions] = useContext(VersionsContext)
   const activeTree = useMemo(() => {
     return activeTab === 'dev' ? tree : prodTreeData
   }, [activeTab, prodTreeData, tree])
 
-  const onExpand = useCallback(
-    (itemId: ItemId) => {
-      if (activeTab === 'dev') {
-        setTree(mutateTree(tree!, itemId, { isExpanded: true }))
-      } else {
-        setProdTreeData(mutateTree(prodTreeData!, itemId, { isExpanded: true }))
-      }
-    },
-    [activeTab, prodTreeData, setTree, tree]
-  )
+  const onExpand = useMemoizedFn((itemId: ItemId) => {
+    if (activeTab === 'dev') {
+      setTree(mutateTree(tree!, itemId, { isExpanded: true }))
+    } else {
+      setProdTreeData(mutateTree(prodTreeData!, itemId, { isExpanded: true }))
+    }
+  })
 
-  const onCollapse = useCallback(
-    (itemId: ItemId) => {
-      if (activeTab === 'dev') {
-        setTree(mutateTree(tree!, itemId, { isExpanded: false }))
-      } else {
-        setProdTreeData(mutateTree(prodTreeData!, itemId, { isExpanded: false }))
-      }
-    },
-    [activeTab, prodTreeData, setTree, tree]
-  )
+  const onCollapse = useMemoizedFn((itemId: ItemId) => {
+    if (activeTab === 'dev') {
+      setTree(mutateTree(tree!, itemId, { isExpanded: false }))
+    } else {
+      setProdTreeData(mutateTree(prodTreeData!, itemId, { isExpanded: false }))
+    }
+  })
 
-  const onDragEnd = useCallback(
-    (source: TreeSourcePosition, destination?: TreeDestinationPosition) => {
-      if (!destination) {
-        return
-      }
-      if (tree!.items[destination.parentId].data.type !== 'NAV') {
-        // 不支持页面被当做分组
-        return
-      }
-      // const ancestorDepth = getAncestorIds(tree.items, [destination.parentId])?.length - 1
-      const newTree = moveItemOnTree(tree!, source, destination)
-      const flattenedTree = flattenTree(tree!)
-      const flattenedNewTree = flattenTree(newTree)
-      if (!checkEqual(flattenedTree, flattenedNewTree)) {
-        if (isDragLegal(flattenedNewTree)) {
-          if (newTree.items[destination.parentId].data.type === 'NAV') {
-            // 放置后打开父组
-            newTree.items[destination.parentId].isExpanded = true
-          }
-          setTree(newTree)
-          strapiRequestInstance(
-            '/api/project-routes/updateOrder__POST',
-            {
-              currentId: tree!.items[tree!.items[source.parentId].children[source.index]].data.id,
-              parentNavUuid: destination.parentId as string,
-              ids: flattenedNewTree.map((i) => i.item.data.id)
-            },
-            {}
-          )
-            .then((res) => {
-              if (res.data.success) {
-                message.info('移动成功')
-                getNavListApi()
-              } else {
-                setTree(tree)
-              }
-            })
-            .catch((error) => {
-              console.log(error)
-              setTree(tree)
-            })
-        } else {
-          message.error('暂不支持三层嵌套分组')
+  const onDragEnd = useMemoizedFn((source: TreeSourcePosition, destination?: TreeDestinationPosition) => {
+    if (!destination) {
+      return
+    }
+    if (tree!.items[destination.parentId].data.type !== 'NAV') {
+      // 不支持页面被当做分组
+      return
+    }
+    // const ancestorDepth = getAncestorIds(tree.items, [destination.parentId])?.length - 1
+    const newTree = moveItemOnTree(tree!, source, destination)
+    const flattenedTree = flattenTree(tree!)
+    const flattenedNewTree = flattenTree(newTree)
+    if (!checkEqual(flattenedTree, flattenedNewTree)) {
+      if (isDragLegal(flattenedNewTree)) {
+        if (newTree.items[destination.parentId].data.type === 'NAV') {
+          // 放置后打开父组
+          newTree.items[destination.parentId].isExpanded = true
         }
-      }
-    },
-    [getNavListApi, setTree, tree]
-  )
-
-  const [changeTitleId, setChangeTitleId] = useState()
-
-  const removeRoute = useCallback(
-    (item: TreeItem) => {
-      if (!item.children?.length) {
-        removeRouteApi({
-          uuid: item.id,
-          successCb() {
-            getNavListApi()
-          }
-        })
+        setTree(newTree)
+        strapiRequestInstance(
+          '/api/project-routes/updateOrder__POST',
+          {
+            currentId: tree!.items[tree!.items[source.parentId].children[source.index]].data.id,
+            parentNavUuid: destination.parentId as string,
+            ids: flattenedNewTree.map((i) => i.item.data.id)
+          },
+          {}
+        )
+          .then((res) => {
+            if (res.data.success) {
+              message.info('移动成功')
+              getNavListApi()
+            } else {
+              setTree(tree)
+            }
+          })
+          .catch((error) => {
+            console.log(error)
+            setTree(tree)
+          })
       } else {
-        message.error('分组不为空不可删除，如需删除请先移出子集')
+        message.error('暂不支持三层嵌套分组')
       }
-    },
-    [getNavListApi]
-  )
+    }
+  })
 
-  const changeTitle = useCallback(
-    (values: { title: string }, item: TreeItem) => {
-      strapiRequestInstance(
-        '/api/project-routes/${id}__PUT',
-        { title: values.title },
-        { urlValue: { id: item.data.id } }
-      )
-        .then((res) => {
-          if (res.data) {
-            message.success('修改成功')
-            setChangeTitleId(undefined)
-            getNavListApi()
-          }
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    },
-    [getNavListApi]
-  )
+  const removeRoute = useMemoizedFn((item: TreeItem) => {
+    if (!item.children?.length) {
+      removeRouteApi({
+        uuid: item.id,
+        successCb() {
+          getNavListApi()
+        }
+      })
+    } else {
+      message.error('分组不为空不可删除，如需删除请先移出子集')
+    }
+  })
+
+  const changeTitle = useMemoizedFn((values: { title: string }, item: TreeItem) => {
+    strapiRequestInstance('/api/project-routes/${id}__PUT', { title: values.title }, { urlValue: { id: item.data.id } })
+      .then((res) => {
+        if (res.data) {
+          message.success('修改成功')
+          setChangeTitleId(undefined)
+          getNavListApi()
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  })
+
+  const clickNav = useMemoizedFn((item: TreeItem, onExpand, onCollapse) => {
+    if (item.data.type === 'NAV') {
+      item.isExpanded ? onCollapse(item.id) : onExpand(item.id)
+    } else {
+      if (item.id !== activeNav?.id || query.get('tab') !== activeTab) {
+        navigate(`/${id}/admin/${item.id}?tab=${activeTab}`)
+        setActiveNav(item)
+      }
+    }
+  })
 
   const renderItem = useCallback(
     ({ item, onExpand, onCollapse, provided, snapshot }: RenderItemParams) => {
@@ -195,22 +183,10 @@ const PureTreeFc: React.FC<{
           className={classNames(
             'flex items-center h-[40px] hover:bg-[#f1f2f3] rounded-[6px] mb-[4px]',
             snapshot.isDragging ? ['bg-[#f1f2f3e6]'] : undefined,
-            activeNav && activeNav.data.id === item.id && activeNav.type === activeTab ? ['bg-[#f1f2f3]'] : undefined
+            activeNav && activeNav.id === item.id && query.get('tab') === activeTab ? ['bg-[#f1f2f3]'] : undefined
           )}
           onClick={() => {
-            if (item.data.type === 'NAV') {
-              item.isExpanded ? onCollapse(item.id) : onExpand(item.id)
-            } else {
-              if (item.id !== activeNav?.data?.id) {
-                navigate(`/${id}/admin/${item.id}`)
-              }
-              if (item.id !== activeNav?.data?.id || activeNav.type !== activeTab) {
-                setActiveNav({
-                  type: activeTab,
-                  data: item
-                })
-              }
-            }
+            clickNav(item, onExpand, onCollapse)
           }}
         >
           {item.data.type === 'NAV' ? (
@@ -330,15 +306,23 @@ const PureTreeFc: React.FC<{
         </div>
       )
     },
-    [activeNav, changeTitleId, activeTab, navigate, id, setActiveNav, changeTitle, removeRoute]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeNav, activeTab, changeTitleId, query]
   )
 
-  const [tabs, setTabs] = useState([
-    {
-      label: '开发中',
-      key: 'dev'
+  const changeTab = useCallback(
+    (val) => {
+      setActiveTab(val)
+    },
+    [setActiveTab]
+  )
+
+  const checkActiveTab = useMemoizedFn((query) => {
+    const queryTab = query.get('tab') as 'dev' | 'prod'
+    if (queryTab !== activeTab && ['dev', 'prod'].includes(queryTab)) {
+      setActiveTab(queryTab)
     }
-  ])
+  })
 
   useEffect(() => {
     setTabs([
@@ -360,12 +344,54 @@ const PureTreeFc: React.FC<{
     }
   }, [versions])
 
-  const changeTab = useCallback(
-    (val) => {
-      setActiveTab(val)
-    },
-    [setActiveTab]
-  )
+  useEffect(() => {
+    checkActiveTab(query)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query])
+
+  const checkActiveNavByUuid = useMemoizedFn((routeId) => {
+    if (routeId !== activeNav?.id) {
+      const uuidToItem = activeTree?.items?.[routeId]
+      if (uuidToItem) {
+        setActiveNav(uuidToItem)
+        // 如果分组关闭则打开该分组
+        const uuidPath = getAncestorIds(activeTree!.items, [uuidToItem.id]).slice(1)
+        for (let i = uuidPath.length - 1; i >= 0; i--) {
+          if (activeTree?.items?.[uuidPath[i]].isExpanded) {
+            uuidPath.splice(i, 1)
+          }
+        }
+        if (!!uuidPath.length) {
+          if (activeTab === 'dev') {
+            setTree(
+              produce((draft) => {
+                for (const item of Object.values(draft?.items ?? {})) {
+                  if (uuidPath.includes(item.id)) {
+                    item.isExpanded = true
+                  }
+                }
+              })
+            )
+          } else if (activeTab === 'prod') {
+            setProdTreeData(
+              produce((draft) => {
+                for (const item of Object.values(draft?.items ?? {})) {
+                  if (uuidPath.includes(item.id)) {
+                    item.isExpanded = true
+                  }
+                }
+              })
+            )
+          }
+        }
+      }
+    }
+  })
+
+  useEffect(() => {
+    checkActiveNavByUuid(routeId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [routeId])
 
   return (
     <div className='flex flex-col w-full h-full'>
@@ -450,15 +476,13 @@ const PureTreeFc: React.FC<{
         `}</style>
       </div>
       <div className='p-[8px_19px] flex-auto overflow-y-auto mr-[-10px] tree-wrap'>
-        <Tree
-          tree={activeTree}
+        <TreeWrapper
+          activeTree={activeTree}
           renderItem={renderItem}
           onExpand={onExpand}
           onCollapse={onCollapse}
           onDragEnd={onDragEnd}
-          offsetPerLevel={PADDING_PER_LEVEL}
           isDragEnabled={activeTab === 'dev'}
-          isNestingEnabled
         />
 
         <style jsx>{`
@@ -522,4 +546,4 @@ function checkEqual(prev: FlattenTree, next: FlattenTree): boolean {
   return true
 }
 
-export default PureTreeFc
+export default memo(PureTreeFc)

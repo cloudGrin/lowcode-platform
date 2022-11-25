@@ -6,6 +6,7 @@ const useQuery = () => {
   useEffect(() => {
     if (preSearch.current !== location.search) {
       setQuery(new URLSearchParams(location.search))
+      preSearch.current = location.search
     }
   })
   return query

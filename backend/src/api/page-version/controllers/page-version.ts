@@ -9,11 +9,11 @@ export default factories.createCoreController(
   ({ strapi }) => ({
     /**
      * 权限：无权限
-     * 结果：当前page最新的schema，没有则返回 {id:0,schema:初始schema}
+     * 结果：当前page最新的schema，如果传入version则取制定版本的，都没有则返回 {id:0,schema:初始schema}
      */
     async findLatestVersion(ctx) {
       try {
-        const { navUuid } = ctx.request.query;
+        const { navUuid, versionId } = ctx.request.query;
         const { results } = (await strapi
           .service("api::page-version.page-version")
           .find({
@@ -31,6 +31,11 @@ export default factories.createCoreController(
                   $eq: navUuid,
                 },
               },
+              ...(versionId
+                ? {
+                    id: versionId,
+                  }
+                : {}),
             },
           })) as any;
         if (results[0]) {
@@ -44,6 +49,17 @@ export default factories.createCoreController(
             },
           };
         } else {
+          if (versionId) {
+            ctx.status = 404;
+            ctx.body = {
+              data: null,
+              error: {
+                status: 404,
+                message: "NotFound",
+              },
+            };
+            return;
+          }
           // 默认
           return {
             data: {
@@ -386,7 +402,11 @@ export default factories.createCoreController(
             },
           });
 
-          return {};
+          return {
+            data: {
+              success: true,
+            },
+          };
         } else {
           ctx.status = 400;
           ctx.body = {

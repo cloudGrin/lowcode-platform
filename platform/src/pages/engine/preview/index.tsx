@@ -52,6 +52,7 @@ const SamplePreview: React.FC = () => {
     () => ({
       payload: {
         navUuid: query.get('navUuid') as string,
+        versionId: query.get('versionId'),
         pagination: {
           page: 1,
           pageSize: 1

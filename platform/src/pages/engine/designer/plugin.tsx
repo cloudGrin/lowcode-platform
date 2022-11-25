@@ -10,6 +10,7 @@ import ComponentPanelPlugin from './plugins/plugin-component-panel'
 import DefaultSettersRegistryPlugin from './plugins/plugin-default-setters-registry'
 import PreviewSamplePlugin from './plugins/plugin-preview-sample'
 import SaveSamplePlugin from './plugins/plugin-save-sample'
+import TopAreaLeftPlugin from './plugins/plugin-topArea-left'
 
 export default async function registerPlugins({ project, schema, navUuid }: any) {
   await plugins.register(EditorInitPlugin, {
@@ -45,4 +46,6 @@ export default async function registerPlugins({ project, schema, navUuid }: any)
   await plugins.register(SaveSamplePlugin, { navUuid })
 
   await plugins.register(PreviewSamplePlugin, { navUuid })
+
+  await plugins.register(TopAreaLeftPlugin, { project })
 }

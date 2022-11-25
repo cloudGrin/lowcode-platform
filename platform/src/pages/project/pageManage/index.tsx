@@ -3,7 +3,7 @@ import newPageImg from '@/assets/image/newPage.png'
 import { ItemId, TreeData, TreeItem } from '@atlaskit/tree'
 import { Card, Col, Row } from 'antd'
 import { produce } from 'immer'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import AddRoute from './components/addRouteDialog'
 import MenuManage from './components/menuManage'
@@ -11,6 +11,8 @@ import MenuManage from './components/menuManage'
 import { useStrapiRequest } from '@/lib/request'
 import { useState } from 'react'
 import PageView from './components/pageView'
+import { getAncestorIds, findFirstPage } from './utils'
+import { useMemoizedFn } from 'ahooks'
 
 const PageManage: React.FC = () => {
   const [type, setType] = useState<'LOADING' | 'EMPTY' | 'HAVE_DATA'>('LOADING')
@@ -22,10 +24,53 @@ const PageManage: React.FC = () => {
 
   const [tree, setTree] = useState<TreeData>()
 
-  const [activeNav, setActiveNav] = useState<{
-    data: TreeItem
-    type: 'dev' | 'prod'
-  }>()
+  const [activeNav, setActiveNav] = useState<TreeItem>()
+
+  const jump = useCallback(
+    (path) => {
+      if (path === '' && routeId === 'empty') {
+        return
+      }
+
+      navigate(`/${id}/admin/${path}`, { replace: true })
+    },
+    [id, navigate, routeId]
+  )
+
+  const handleTreeAndRouteId = useCallback(
+    (tree: TreeData) => {
+      let currentNav = tree?.items?.[routeId as ItemId] as TreeItem | undefined
+      if (!currentNav || currentNav.data.type === 'NAV') {
+        // 去第一个页面
+        currentNav = findFirstPage(tree)
+      }
+      if (currentNav && currentNav.data.type !== 'NAV') {
+        // 找到对应页面
+        setActiveNav(currentNav)
+        if (routeId !== currentNav.id) {
+          jump(currentNav.id + '?tab=dev')
+        }
+        const uuidPath = getAncestorIds(tree!.items, [currentNav!.id]).slice(1)
+        setTree(
+          produce((draft) => {
+            for (const item of Object.values(draft?.items ?? {})) {
+              if (uuidPath.includes(item.id)) {
+                item.isExpanded = true
+              }
+            }
+          })
+        )
+        setType('HAVE_DATA')
+      } else {
+        // 跳转到 EMPTY
+
+        jump('')
+
+        setType('EMPTY')
+      }
+    },
+    [jump, routeId]
+  )
 
   const { runAsync: getNavListApi } = useStrapiRequest(
     '/api/project-routes',
@@ -55,55 +100,6 @@ const PageManage: React.FC = () => {
         setType('EMPTY')
       }
     }
-  )
-
-  const jump = useCallback(
-    (path) => {
-      if (path === '' && routeId === 'empty') {
-        return
-      }
-
-      navigate(`/${id}/admin/${path}`, { replace: true })
-    },
-    [id, navigate, routeId]
-  )
-
-  const handleTreeAndRouteId = useCallback(
-    (tree: TreeData) => {
-      let currentNav = tree?.items?.[routeId as ItemId] as TreeItem | undefined
-      if (!currentNav || currentNav.data.type === 'NAV') {
-        // 去第一个页面
-        currentNav = findFirstPage(tree)
-      }
-      if (currentNav && currentNav.data.type !== 'NAV') {
-        // 找到对应页面
-        setActiveNav({
-          data: currentNav,
-          type: 'dev'
-        })
-        if (routeId !== currentNav.id) {
-          jump(currentNav.id)
-        }
-        const uuidPath = getAncestorIds(tree!.items, [currentNav!.id]).slice(1)
-        setTree(
-          produce((draft) => {
-            for (const item of Object.values(draft?.items ?? {})) {
-              if (uuidPath.includes(item.id)) {
-                item.isExpanded = true
-              }
-            }
-          })
-        )
-        setType('HAVE_DATA')
-      } else {
-        // 跳转到 EMPTY
-
-        jump('')
-
-        setType('EMPTY')
-      }
-    },
-    [jump, routeId]
   )
 
   return (
@@ -172,31 +168,3 @@ const PageManage: React.FC = () => {
 }
 
 export default PageManage
-
-function getAncestorIds(items: TreeData['items'], ids: ItemId[]): ItemId[] {
-  for (const [id, config] of Object.entries(items)) {
-    if (!ids.includes(id)) {
-      if (config.children.includes(ids[ids.length - 1])) {
-        return getAncestorIds(items, [...ids, id])
-      }
-    }
-  }
-  return ids
-}
-
-function findFirstPage(tree: TreeData): TreeItem | undefined {
-  for (const uuid of tree?.items?.[tree.rootId]?.children ?? []) {
-    const item = tree.items[uuid]
-    if (item && item?.data?.type !== 'NAV') {
-      return item
-    } else if (item && !!item.children?.length) {
-      const result = findFirstPage({
-        rootId: item.id,
-        items: tree.items
-      })
-      if (result) {
-        return result
-      }
-    }
-  }
-}

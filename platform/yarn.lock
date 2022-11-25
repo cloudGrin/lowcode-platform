@@ -10,7 +10,7 @@
     "@alifd/validate" "^1.2.0"
     prop-types "^15.5.8"
 
-"@alifd/next@^1.19.12", "@alifd/next@^1.19.16", "@alifd/next@^1.20.12", "@alifd/next@^1.21.16", "@alifd/next@^1.25.0", "@alifd/next@^1.25.13":
+"@alifd/next@^1.19.12", "@alifd/next@^1.19.16", "@alifd/next@^1.20.12", "@alifd/next@^1.21.16", "@alifd/next@^1.25.13":
   version "1.26.8"
   resolved "https://registry.yarnpkg.com/@alifd/next/-/next-1.26.8.tgz#a4bc933d7649ceedc742a5a3e9f2080fccb2d3c7"
   integrity sha512-VU91pzt+mV2qGSCsUHbAf4LbL3LkyHciEDHF6VdbTPJux11daxKSfWoclEA4Q4xp+vMCy734A2Nl2XO3ek6dLw==
@@ -56,15 +56,6 @@
     "@alilc/lowcode-types" "^1.0.0-beta.3"
     lodash "^4.17.21"
     typescript "^3.9.7"
-
-"@alilc/lowcode-datasource-fetch-handler@1.1.3":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@alilc/lowcode-datasource-fetch-handler/-/lowcode-datasource-fetch-handler-1.1.3.tgz#1b271856030b9976f8f6019c0f17849428d8b70a"
-  integrity sha512-sJhVzj+c48lw2pmfxvRULjCKewpvwhqjwfb6uOiKrh8dl6NMlpM6GcDfcKgFZ7CRJW7hNK3vIFBvScqggkQk6Q==
-  dependencies:
-    "@alilc/lowcode-datasource-types" "1.1.3"
-    typescript "^3.9.7"
-    universal-request "^2.2.0"
 
 "@alilc/lowcode-datasource-types@1.1.3", "@alilc/lowcode-datasource-types@^1.0.0":
   version "1.1.3"
@@ -265,10 +256,10 @@
     react-dom "^16.7.0"
     ric-shim "^1.0.1"
 
-"@alilc/lowcode-plugin-schema@1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@alilc/lowcode-plugin-schema/-/lowcode-plugin-schema-1.0.1.tgz#b70cfcd039754dc0fef2bf0a1c8175029df025ea"
-  integrity sha512-B71aWeqUTKOASmq1PBmBFk8ImFpGgq6NW5K3nAJR26M7/2IxJgYsNqZBblQEQlCZ4eFn0qdlQkGxfS8kqiF0HQ==
+"@alilc/lowcode-plugin-schema@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@alilc/lowcode-plugin-schema/-/lowcode-plugin-schema-1.0.2.tgz#82b37bb4412ae1501313589bdd8b6879e29cf14e"
+  integrity sha512-U40tB2k1X44BryE5Xs1X2AaWYDsHMO2WbUU/h3ngkrhWvOXVdKAjd0wG9H3Ati0+jmEG22D3g2E+laSmaZ8WOw==
   dependencies:
     "@alifd/next" "^1.25.13"
     "@alilc/lowcode-plugin-base-monaco-editor" "^1.0.0"
@@ -287,13 +278,6 @@
     react "^16.8.1"
     react-dom "^16.8.1"
     uuid "^8.3.2"
-
-"@alilc/lowcode-plugin-simulator-select@1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@alilc/lowcode-plugin-simulator-select/-/lowcode-plugin-simulator-select-1.0.2.tgz#6285ad838751edcc5b392557f828452ce9b36048"
-  integrity sha512-txLZxr+bnz18YtXHD539KapUSX15+s9GqzFxu9PGHBA4rO5VCGnyg92mQvea7MIhfTHpLt309DaZ0fQB5mIvYw==
-  dependencies:
-    "@alifd/next" "^1.25.0"
 
 "@alilc/lowcode-plugin-undo-redo@1.0.0":
   version "1.0.0"
@@ -1684,10 +1668,10 @@
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
 
-"@pmmmwh/react-refresh-webpack-plugin@0.5.9":
-  version "0.5.9"
-  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.9.tgz#35aae6624a6270ca7ad755800b7eec417fa6f830"
-  integrity sha512-7QV4cqUwhkDIHpMAZ9mestSJ2DMIotVTbOUwbiudhjCRTAWWKIaBecELiEM2LT3AHFeOAaHIcFu4dbXjX+9GBA==
+"@pmmmwh/react-refresh-webpack-plugin@0.5.10":
+  version "0.5.10"
+  resolved "https://registry.yarnpkg.com/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.5.10.tgz#2eba163b8e7dbabb4ce3609ab5e32ab63dda3ef8"
+  integrity sha512-j0Ya0hCFZPd4x40qLzbhGsh9TMtdb+CJQiso+WxLOPNasohq9cc5SNUcwsZaRH6++Xh91Xkm/xHCkuIiIu0LUA==
   dependencies:
     ansi-html-community "^0.0.8"
     common-path-prefix "^3.0.0"
@@ -1695,7 +1679,7 @@
     error-stack-parser "^2.0.6"
     find-up "^5.0.0"
     html-entities "^2.1.0"
-    loader-utils "^2.0.3"
+    loader-utils "^2.0.4"
     schema-utils "^3.0.0"
     source-map "^0.7.3"
 
@@ -2075,11 +2059,6 @@
   dependencies:
     "@typescript-eslint/types" "5.44.0"
     eslint-visitor-keys "^3.3.0"
-
-"@uni/env@^1.0.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@uni/env/-/env-1.1.0.tgz#ff04443a0320c235a8700e1bafa0c657f264e518"
-  integrity sha512-2GVgUzxIaO2vGElXEuc45+I7L6Jbw8inLDDFuC0K4htjKtPmYywKSE6oDhvmdAXb4GCOH8hmxECYtAh1rjsgoQ==
 
 "@webassemblyjs/ast@1.9.0":
   version "1.9.0"
@@ -6755,7 +6734,7 @@ loader-utils@^1.1.0, loader-utils@^1.2.3:
     emojis-list "^3.0.0"
     json5 "^1.0.1"
 
-loader-utils@^2.0.0, loader-utils@^2.0.3:
+loader-utils@^2.0.0, loader-utils@^2.0.3, loader-utils@^2.0.4:
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-2.0.4.tgz#8b5cb38b5c34a9a018ee1fc0e6a066d1dfcc528c"
   integrity sha512-xXqpXoINfFhgua9xiqD8fPFHgkoq1mmmpE92WlDbm9rNRd/EbRb+Gqf908T2DMfuHjjJlksiK2RbHVOdD/MqSw==
@@ -10643,20 +10622,6 @@ unique-slug@^2.0.0:
   integrity sha512-zoWr9ObaxALD3DOPfjPSqxt4fnZiWblxHIgeWqW8x7UqDzEtHEQLzji2cuJYQFCU6KmoJikOYAZlrTHHebjx2w==
   dependencies:
     imurmurhash "^0.1.4"
-
-universal-env@^3.1.0:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/universal-env/-/universal-env-3.3.3.tgz#adb1bf6a3885d99efe78ab969f9dc54c39b3ebe4"
-  integrity sha512-4ZyITvWhtcurCEA66Cb7jcd4zpEiAAo91wSwbEscbiu033pIsC2yjgT8LYyasFgsst6jZHD1gtVoSyYcL8oH1Q==
-  dependencies:
-    "@uni/env" "^1.0.0"
-
-universal-request@^2.2.0:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/universal-request/-/universal-request-2.2.2.tgz#d0115bf137e219daa1b100d41dcaf0fe85af0bab"
-  integrity sha512-HqaK5vy9NdJh1nlCL930XczqP3C519ps82QGV2WJ/D/nRpfl1tuq3JkZPxu/6UFCQPYzi/N8Ik+vXDlQoDMNYA==
-  dependencies:
-    universal-env "^3.1.0"
 
 universalify@^0.1.0:
   version "0.1.2"

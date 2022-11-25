@@ -9,6 +9,10 @@ interface ApiPageVersionsLatest {
 
 interface ApiPageVersionsLatestRequest {
   navUuid: string
+  /**
+   * 不传则返回最新的
+   */
+  versionId?: string
   pagination?: {
     page: number
     pageSize: number

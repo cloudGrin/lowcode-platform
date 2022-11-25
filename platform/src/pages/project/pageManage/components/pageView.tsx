@@ -1,10 +1,11 @@
+import Icon from '@/components/icon'
+import useQuery from '@/hooks/useQuery'
+import { useStrapiRequest } from '@/lib/request'
+import { DownOutlined, SettingOutlined } from '@ant-design/icons'
 import { TreeItem } from '@atlaskit/tree'
 import { Button, Checkbox, Dropdown, Form, Input, MenuProps, message, Modal, Tooltip } from 'antd'
-import { FC, useCallback, useMemo, useState } from 'react'
-import { SettingOutlined, DownOutlined } from '@ant-design/icons'
-import Icon from '@/components/icon'
-import { useStrapiRequest } from '@/lib/request'
 import produce from 'immer'
+import { FC, useCallback, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 const onMenuClick: MenuProps['onClick'] = (e) => {
@@ -25,30 +26,20 @@ const pageActions = [
 ]
 
 const PageView: FC<{
-  activeNav?: {
-    data: TreeItem
-    type: 'dev' | 'prod'
-  }
-  setActiveNav: React.Dispatch<
-    React.SetStateAction<
-      | {
-          data: TreeItem
-          type: 'dev' | 'prod'
-        }
-      | undefined
-    >
-  >
+  activeNav?: TreeItem
+  setActiveNav: React.Dispatch<React.SetStateAction<TreeItem | undefined>>
 }> = ({ activeNav, setActiveNav }) => {
   const { id } = useParams()
+  const query = useQuery()
   const [open, setOpen] = useState(false)
 
-  const pageType = activeNav?.data?.data.type as 'PAGE' | 'LINK'
+  const pageType = activeNav?.data.type as 'PAGE' | 'LINK'
   const [form] = Form.useForm()
 
   const setLink = () => {
     form.setFieldsValue({
-      url: activeNav?.data?.data.url,
-      isNewPage: activeNav?.data?.data.isNewPage
+      url: activeNav?.data.url,
+      isNewPage: activeNav?.data.isNewPage
     })
     setOpen(true)
   }
@@ -57,7 +48,7 @@ const PageView: FC<{
     '/api/project-routes/${id}__PUT',
     (payload: ApiProjectRoutesIdRequest__PUT) => ({
       urlValue: {
-        id: activeNav?.data?.data.id
+        id: activeNav?.data.id
       },
       payload
     }),
@@ -66,7 +57,7 @@ const PageView: FC<{
     }
   )
 
-  const handleOk = useCallback(async () => {
+  const updateLinkSetting = useCallback(async () => {
     try {
       const values = await form.validateFields()
       const { data: route } = await updateRouteApi(values)
@@ -74,7 +65,7 @@ const PageView: FC<{
       message.success('修改成功')
       setActiveNav(
         produce((draft) => {
-          draft!.data.data = route
+          draft!.data = route
         })
       )
     } catch (errorInfo) {
@@ -83,10 +74,10 @@ const PageView: FC<{
   }, [form, updateRouteApi, setActiveNav])
 
   const iframeUrl = useMemo(() => {
-    if (activeNav?.data.data.type === 'PAGE') {
-      return `${location.origin}/pagePreview?navUuid=${activeNav?.data?.id}`
-    } else if (activeNav?.data.data.type === 'LINK') {
-      return activeNav?.data?.data.url
+    if (activeNav!.data.type === 'PAGE') {
+      return `${location.origin}/pagePreview?navUuid=${activeNav?.id}&versionId=${activeNav?.data.version?.id ?? ''}`
+    } else if (activeNav!.data.type === 'LINK') {
+      return activeNav!.data.url
     }
   }, [activeNav])
 
@@ -94,28 +85,28 @@ const PageView: FC<{
     <div className='flex flex-col flex-auto'>
       <div className='bg-c_white p-[23px_24px] h-[74px] flex items-center justify-between flex-none'>
         <div className='text-[16px] min-w-[310px] w-[calc(100%-310px)] overflow-hidden text-ellipsis whitespace-nowrap'>
-          {activeNav?.data.data.title}
+          {activeNav!.data.title}
         </div>
         <div>
           <Tooltip
             placement='bottomRight'
             title='已发布页面仅可查看'
-            open={activeNav?.type === 'prod' ? undefined : false}
+            open={query.get('tab') === 'prod' ? undefined : false}
           >
             {pageType === 'PAGE' ? (
               <Dropdown.Button
-                disabled={activeNav?.type === 'prod'}
+                disabled={query.get('tab') === 'prod'}
                 type='primary'
                 menu={{ items: pageActions, onClick: onMenuClick }}
                 icon={<DownOutlined />}
                 onClick={() => {
-                  location.href = `/pageDesigner?navUuid=${activeNav?.data.id}&projectId=${id}`
+                  location.href = `/pageDesigner?navUuid=${activeNav!.id}&projectId=${id}`
                 }}
               >
                 编辑自定义页
               </Dropdown.Button>
             ) : (
-              <Button disabled={activeNav?.type === 'prod'} type='primary' onClick={setLink}>
+              <Button disabled={query.get('tab') === 'prod'} type='primary' onClick={setLink}>
                 外链设置
               </Button>
             )}
@@ -124,13 +115,13 @@ const PageView: FC<{
       </div>
       <div className='h-[calc(100%-74px)] p-[16px] overflow-hidden'>
         <div className='w-full h-full'>
-          <iframe src={iframeUrl} className='w-full h-full' />
+          <iframe src={iframeUrl} className='w-full h-full' key={iframeUrl} />
         </div>
       </div>
       <Modal
         title='外链设置'
         open={open}
-        onOk={handleOk}
+        onOk={updateLinkSetting}
         onCancel={() => setOpen(false)}
         okButtonProps={{
           loading

@@ -11,19 +11,25 @@ import assets from './assets.json'
  * 保存schema
  */
 export const saveSchema = async ({ navUuid }: any) => {
-  await strapiRequestInstance(
-    '/api/page-versions__POST',
-    {
-      description: 'test',
-      navUuid,
-      schema: project.exportSchema(TransformStage.Save)
-    },
-    {}
-  )
-  // // 保存packages到localStorage
-  // const packages = await filterPackages(material.getAssets().packages)
-  // window.localStorage.setItem('packages', JSON.stringify(packages))
-  message.success('保存成功')
+  try {
+    const saveResult = await strapiRequestInstance(
+      '/api/page-versions__POST',
+      {
+        description: 'test',
+        navUuid,
+        schema: project.exportSchema(TransformStage.Save)
+      },
+      {}
+    )
+    if (saveResult.data?.success) {
+      message.success('保存成功')
+    }
+    // // 保存packages到localStorage
+    // const packages = await filterPackages(material.getAssets().packages)
+    // window.localStorage.setItem('packages', JSON.stringify(packages))
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 // export const resetSchema = async () => {
