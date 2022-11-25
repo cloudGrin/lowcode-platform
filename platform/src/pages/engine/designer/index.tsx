@@ -5,6 +5,7 @@ import registerPlugins from './plugin'
 import createAxiosHandler from '../datasource-axios-handler'
 import { useStrapiRequest } from '@/lib/request'
 import useQuery from '@/hooks/useQuery'
+import { useMemoizedFn } from 'ahooks'
 
 const Designer: React.FC = () => {
   const isInited = useRef<boolean>(false)
@@ -12,7 +13,7 @@ const Designer: React.FC = () => {
   const [hasPluginInited, setHasPluginInited] = useState(false)
   const query = useQuery()
 
-  const { data: projectResult, loading: projectLoading } = useStrapiRequest(
+  const { data: projectResult } = useStrapiRequest(
     '/api/projects/${id}',
     () => ({
       urlValue: {
@@ -24,7 +25,7 @@ const Designer: React.FC = () => {
     }
   )
 
-  const { data: pageVersionsResult, loading: pageVersionsLoading } = useStrapiRequest(
+  const { data: pageVersionsResult } = useStrapiRequest(
     '/api/page-versions/latest',
     () => ({
       payload: {
@@ -40,13 +41,25 @@ const Designer: React.FC = () => {
     }
   )
 
-  useEffect(() => {
-    async function initPlugins(projectResult: any, pageVersionsResult: any) {
+  const { data: routeResult } = useStrapiRequest(
+    '/api/project-routes/findByUuid',
+    () => ({
+      payload: {
+        navUuid: query.get('navUuid') as string
+      }
+    }),
+    {
+      refreshDeps: [query]
+    }
+  )
+
+  const init = useMemoizedFn(() => {
+    async function initPlugins(projectResult: any, pageVersionsResult: any, routeResult: any) {
       try {
         await registerPlugins({
           project: projectResult.data,
           schema: pageVersionsResult.data.schema,
-          navUuid: query.get('navUuid')
+          route: routeResult.data
         })
         config.setConfig({
           // designMode: 'live',
@@ -101,13 +114,18 @@ const Designer: React.FC = () => {
         message.error('插件初始化失败')
       }
     }
-    if (projectResult && pageVersionsResult) {
-      // 防止热更新重新注册插件报错
-      if (isInited.current) return
+    // 防止热更新重新注册插件报错
+    if (isInited.current) return
 
-      initPlugins(projectResult, pageVersionsResult)
+    initPlugins(projectResult, pageVersionsResult, routeResult)
+  })
+
+  useEffect(() => {
+    if (projectResult && pageVersionsResult && routeResult) {
+      init()
     }
-  }, [projectResult, pageVersionsResult, query])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectResult, pageVersionsResult, routeResult])
 
   if (!hasPluginInited) {
     return <Spin />

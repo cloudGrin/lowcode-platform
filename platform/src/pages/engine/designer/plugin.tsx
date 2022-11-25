@@ -12,7 +12,15 @@ import PreviewSamplePlugin from './plugins/plugin-preview-sample'
 import SaveSamplePlugin from './plugins/plugin-save-sample'
 import TopAreaLeftPlugin from './plugins/plugin-topArea-left'
 
-export default async function registerPlugins({ project, schema, navUuid }: any) {
+export default async function registerPlugins({
+  project,
+  schema,
+  route
+}: {
+  project: ApiProjectsIdResponse['data']
+  schema: Record<string, any>
+  route: ApiProjectRoutesFindByUuidResponse['data']
+}) {
   await plugins.register(EditorInitPlugin, {
     schema
   })
@@ -43,9 +51,9 @@ export default async function registerPlugins({ project, schema, navUuid }: any)
 
   await plugins.register(CodeEditorPlugin)
 
-  await plugins.register(SaveSamplePlugin, { navUuid })
+  await plugins.register(SaveSamplePlugin, { route })
 
-  await plugins.register(PreviewSamplePlugin, { navUuid })
+  await plugins.register(PreviewSamplePlugin)
 
-  await plugins.register(TopAreaLeftPlugin, { project })
+  await plugins.register(TopAreaLeftPlugin, { project, route })
 }

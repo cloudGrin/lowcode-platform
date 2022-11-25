@@ -91,11 +91,57 @@ export default factories.createCoreController(
         };
       }
     },
+    async findByUuid(ctx) {
+      const { navUuid } = ctx.request.query;
+      try {
+        const { results: projectRouteResult } = (await strapi
+          .service("api::project-route.project-route")
+          .find({
+            pagination: false,
+            populate: {
+              project: false,
+              versions: false,
+            },
+            filters: {
+              navUuid: {
+                $eq: navUuid,
+              },
+            },
+          })) as any;
+
+        if (!projectRouteResult[0]) {
+          ctx.status = 404;
+          ctx.body = {
+            data: null,
+            error: {
+              status: 404,
+              name: "NotFoundError",
+              message: "Not Found",
+            },
+          };
+          return;
+        }
+
+        return {
+          data: projectRouteResult[0],
+        };
+      } catch (error) {
+        console.log(error);
+        ctx.status = 500;
+        ctx.body = {
+          data: null,
+          error: {
+            status: 500,
+            message: "发生错误",
+          },
+        };
+      }
+    },
     /**
      * 注意：不用更新其余项listOrder，不影响tree顺序
      */
     async deleteNav(ctx) {
-      const { navUuid } = ctx.request.params;
+      const { navUuid } = ctx.request.query;
       try {
         const count = (await strapi.db
           .query("api::project-route.project-route")

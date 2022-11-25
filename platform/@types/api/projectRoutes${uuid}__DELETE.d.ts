@@ -1,15 +1,17 @@
 interface ApiTypes {
-  ['/api/project-routes/${uuid}__DELETE']: ApiProjectRoutes__DELETE
+  ['/api/project-routes/deleteByUuid__DELETE']: ApiProjectRoutesDeleteByUuid__DELETE
 }
 
-interface ApiProjectRoutes__DELETE {
-  request: ApiProjectRoutesRequest__DELETE
-  response: ApiProjectRoutesResponse__DELETE
+interface ApiProjectRoutesDeleteByUuid__DELETE {
+  request: ApiProjectRoutesDeleteByUuidRequest__DELETE
+  response: ApiProjectRoutesDeleteByUuidResponse__DELETE
 }
 
-interface ApiProjectRoutesRequest__DELETE {}
+interface ApiProjectRoutesDeleteByUuidRequest__DELETE {
+  navUuid: string
+}
 
-interface ApiProjectRoutesResponse__DELETE {
+interface ApiProjectRoutesDeleteByUuidResponse__DELETE {
   data: {
     success: boolean
   }

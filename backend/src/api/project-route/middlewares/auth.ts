@@ -4,22 +4,20 @@ export default (config, { strapi }) => {
       state: {
         selfGlobalState: { isPlatformAdmin, isApplicationAdmin, userId },
       },
-      params: { id, navUuid },
+      params: { id },
       routerPath,
       request: {
         method,
         body: { projectId: bodyProjectId, currentId },
+        query:{
+          navUuid: queryNavUuid
+        }
       },
     } = context;
     // 平台管理员无视规则
     if (!isPlatformAdmin) {
-      // 查询 (无权限)
-      if (routerPath === "/api/project-routes" && "GET" === method) {
-        await next();
-        return;
-      }
       // 更新（改名字）
-      else if (routerPath === "/api/project-routes/:id" && "PUT" === method) {
+       if (routerPath === "/api/project-routes/:id" && "PUT" === method) {
         const projectRoute = await strapi.db
           .query("api::project-route.project-route")
           .findOne({
@@ -41,14 +39,14 @@ export default (config, { strapi }) => {
       }
       // 删除
       else if (
-        routerPath === "/api/project-routes/:navUuid" &&
+        routerPath === "/api/project-routes/deleteByUuid" &&
         "DELETE" === method
       ) {
         const projectRoute = await strapi.db
           .query("api::project-route.project-route")
           .findOne({
             populate: ["project"],
-            where: { navUuid },
+            where: { navUuid: queryNavUuid },
           });
         if (projectRoute) {
           if (

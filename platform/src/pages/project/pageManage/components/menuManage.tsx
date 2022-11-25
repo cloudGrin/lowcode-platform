@@ -27,11 +27,13 @@ function removeRouteApi({ uuid, successCb }: { uuid: ItemId; successCb?: () => v
       width: 350,
       title: <span className='text-[16px] font-normal'>确定要删除吗？</span>,
       onOk: () => {
-        strapiRequestInstance('/api/project-routes/${uuid}__DELETE', {
-          urlValue: {
-            uuid
-          }
-        })
+        strapiRequestInstance(
+          '/api/project-routes/deleteByUuid__DELETE',
+          {
+            navUuid: uuid as string
+          },
+          {}
+        )
           .then((res) => {
             if (res.data.success) {
               message.success('删除成功')

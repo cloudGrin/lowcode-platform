@@ -1,3 +1,4 @@
+import Icon from '@/components/icon'
 import { CodeOutlined, UserOutlined, UnorderedListOutlined, SettingOutlined } from '@ant-design/icons'
 import { Button, Divider, Popover, Tabs } from 'antd'
 import { useContext } from 'react'
@@ -54,9 +55,9 @@ export default function Header() {
           <Popover
             placement='bottomRight'
             content={
-              <div className='w-[140px]'>
+              <div className='w-[110px]'>
                 <Link to='/'>
-                  <div className="className='cursor-pointer hover:bg-[#f1f2f3] rounded-[6px] flex items-center text-zinc-500 text-[14px] h-[30px] pl-[8px] transition-all'">
+                  <div className='cursor-pointer hover:bg-[#f1f2f3] rounded-[6px] flex items-center text-zinc-500 text-[14px] h-[30px] pl-[8px] transition-all'>
                     <UserOutlined className='align-middle' />
                     <span className='ml-[6px]'>我的应用</span>
                   </div>
@@ -72,8 +73,8 @@ export default function Header() {
             }
             trigger='hover'
           >
-            <div className='text-[18px] text-[#878f95] p-[6px] rounded-[6px] justify-center flex items-center hover:bg-[#f1f2f3] transition-all cursor-pointer'>
-              <UnorderedListOutlined className='align-middle' />
+            <div className='text-[18px]  text-[#878f95] p-[6px] rounded-[6px] justify-center flex items-center hover:bg-[#f1f2f3] hover:text-[#1f4469] transition-all cursor-pointer'>
+              <Icon name='menu-dots' className='w-[20px] h-[20px] ' />
             </div>
           </Popover>
           <div className='ml-[9px] flex items-center px-[4px]'>

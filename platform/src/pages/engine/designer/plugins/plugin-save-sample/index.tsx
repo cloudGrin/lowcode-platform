@@ -18,7 +18,7 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
           <Button
             onClick={() =>
               saveSchema({
-                navUuid: options.navUuid
+                navUuid: options.route.navUuid
               })
             }
           >
@@ -29,7 +29,7 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
       hotkey.bind('command+s', (e) => {
         e.preventDefault()
         saveSchema({
-          navUuid: options.navUuid
+          navUuid: options.route.navUuid
         })
       })
     }
@@ -42,9 +42,9 @@ SaveSamplePlugin.meta = {
     title: '插件配置',
     properties: [
       {
-        key: 'navUuid',
-        type: 'string',
-        description: '页面uuid'
+        key: 'route',
+        type: 'object',
+        description: '页面信息'
       }
     ]
   }

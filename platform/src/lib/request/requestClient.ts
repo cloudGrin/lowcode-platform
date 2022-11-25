@@ -68,7 +68,7 @@ function strapiRequestInstance(path: any, payload?: any, config?: any): any {
     return requestInstance.request({
       url,
       method,
-      [method === 'GET' ? 'params' : 'data']: payload,
+      [['GET', 'DELETE'].includes(method) ? 'params' : 'data']: payload,
       ...config
     })
   }
