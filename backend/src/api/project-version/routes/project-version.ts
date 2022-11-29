@@ -13,7 +13,7 @@ export default factories.createCoreRouter(
         middlewares: ["api::project.project-role", "api::project-version.auth"],
       },
       find: {
-        middlewares: ["api::project.project-role", "api::project-version.auth"],
+        auth: false
       },
     },
   }

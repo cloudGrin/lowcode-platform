@@ -13,17 +13,8 @@ export default (config, { strapi }) => {
     } = context;
     // 平台管理员无视规则
     if (!isPlatformAdmin) {
-      // 查询
-      if (
-        routerPath === "/api/project-versions" &&
-        !!projectId &&
-        "GET" === method
-      ) {
-        await next();
-        return;
-      }
       // 发布新版本
-      else if (
+      if (
         routerPath === "/api/project-versions" &&
         !!bodyProjectId &&
         "POST" === method &&
