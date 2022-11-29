@@ -35,7 +35,8 @@
         "DELETE"
       ],
       "default": "ONLINE",
-      "required": true
+      "required": true,
+      "configurable": false
     }
   }
 }

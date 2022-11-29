@@ -21,12 +21,14 @@
     "project": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::project.project"
+      "target": "api::project.project",
+      "configurable": false
     },
     "user": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "plugin::users-permissions.user"
+      "target": "plugin::users-permissions.user",
+      "configurable": false
     }
   }
 }

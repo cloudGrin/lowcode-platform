@@ -13,25 +13,30 @@
   "pluginOptions": {},
   "attributes": {
     "description": {
-      "type": "string"
+      "type": "string",
+      "configurable": false
     },
     "project": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::project.project"
+      "target": "api::project.project",
+      "configurable": false
     },
     "navList": {
       "type": "json",
-      "required": true
+      "required": true,
+      "configurable": false
     },
     "version": {
       "type": "string",
-      "required": true
+      "required": true,
+      "configurable": false
     },
     "operator": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "plugin::users-permissions.user"
+      "target": "plugin::users-permissions.user",
+      "configurable": false
     }
   }
 }

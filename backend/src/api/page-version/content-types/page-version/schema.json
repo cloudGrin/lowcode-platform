@@ -13,21 +13,25 @@
   "pluginOptions": {},
   "attributes": {
     "description": {
-      "type": "text"
+      "type": "text",
+      "configurable": false
     },
     "schema": {
-      "type": "json"
+      "type": "json",
+      "configurable": false
     },
     "route": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "api::project-route.project-route",
-      "inversedBy": "versions"
+      "inversedBy": "versions",
+      "configurable": false
     },
     "operator": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "plugin::users-permissions.user"
+      "target": "plugin::users-permissions.user",
+      "configurable": false
     }
   }
 }
