@@ -38,14 +38,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -58,15 +51,7 @@ export default factories.createCoreController(
       } = ctx.state;
 
       if (!description || semver.valid(version) === null) {
-        ctx.status = 400;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 400,
-            message: "参数错误",
-          },
-        };
-        return;
+        return ctx.badRequest("参数错误");
       }
       try {
         const { data: projectRouteResult } = (await strapi
@@ -98,14 +83,7 @@ export default factories.createCoreController(
         return {};
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
   })

@@ -205,44 +205,17 @@ module.exports = (plugin) => {
               },
             });
           } catch (error) {
-            ctx.status = 500;
-            ctx.body = {
-              data: null,
-              error: {
-                status: 500,
-                message: "发生错误",
-              },
-            };
+            console.log(error);
+            return ctx.throw("发生错误");
           }
         } else {
-          ctx.status = 403;
-          ctx.body = {
-            data: null,
-            error: {
-              status: 403,
-              message: "无权限",
-            },
-          };
+          return ctx.forbidden();
         }
       } else {
-        ctx.status = 403;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 403,
-            message: "无权限",
-          },
-        };
+        return ctx.forbidden();
       }
     } else {
-      ctx.status = 400;
-      ctx.body = {
-        data: null,
-        error: {
-          status: 400,
-          message: "参数错误",
-        },
-      };
+      return ctx.badRequest("参数错误");
     }
   };
 

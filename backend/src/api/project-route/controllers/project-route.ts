@@ -81,14 +81,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     async findByUuid(ctx) {
@@ -110,16 +103,7 @@ export default factories.createCoreController(
           })) as any;
 
         if (!projectRouteResult[0]) {
-          ctx.status = 404;
-          ctx.body = {
-            data: null,
-            error: {
-              status: 404,
-              name: "NotFoundError",
-              message: "Not Found",
-            },
-          };
-          return;
+          return ctx.notFound();
         }
 
         return {
@@ -127,14 +111,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -174,14 +151,7 @@ export default factories.createCoreController(
         }
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -192,15 +162,7 @@ export default factories.createCoreController(
       const { title, type, url, parentNavUuid, projectId } = ctx.request.body;
       // 参数校验
       if (!title || (type === "LINK" && !url)) {
-        ctx.status = 400;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 400,
-            message: "参数错误",
-          },
-        };
-        return;
+        return ctx.badRequest("参数错误");
       }
       try {
         const { results = [] } = (await strapi
@@ -228,15 +190,7 @@ export default factories.createCoreController(
             return nav.navUuid === parentNavUuid;
           });
           if (parentNav && parentNav.type !== groupTypeName) {
-            ctx.status = 400;
-            ctx.body = {
-              data: null,
-              error: {
-                status: 400,
-                message: "只能给组添加子路由",
-              },
-            };
-            return;
+            return ctx.badRequest("只能给组添加子路由");
           }
         }
 
@@ -261,14 +215,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -309,30 +256,14 @@ export default factories.createCoreController(
           })) as any;
         // 初步校验
         if (ids.length !== projectRouteResult.length) {
-          ctx.status = 400;
-          ctx.body = {
-            data: null,
-            error: {
-              status: 400,
-              message: "修改失败，请刷新页面获取最新数据",
-            },
-          };
-          return;
+          return ctx.badRequest("修改失败，请刷新页面获取最新数据");
         }
         let parentNav = projectRouteResult.find((nav) => {
           return nav.navUuid === parentNavUuid;
         });
         // targetParent必须是一个组
         if (parentNav && parentNav.type !== groupTypeName) {
-          ctx.status = 400;
-          ctx.body = {
-            data: null,
-            error: {
-              status: 400,
-              message: "只能给组添加子路由",
-            },
-          };
-          return;
+          return ctx.badRequest("只能给组添加子路由");
         }
 
         const preIds = getNavListOrder(
@@ -344,15 +275,7 @@ export default factories.createCoreController(
         for (let i = 0; i < preIds.length; i++) {
           const index = ids.indexOf(preIds[i]);
           if (index === -1) {
-            ctx.status = 400;
-            ctx.body = {
-              data: null,
-              error: {
-                status: 400,
-                message: "修改失败，请刷新页面获取最新数据",
-              },
-            };
-            return;
+            return ctx.badRequest("修改失败，请刷新页面获取最新数据");
           } else if (index !== i) {
             pendingUpdateOrderIds[preIds[i]] = index;
           }
@@ -377,14 +300,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -409,14 +325,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
   })

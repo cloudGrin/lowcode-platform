@@ -83,14 +83,7 @@ export default factories.createCoreController(
         }
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -108,17 +101,7 @@ export default factories.createCoreController(
         })) as any;
 
         if (results.length === 0 || results[0].status === "DELETE") {
-          ctx.status = 404;
-          ctx.body = {
-            data: null,
-            error: {
-              status: 404,
-              name: "NotFoundError",
-              message: "Not Found",
-              details: {},
-            },
-          };
-          return;
+          return ctx.notFound();
         }
 
         return {
@@ -126,14 +109,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -164,14 +140,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -209,14 +178,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
 
@@ -267,14 +229,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -306,14 +261,7 @@ export default factories.createCoreController(
         };
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -326,15 +274,7 @@ export default factories.createCoreController(
 
       if (Object.prototype.toString.apply(memberIds) === "[object Array]") {
         if (!memberIds.length && toRole === "master") {
-          ctx.status = 400;
-          ctx.body = {
-            data: null,
-            error: {
-              status: 400,
-              message: "不能为空",
-            },
-          };
-          return;
+          return ctx.badRequest("不能为空");
         }
         try {
           const { results: projects } = (await strapi
@@ -347,15 +287,7 @@ export default factories.createCoreController(
             })) as any;
 
           if (projects.length === 0) {
-            ctx.status = 400;
-            ctx.body = {
-              data: null,
-              error: {
-                status: 400,
-                message: "参数错误",
-              },
-            };
-            return;
+            return ctx.badRequest("参数错误");
           }
           const projectRoleRes = await strapi.db
             .query("api::project-role.project-role")
@@ -424,38 +356,14 @@ export default factories.createCoreController(
             });
             return;
           } else {
-            ctx.status = 400;
-            ctx.body = {
-              data: null,
-              error: {
-                status: 400,
-                message: "参数错误",
-              },
-            };
-            return;
+            return ctx.badRequest("参数错误");
           }
         } catch (error) {
           console.log(error);
-          ctx.status = 500;
-          ctx.body = {
-            data: null,
-            error: {
-              status: 500,
-              message: "发生错误",
-            },
-          };
-          return;
+          return ctx.throw("发生错误");
         }
       } else {
-        ctx.status = 400;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 400,
-            message: "参数错误",
-          },
-        };
-        return;
+        return ctx.badRequest("参数错误");
       }
     },
   })

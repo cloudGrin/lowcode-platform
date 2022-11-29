@@ -50,15 +50,7 @@ export default factories.createCoreController(
           };
         } else {
           if (versionId) {
-            ctx.status = 404;
-            ctx.body = {
-              data: null,
-              error: {
-                status: 404,
-                message: "NotFound",
-              },
-            };
-            return;
+            return ctx.notFound();
           }
           // 默认
           return {
@@ -315,14 +307,7 @@ export default factories.createCoreController(
         }
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
     /**
@@ -336,15 +321,7 @@ export default factories.createCoreController(
       } = ctx.state;
 
       if (!schema || !navUuid) {
-        ctx.status = 400;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 400,
-            message: "参数错误",
-          },
-        };
-        return;
+        return ctx.badRequest("参数错误");
       }
 
       try {
@@ -378,15 +355,7 @@ export default factories.createCoreController(
                 },
               });
             if (count === 0) {
-              ctx.status = 403;
-              ctx.body = {
-                data: null,
-                error: {
-                  status: 403,
-                  message: "无权限",
-                },
-              };
-              return;
+              return ctx.forbidden();
             }
           }
           await strapi.service("api::page-version.page-version").create({
@@ -408,26 +377,11 @@ export default factories.createCoreController(
             },
           };
         } else {
-          ctx.status = 400;
-          ctx.body = {
-            data: null,
-            error: {
-              status: 400,
-              message: "参数错误",
-            },
-          };
-          return;
+          return ctx.badRequest("参数错误");
         }
       } catch (error) {
         console.log(error);
-        ctx.status = 500;
-        ctx.body = {
-          data: null,
-          error: {
-            status: 500,
-            message: "发生错误",
-          },
-        };
+        return ctx.throw("发生错误");
       }
     },
   })
