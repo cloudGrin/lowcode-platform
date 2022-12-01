@@ -10,9 +10,9 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/plugin-i18n": "4.5.2",
-    "@strapi/plugin-users-permissions": "4.5.2",
-    "@strapi/strapi": "4.5.2",
+    "@strapi/plugin-i18n": "4.5.3",
+    "@strapi/plugin-users-permissions": "4.5.3",
+    "@strapi/strapi": "4.5.3",
     "lodash": "^4.17.21",
     "pg": "8.8.0",
     "semver": "^7.3.8",
@@ -30,7 +30,7 @@
   },
   "license": "MIT",
   "volta": {
-    "node": "16.17.1",
+    "node": "18.12.1",
     "yarn": "1.22.19"
   }
 }

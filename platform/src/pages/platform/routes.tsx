@@ -15,6 +15,7 @@ async function authPlatformAdminLoader() {
   if (!userInfo.isPlatformAdmin) {
     throw new Response('无权限访问', { status: 401 })
   }
+  return null
 }
 
 const routes: RouteObject[] = [
