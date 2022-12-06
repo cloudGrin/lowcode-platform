@@ -6,10 +6,10 @@
   "author": "",
   "license": "MIT",
   "scripts": {
-    "build": "webpack --config=configs/webpack/prod.js",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider webpack --config=configs/webpack/prod.js",
     "lint": "eslint './src/**/*.{js,ts,tsx}' --quiet",
     "start": "webpack serve --config=configs/webpack/dev.js",
-    "develop": "yarn run start",
+    "develop": "cross-env NODE_OPTIONS=--openssl-legacy-provider yarn run start",
     "postinstall": "patch-package"
   },
   "devDependencies": {
@@ -27,11 +27,12 @@
     "@typescript-eslint/parser": "5.45.0",
     "autoprefixer": "^10.4.13",
     "babel-loader": "8.3.0",
+    "clean-webpack-plugin": "^4.0.0",
     "cross-env": "^7.0.3",
     "css-loader": "5.2.7",
     "cssnano": "^5.1.14",
     "dotenv-webpack": "^8.0.1",
-    "eslint": "8.28.0",
+    "eslint": "8.29.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
     "eslint-plugin-react": "7.31.11",
@@ -47,7 +48,7 @@
     "patch-package": "^6.5.0",
     "postcss": "^8.4.19",
     "postcss-flexbugs-fixes": "^5.0.2",
-    "postcss-import": "^15.0.0",
+    "postcss-import": "^15.0.1",
     "postcss-loader": "4.3.0",
     "prettier": "2.8.0",
     "react": "16.14.0",
@@ -90,8 +91,7 @@
     "npm": "8.19.2"
   },
   "resolutions": {
-    "@babel/preset-env": "7.20.2",
-    "fsevents": "2.3.2"
+    "@babel/preset-env": "7.20.2"
   },
   "browserslist": [
     "> 1%",

@@ -1,0 +1,15 @@
+# syntax = docker/dockerfile:experimental
+FROM node:18.12.1-alpine as build
+WORKDIR /opt/
+COPY ./package.json ./yarn.lock ./
+ENV PATH /opt/node_modules/.bin:$PATH
+RUN yarn config set network-timeout 600000 -g && yarn install
+WORKDIR /opt/app
+COPY ./ .
+RUN yarn build
+
+FROM nginx:alpine
+ENV SERVER_API="http://localhost:1337"
+COPY --from=build /opt/app/nginx /etc/nginx/
+COPY --from=build /opt/app/dist /opt/app
+ENTRYPOINT envsubst '${SERVER_API}' < /etc/nginx/nginx.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'

@@ -1,0 +1,63 @@
+version: "3.3"
+services:
+  strapi:
+    container_name: strapi
+    image: cloudgrin/strapi-lowcode-platform:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_HOST: strapiDB
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: grin
+      DATABASE_PASSWORD: Ca9zr21RiUJZ
+      DATABASE_NAME: lowcodeplatform
+      JWT_SECRET: 1AwerWerdSDf324tgSfda
+      ADMIN_JWT_SECRET: sD2fGghgsdFdher5sa2
+      APP_KEYS: "sdf3G3D3asdGwad,1AeF4Deqw23wq1F3"
+    ports:
+      - "11337:1337"
+    networks:
+      - lowcode-platform
+    depends_on:
+      - strapiDB
+
+  strapiDB:
+    container_name: strapiDB
+    restart: unless-stopped
+    image: postgres:14
+    environment:
+      POSTGRES_USER: grin
+      POSTGRES_PASSWORD: Ca9zr21RiUJZ
+      POSTGRES_DB: lowcodeplatform
+    volumes:
+      - strapi-data:/var/lib/postgresql/data
+      # - /volume1/docker/lowcode-platform/postgresql:/var/lib/postgresql/data # if you want to use a bind folder
+    ports:
+      - "15432:5432"
+    networks:
+      - lowcode-platform
+
+  platform:
+    container_name: platform
+    # build:
+    #   context: ./platform
+    #   dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    image: cloudgrin/frontend-lowcode-platform:latest
+    environment:
+      SERVER_API: "http://strapi:1337"
+    # command: sh -c "envsubst '$$SERVER_API' < /etc/nginx/nginx.template > /etc/nginx/nginx.conf && cat /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    ports:
+      - "3000:80"
+    networks:
+      - lowcode-platform
+    depends_on:
+      - strapi
+
+volumes:
+  strapi-data:
+
+networks:
+  lowcode-platform:
+    name: LowcodePlatform
+    driver: bridge

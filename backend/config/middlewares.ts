@@ -6,7 +6,7 @@ export default [
     config: {
       enabled: true,
       headers: ["Cache-Control", "Content-Type", "Authorization"],
-      origin: ["http://localhost:1337", "http://localhost:3000"],
+      origin: "*",
     },
   },
   "strapi::poweredBy",

@@ -1,0 +1,11 @@
+.git/
+
+node_modules/
+
+dist/
+
+yarn-error.log
+
+.ncurc.json
+
+.env.*

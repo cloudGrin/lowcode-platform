@@ -1,8 +1,11 @@
 // development config
-const { join } = require('path')
 const { merge } = require('webpack-merge')
 const commonConfig = require('./common')
 const ReactRefreshPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const Dotenv = require('dotenv-webpack')
+const dotenv = require('dotenv')
+dotenv.config()
 
 console.log('__dirname', __dirname)
 
@@ -31,6 +34,11 @@ module.exports = merge(commonConfig, {
         target: `http://localhost:${webPort}`,
         secure: false,
         pathRewrite: { '^/pagePreview': '/preview.html' }
+      },
+      '/strapi': {
+        target: 'http://localhost:1337',
+        secure: false,
+        pathRewrite: { '^/strapi': '' }
       }
     },
     // static: {
@@ -40,5 +48,11 @@ module.exports = merge(commonConfig, {
     historyApiFallback: true // fixes error 404-ish errors when using react router :see this SO question: https://stackoverflow.com/questions/43209666/react-router-v4-cannot-get-url
   },
   devtool: 'cheap-module-source-map',
-  plugins: [new ReactRefreshPlugin()]
+  plugins: [
+    new ReactRefreshPlugin(),
+    new Dotenv(),
+    new MiniCssExtractPlugin({
+      filename: '[name].css'
+    })
+  ]
 })

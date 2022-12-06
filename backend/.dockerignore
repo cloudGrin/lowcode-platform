@@ -1,0 +1,13 @@
+.git/
+
+node_modules/
+
+yarn-error.log
+
+.cache/
+
+dist/
+
+.strapi-updater.json
+
+.env.*

@@ -1,11 +1,7 @@
 // shared config (dev and prod)
 const { resolve } = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const Dotenv = require('dotenv-webpack')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const isProductionMode = process.env.NODE_ENV === 'production'
-const dotenv = require('dotenv')
-dotenv.config()
 
 module.exports = {
   // infrastructureLogging: {
@@ -104,19 +100,19 @@ module.exports = {
       {
         test: /\.(jpe?g|png|gif)$/i,
         use: [
-          'file-loader?hash=sha512&digest=hex&name=img/[contenthash].[ext]',
-          {
-            loader: 'image-webpack-loader',
-            options: {
-              disable: false, // webpack@2.x and newer
-              optipng: {
-                optimizationLevel: 7
-              },
-              gifsicle: {
-                interlaced: false
-              }
-            }
-          }
+          'file-loader?hash=sha512&digest=hex&name=img/[contenthash].[ext]'
+          // {
+          //   loader: 'image-webpack-loader',
+          //   options: {
+          //     disable: false, // webpack@2.x and newer
+          //     optipng: {
+          //       optimizationLevel: 7
+          //     },
+          //     gifsicle: {
+          //       interlaced: false
+          //     }
+          //   }
+          // }
         ]
       },
       {
@@ -129,7 +125,6 @@ module.exports = {
     ]
   },
   plugins: [
-    new Dotenv(),
     new HtmlWebpackPlugin({
       chunks: ['platform'],
       filename: 'index.html',
@@ -154,9 +149,6 @@ module.exports = {
       templateParameters: {
         useFor: 'preview'
       }
-    }),
-    new MiniCssExtractPlugin({
-      filename: isProductionMode ? '[name].[contenthash].css' : '[name].css'
     })
   ],
   externals: {
