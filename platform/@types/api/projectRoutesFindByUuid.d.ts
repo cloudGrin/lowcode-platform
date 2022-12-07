@@ -20,5 +20,6 @@ interface ApiProjectRoutesFindByUuidResponse {
     navUuid: string
     parentNavUuid: string
     url?: string
+    isNewPage?: boolean
   }
 }

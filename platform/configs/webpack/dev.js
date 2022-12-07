@@ -30,10 +30,10 @@ module.exports = merge(commonConfig, {
         secure: false,
         pathRewrite: { '^/pageDesigner': '/designer.html' }
       },
-      '/pagePreview': {
+      '/app/*': {
         target: `http://localhost:${webPort}`,
         secure: false,
-        pathRewrite: { '^/pagePreview': '/preview.html' }
+        pathRewrite: { '^/app/?[^?]*': '/preview.html' }
       },
       '/strapi': {
         target: 'http://localhost:1337',

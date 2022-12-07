@@ -41,11 +41,11 @@ ReactDOM.render(
           /**  失效色 */
           colorTextDisabled: themeToken.c_level_4,
           /**  边框色 */
-          colorBorder: themeToken.c_line_1,
+          colorBorder: themeToken.c_line_1
           /**  height rules */
-          controlHeightSM: 32,
-          controlHeight: 36,
-          controlHeightLG: 40
+          // controlHeightSM: 32,
+          // controlHeight: 36,
+          // controlHeightLG: 40
         }
       }}
     >

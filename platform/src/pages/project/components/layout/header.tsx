@@ -95,7 +95,14 @@ export default function Header() {
           onChange={jumpRoute}
         />
         {/* visit */}
-        <Button className='leading-none text-[14px]'>访问</Button>
+        <Button
+          className='leading-none text-[14px]'
+          onClick={() => {
+            window.open(`/app/${projectInfo?.appId}/workbench`)
+          }}
+        >
+          访问
+        </Button>
         <style jsx>{`
           div :global(.ant-tabs-nav) {
             margin-bottom: 0;

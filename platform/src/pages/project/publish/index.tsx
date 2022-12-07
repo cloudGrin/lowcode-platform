@@ -5,12 +5,13 @@ import dayjs from 'dayjs'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import semver from 'semver'
-import { VersionsContext } from '../projectInfoVersionsContext'
+import { LatestVersionsContext } from '../projectInfoVersionsContext'
 
 const columns = [
   {
     title: '版本号',
-    dataIndex: 'version'
+    dataIndex: 'version',
+    width: 100
   },
   {
     title: '版本描述',
@@ -19,11 +20,17 @@ const columns = [
   {
     title: '发布时间',
     dataIndex: 'createdAt',
+    width: 200,
     render: (_: any, record: any) => (
       <>
         <span className=''>{dayjs(record.createdAt).format('YYYY-MM-DD HH:mm:ss')}</span>
       </>
     )
+  },
+  {
+    title: '操作人',
+    dataIndex: ['operator', 'username'],
+    width: 150
   }
 ]
 
@@ -31,7 +38,7 @@ const Publish: React.FC = () => {
   const { id } = useParams()
   const [open, setOpen] = useState(false)
 
-  const [versions, getVersions] = useContext(VersionsContext)
+  const [latestVersion, getLastVersion] = useContext(LatestVersionsContext)
 
   const [form] = Form.useForm()
 
@@ -76,8 +83,7 @@ const Publish: React.FC = () => {
 
   const refresh = useCallback(() => {
     versionPagination.onChange(1, 20)
-    getVersions()
-  }, [getVersions, versionPagination])
+  }, [versionPagination])
 
   const handleOk = useCallback(async () => {
     try {
@@ -89,18 +95,19 @@ const Publish: React.FC = () => {
       message.success('发布成功')
       setOpen(false)
       refresh()
+      getLastVersion()
     } catch (errorInfo) {
       console.log('Failed:', errorInfo)
       // message.success('新增失败')
     }
-  }, [form, id, publish, refresh])
+  }, [form, getLastVersion, id, publish, refresh])
 
   const setInitForm = useCallback(() => {
     form.setFieldsValue({
-      version: semver.inc(versions?.[0]?.version ?? '0.0.0', 'patch'),
+      version: semver.inc(latestVersion?.version ?? '0.0.0', 'patch'),
       description: ''
     })
-  }, [form, versions])
+  }, [form, latestVersion])
 
   useEffect(() => {
     setInitForm()

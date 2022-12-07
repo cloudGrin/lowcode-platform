@@ -1,21 +1,21 @@
-import ReactRenderer from '@alilc/lowcode-react-renderer'
-import { useEffect, useState } from 'react'
-import createAxiosHandler from '../datasource-axios-handler'
-
-import useQuery from '@/hooks/useQuery'
 import { useStrapiRequest } from '@/lib/request'
+import { TreeItem } from '@atlaskit/tree'
+import { FC, useEffect, useState } from 'react'
+import { useOutletContext } from 'react-router'
+import ReactRenderer from '@alilc/lowcode-react-renderer'
+import createAxiosHandler from '../datasource-axios-handler'
 import { initPage } from '../helper'
 
-const SamplePreview: React.FC = () => {
+const AppPreviewPageContent: FC = () => {
+  const [nav] = useOutletContext<[TreeItem]>()
   const [data, setData] = useState<any>({})
-  const query = useQuery()
 
   const { data: pageVersionsResult, loading: pageVersionsLoading } = useStrapiRequest(
     '/api/page-versions/latest',
     () => ({
       payload: {
-        navUuid: query.get('navUuid') as string,
-        versionId: query.get('versionId'),
+        navUuid: nav.id as string,
+        versionId: nav.data.version.id as string,
         pagination: {
           page: 1,
           pageSize: 1
@@ -23,10 +23,9 @@ const SamplePreview: React.FC = () => {
       }
     }),
     {
-      refreshDeps: [query]
+      refreshDeps: [nav]
     }
   )
-
   useEffect(() => {
     if (pageVersionsResult) {
       initPage({ projectSchema: pageVersionsResult.data.schema }).then(({ schema, components }) => {
@@ -60,4 +59,4 @@ const SamplePreview: React.FC = () => {
   )
 }
 
-export default SamplePreview
+export default AppPreviewPageContent

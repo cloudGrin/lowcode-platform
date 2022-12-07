@@ -19,6 +19,9 @@ async function authLoader() {
       }
     } catch (error) {
       console.log(error)
+      return {
+        userInfo: null
+      }
     }
   } else {
     return redirect('/login')
@@ -30,6 +33,7 @@ async function loginLoader() {
   if (TokenUserInfo.loginToken) {
     return redirect('/')
   }
+  return null
 }
 
 const router = createBrowserRouter(

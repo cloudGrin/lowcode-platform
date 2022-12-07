@@ -9,14 +9,21 @@ export default factories.createCoreController(
   "api::project-version.project-version",
   ({ strapi }) => ({
     async find(ctx) {
-      const { projectId } = ctx.request.query;
+      const {
+        projectId,
+        pagination: queryPagination,
+        isNeedNavList = false,
+      } = ctx.request.query;
       try {
         const { results, pagination } = (await strapi
           .service("api::project-version.project-version")
           .find({
-            pagination: ctx.query.pagination,
+            pagination: queryPagination,
             populate: {
               project: false,
+              operator: {
+                fields: ["username"],
+              },
             },
             sort: {
               updatedAt: "desc",
@@ -31,7 +38,9 @@ export default factories.createCoreController(
           })) as any;
 
         return {
-          data: results,
+          data: isNeedNavList
+            ? results
+            : results.map(({ navList, ...rest }) => rest),
           meta: {
             pagination,
           },

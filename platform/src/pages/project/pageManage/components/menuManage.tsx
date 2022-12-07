@@ -17,7 +17,7 @@ import classNames from 'classnames'
 import produce from 'immer'
 import React, { memo, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { VersionsContext } from '../../projectInfoVersionsContext'
+import { LatestVersionsContext } from '../../projectInfoVersionsContext'
 import { getAncestorIds } from '../utils'
 import TreeWrapper from './treeWrapper'
 
@@ -70,7 +70,7 @@ const PureTreeFc: React.FC<{
   const { id, routeId } = useParams()
   const navigate = useNavigate()
   const query = useQuery()
-  const [versions] = useContext(VersionsContext)
+  const [latestVersion] = useContext(LatestVersionsContext)
   const activeTree = useMemo(() => {
     return activeTab === 'dev' ? tree : prodTreeData
   }, [activeTab, prodTreeData, tree])
@@ -328,10 +328,10 @@ const PureTreeFc: React.FC<{
 
   useEffect(() => {
     setTabs([
-      ...(!!versions?.length
+      ...(latestVersion
         ? [
             {
-              label: `版本(${versions[0].version})`,
+              label: `版本(${latestVersion.version})`,
               key: 'prod'
             }
           ]
@@ -341,10 +341,10 @@ const PureTreeFc: React.FC<{
         key: 'dev'
       }
     ])
-    if (!!versions?.length) {
-      setProdTreeData(versions[0].navList as TreeData)
+    if (latestVersion) {
+      setProdTreeData(latestVersion.navList as TreeData)
     }
-  }, [versions])
+  }, [latestVersion])
 
   useEffect(() => {
     checkActiveTab(query)

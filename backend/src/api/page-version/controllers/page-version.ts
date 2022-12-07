@@ -23,6 +23,9 @@ export default factories.createCoreController(
             },
             populate: {
               route: true,
+              operator: {
+                fields: ["username"],
+              },
             },
             sort: "id:desc",
             filters: {
@@ -39,13 +42,14 @@ export default factories.createCoreController(
             },
           })) as any;
         if (results[0]) {
-          const { id, description, createdAt, schema } = results[0];
+          const { id, description, createdAt, schema,operator } = results[0];
           return {
             data: {
               id,
               description,
               createdAt,
               schema,
+              operator
             },
           };
         } else {

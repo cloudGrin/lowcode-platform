@@ -13,6 +13,7 @@ interface ApiProjectVersionsRequest {
     page: number
     pageSize: number
   }
+  isNeedNavList?: boolean
 }
 
 interface ApiProjectVersionsResponse {

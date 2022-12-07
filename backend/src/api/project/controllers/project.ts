@@ -144,6 +144,34 @@ export default factories.createCoreController(
       }
     },
     /**
+     * 权限：平台管理员或该项目成员
+     * 根据appId查询应用信息及应用关联用户
+     */
+     async findByAppId(ctx) {
+      const { appId } = ctx.params;
+      try {
+        const { results } = (await strapi
+          .service("api::project.project")
+          .find({
+            pagination: false,
+            filters: {
+              appId,
+            },
+          })) as any;
+
+        if (results.length === 0 || results[0].status === "DELETE") {
+          return ctx.notFound();
+        }
+        
+        return {
+          data: formatProjectResult(results)[0],
+        };
+      } catch (error) {
+        console.log(error);
+        return ctx.throw("发生错误");
+      }
+    },
+    /**
      * 权限： 应用管理员且是该应用的master角色
      */
     async delete(ctx) {

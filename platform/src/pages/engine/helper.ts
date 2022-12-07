@@ -1,9 +1,12 @@
 import { strapiRequestInstance } from '@/lib/request'
-import { material, project } from '@alilc/lowcode-engine'
+import { project } from '@alilc/lowcode-engine'
 // import { filterPackages } from '@alilc/lowcode-plugin-inject'
-import { message, Modal } from 'antd'
-import { TransformStage, RootSchema } from '@alilc/lowcode-types'
+import { TransformStage } from '@alilc/lowcode-types'
+import { message } from 'antd'
 import assets from './assets.json'
+
+import { injectComponents } from '@alilc/lowcode-plugin-inject'
+import { AssetLoader, buildComponents } from '@alilc/lowcode-utils'
 
 // const defaultPageSchema: RootSchema = { componentName: 'Page', fileName: 'sample' }
 
@@ -56,5 +59,38 @@ export const getPagePackages = () => {
 }
 
 export const preview = () => {
-  window.open(`/pagePreview${location.search}`)
+  window.open(`/app/page${location.search}`)
+}
+
+export async function initPage({ projectSchema }: any) {
+  const packages = getPagePackages()
+  const { componentsMap: componentsMapArray, componentsTree } = projectSchema
+  const componentsMap: any = {}
+  componentsMapArray?.forEach((component: any) => {
+    componentsMap[component.componentName] = component
+  })
+  const schema = componentsTree?.[0]
+
+  const libraryMap = {} as Record<string, any>
+  const libraryAsset: any[] = []
+  packages.forEach(({ package: _package, library, urls, renderUrls }: Record<string, any>) => {
+    libraryMap[_package] = library
+    if (renderUrls) {
+      libraryAsset.push(renderUrls)
+    } else if (urls) {
+      libraryAsset.push(urls)
+    }
+  })
+
+  // TODO asset may cause pollution
+  const assetLoader = new AssetLoader()
+  await assetLoader.load(libraryAsset)
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const components = await injectComponents(buildComponents(libraryMap, componentsMap))
+
+  return {
+    schema,
+    components
+  }
 }

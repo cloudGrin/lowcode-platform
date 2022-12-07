@@ -20,5 +20,14 @@ export default {
         middlewares: ["api::project.project-role", "api::project.auth"],
       },
     },
+    {
+      // Path defined with an URL parameter
+      method: "GET",
+      path: "/projects/appId/:appId",
+      handler: "project.findByAppId",
+      config: {
+        auth: false
+      },
+    },
   ],
 };

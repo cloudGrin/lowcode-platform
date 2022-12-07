@@ -222,7 +222,7 @@ async function setCommonAuthRolePermission() {
   for (let role in allRole) {
     await setApiPermissions(<keyof typeof allRole>role, {
       "page-version": ["create"],
-      project: ["find", "findOne", "fidUserAndRoleById"],
+      project: ["find", "findUserAndRoleById"],
       "project-route": ["create", "deleteNav", "update", "updateOrder"],
       "project-version": ["create", "find"],
     });

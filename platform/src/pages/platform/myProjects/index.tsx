@@ -115,7 +115,14 @@ const MyProjects: React.FC = () => {
                                   <SettingOutlined className='align-middle text-[18px]' />
                                   <span className='ml-[6px]'>应用设置</span>
                                 </div>
-                                <div className='option'>
+
+                                <div
+                                  className='option'
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    window.open(`/app/${col.appId}/workbench`)
+                                  }}
+                                >
                                   <EyeOutlined className='align-middle text-[18px]' />
                                   <span className='ml-[6px]'>访问应用</span>
                                 </div>
