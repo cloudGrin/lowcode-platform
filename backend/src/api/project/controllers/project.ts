@@ -144,13 +144,14 @@ export default factories.createCoreController(
       }
     },
     /**
-     * 权限：平台管理员或该项目成员
-     * 根据appId查询应用信息及应用关联用户
+     * 无权限
+     * 根据appId查询应用信息及应用最新版本信息
+     * 仅用在项目发布后的查看
      */
-     async findByAppId(ctx) {
+    async findByAppId(ctx) {
       const { appId } = ctx.params;
       try {
-        const { results } = (await strapi
+        const { results: projectResults } = (await strapi
           .service("api::project.project")
           .find({
             pagination: false,
@@ -159,12 +160,45 @@ export default factories.createCoreController(
             },
           })) as any;
 
-        if (results.length === 0 || results[0].status === "DELETE") {
+        if (
+          projectResults.length === 0 ||
+          projectResults[0].status === "DELETE"
+        ) {
           return ctx.notFound();
         }
-        
+
+        const { results: projectVersions } = (await strapi
+          .service("api::project-version.project-version")
+          .find({
+            pagination: {
+              page: 1,
+              pageSize: 1,
+            },
+            populate: {
+              project: false,
+              operator: false,
+            },
+            sort: {
+              updatedAt: "desc",
+            },
+            filters: {
+              project: {
+                id: {
+                  $eq: projectResults[0].id,
+                },
+              },
+            },
+          })) as any;
+
+        if (projectVersions.length === 0) {
+          return ctx.badRequest("该应用暂未发布");
+        }
+
         return {
-          data: formatProjectResult(results)[0],
+          data: {
+            ...formatProjectResult(projectResults)[0],
+            version: projectVersions[0],
+          },
         };
       } catch (error) {
         console.log(error);

@@ -11,16 +11,12 @@ const AppPreviewPageContent: FC = () => {
   const [data, setData] = useState<any>({})
 
   const { data: pageVersionsResult, loading: pageVersionsLoading } = useStrapiRequest(
-    '/api/page-versions/latest',
+    '/api/page-versions/${id}',
     () => ({
-      payload: {
-        navUuid: nav.id as string,
-        versionId: nav.data.version.id as string,
-        pagination: {
-          page: 1,
-          pageSize: 1
-        }
-      }
+      urlValue: {
+        id: nav.data?.version?.id
+      },
+      hideErrorMessage: true
     }),
     {
       refreshDeps: [nav]

@@ -13,23 +13,10 @@ export default (config, { strapi }) => {
     } = context;
     // 平台管理员无视规则
     if (!isPlatformAdmin) {
-      // 发布新版本
+      // 查找最新版本
+      // 该应用成员才可以查
       if (
-        routerPath === "/api/project-versions" &&
-        "POST" === method &&
-        (await isProjectBelongsToUser({
-          strapi,
-          projectId: bodyProjectId,
-          userId,
-          isNeedProjectMaster: true,
-        }))
-      ) {
-        await next();
-        return;
-      }
-      // 查找版本
-      else if (
-        routerPath === "/api/project-versions" &&
+        routerPath === "/api/page-versions/latest" &&
         "GET" === method &&
         (await isProjectBelongsToUser({
           strapi,

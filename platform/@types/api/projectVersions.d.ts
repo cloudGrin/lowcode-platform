@@ -36,6 +36,7 @@ interface ApiProjectVersionsResponse {
             navUuid: string
             parentNavUuid: string
             url?: string
+            isNewPage?: boolean
           }
           isExpanded?: boolean
         }

@@ -6,7 +6,7 @@ export default {
       path: "/page-versions/latest",
       handler: "page-version.findLatestVersion",
       config: {
-        auth: false,
+        middlewares: ["api::project.project-role", "api::page-version.auth"],
       },
     },
   ],

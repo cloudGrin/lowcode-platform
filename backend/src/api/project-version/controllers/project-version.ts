@@ -14,6 +14,9 @@ export default factories.createCoreController(
         pagination: queryPagination,
         isNeedNavList = false,
       } = ctx.request.query;
+      if (!projectId) {
+        return ctx.badRequest("参数错误");
+      }
       try {
         const { results, pagination } = (await strapi
           .service("api::project-version.project-version")
@@ -59,7 +62,7 @@ export default factories.createCoreController(
         selfGlobalState: { userId },
       } = ctx.state;
 
-      if (!description || semver.valid(version) === null) {
+      if (!projectId || !description || semver.valid(version) === null) {
         return ctx.badRequest("参数错误");
       }
       try {

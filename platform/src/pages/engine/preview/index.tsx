@@ -10,22 +10,28 @@ const SamplePreview: React.FC = () => {
   const [data, setData] = useState<any>({})
   const query = useQuery()
 
-  const { data: pageVersionsResult, loading: pageVersionsLoading } = useStrapiRequest(
-    '/api/page-versions/latest',
+  const {
+    data: pageVersionsResult,
+    loading: pageVersionsLoading,
+    run: getVersion
+  } = useStrapiRequest(
+    '/api/page-versions/${id}',
     () => ({
-      payload: {
-        navUuid: query.get('navUuid') as string,
-        versionId: query.get('versionId'),
-        pagination: {
-          page: 1,
-          pageSize: 1
-        }
-      }
+      urlValue: {
+        id: query.get('versionId') as string
+      },
+      hideErrorMessage: true
     }),
     {
-      refreshDeps: [query]
+      manual: true
     }
   )
+
+  useEffect(() => {
+    if (query && query.get('versionId')) {
+      getVersion()
+    }
+  }, [getVersion, query])
 
   useEffect(() => {
     if (pageVersionsResult) {

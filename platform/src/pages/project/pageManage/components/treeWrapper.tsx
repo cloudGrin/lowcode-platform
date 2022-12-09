@@ -11,6 +11,7 @@ const TreeWrapper: FC<Record<string, any>> = ({
   onDragEnd,
   isDragEnabled
 }) => {
+  console.log(activeTree)
   return (
     <Tree
       tree={activeTree}

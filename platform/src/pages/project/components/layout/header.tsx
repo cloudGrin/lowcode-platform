@@ -1,10 +1,10 @@
 import Icon from '@/components/icon'
 import { CodeOutlined, UserOutlined, UnorderedListOutlined, SettingOutlined } from '@ant-design/icons'
-import { Button, Divider, Popover, Tabs } from 'antd'
+import { Button, Divider, message, Popover, Tabs } from 'antd'
 import { useContext } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useLocation, useNavigate, Link, useParams } from 'react-router-dom'
-import { InfoContext } from '../../projectInfoVersionsContext'
+import { InfoContext, LatestVersionsContext } from '../../projectInfoVersionsContext'
 const tabs = [
   {
     label: '页面管理',
@@ -26,6 +26,7 @@ const tabs = [
 
 export default function Header() {
   const [projectInfo] = useContext(InfoContext)
+  const [latestVersion] = useContext(LatestVersionsContext)
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const { id } = useParams()
@@ -98,7 +99,11 @@ export default function Header() {
         <Button
           className='leading-none text-[14px]'
           onClick={() => {
-            window.open(`/app/${projectInfo?.appId}/workbench`)
+            if (latestVersion) {
+              window.open(`/app/${projectInfo?.appId}/workbench`)
+            } else {
+              message.error('请先进行应用发布')
+            }
           }}
         >
           访问

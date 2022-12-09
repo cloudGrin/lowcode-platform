@@ -3,7 +3,7 @@ import newPageImg from '@/assets/image/newPage.png'
 import { ItemId, TreeData, TreeItem } from '@atlaskit/tree'
 import { Card, Col, Row } from 'antd'
 import { produce } from 'immer'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useContext, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import AddRoute from './components/addRouteDialog'
 import MenuManage from './components/menuManage'
@@ -13,16 +13,20 @@ import { useState } from 'react'
 import PageView from './components/pageView'
 import { getAncestorIds, findFirstPage } from './utils'
 import { useMemoizedFn } from 'ahooks'
+import useQuery from '@/hooks/useQuery'
+import { LatestVersionsContext } from '../projectInfoVersionsContext'
 
 const PageManage: React.FC = () => {
   const [type, setType] = useState<'LOADING' | 'EMPTY' | 'HAVE_DATA'>('LOADING')
   const [open, setOpen] = useState(false)
   const [navType, setNavType] = useState<ApiProjectRouteType>('NAV')
+  const query = useQuery()
 
   const { id, routeId } = useParams()
   const navigate = useNavigate()
 
   const [tree, setTree] = useState<TreeData>()
+  const [prodTreeData, setProdTreeData] = useState<TreeData>()
 
   const [activeNav, setActiveNav] = useState<TreeItem>()
 
@@ -37,7 +41,7 @@ const PageManage: React.FC = () => {
     [id, navigate, routeId]
   )
 
-  const handleTreeAndRouteId = useCallback(
+  const handleDevTreeAndRouteId = useCallback(
     (tree: TreeData) => {
       let currentNav = tree?.items?.[routeId as ItemId] as TreeItem | undefined
       if (!currentNav || currentNav.data.type === 'NAV') {
@@ -63,9 +67,6 @@ const PageManage: React.FC = () => {
         setType('HAVE_DATA')
       } else {
         // 跳转到 EMPTY
-
-        jump('')
-
         setType('EMPTY')
       }
     },
@@ -83,15 +84,19 @@ const PageManage: React.FC = () => {
       refreshDeps: [id],
       onSuccess(res) {
         if (res) {
-          // 以前展开的分组需要继续展开
-          for (const [uuid, item] of Object.entries(res?.data?.items ?? {})) {
-            const preItem = tree?.items?.[uuid]
-            if (preItem) {
-              item.isExpanded = preItem.isExpanded
+          if (tree) {
+            // 以前展开的分组需要继续展开
+            for (const [uuid, item] of Object.entries(res?.data?.items ?? {})) {
+              const preItem = tree?.items?.[uuid]
+              if (preItem) {
+                item.isExpanded = preItem.isExpanded
+              }
             }
           }
           setTree(res.data as TreeData)
-          handleTreeAndRouteId(res.data as TreeData)
+          if (!tree && (query.get('tab') !== 'prod' || !routeId)) {
+            handleDevTreeAndRouteId(res.data as TreeData)
+          }
         } else {
           setType('EMPTY')
         }
@@ -101,6 +106,50 @@ const PageManage: React.FC = () => {
       }
     }
   )
+
+  const [latestVersion] = useContext(LatestVersionsContext)
+
+  const handleProdTree = useMemoizedFn(() => {
+    if (query && query.get('tab') === 'prod' && latestVersion && routeId) {
+      const currentNav = latestVersion.navList.items[routeId]
+      if (currentNav && currentNav.data.type !== 'NAV') {
+        // 找到对应页面
+        setActiveNav(currentNav as TreeItem)
+        setType('HAVE_DATA')
+        const uuidPath = getAncestorIds(latestVersion.navList.items as Record<ItemId, TreeItem>, [
+          currentNav!.id
+        ]).slice(1)
+        setProdTreeData(
+          produce((draft) => {
+            for (const item of Object.values(draft?.items ?? {})) {
+              if (uuidPath.includes(item.id)) {
+                item.isExpanded = true
+              }
+            }
+          })
+        )
+      } else {
+        if (tree) {
+          handleDevTreeAndRouteId(tree)
+        } else {
+          // TODO 可能会有问题
+          jump(routeId + '?tab=dev')
+        }
+      }
+    }
+  })
+
+  useEffect(() => {
+    if (latestVersion) {
+      setProdTreeData(latestVersion.navList as TreeData)
+    }
+  }, [latestVersion])
+
+  useEffect(() => {
+    if (!activeNav) {
+      handleProdTree()
+    }
+  }, [handleProdTree, query, latestVersion, activeNav, routeId])
 
   return (
     <>
@@ -150,6 +199,8 @@ const PageManage: React.FC = () => {
             <MenuManage
               tree={tree}
               setTree={setTree}
+              prodTreeData={prodTreeData}
+              setProdTreeData={setProdTreeData}
               getNavListApi={getNavListApi}
               activeNav={activeNav}
               setActiveNav={setActiveNav}

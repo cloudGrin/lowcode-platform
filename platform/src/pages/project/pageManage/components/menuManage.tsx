@@ -52,12 +52,24 @@ function removeRouteApi({ uuid, successCb }: { uuid: ItemId; successCb?: () => v
 const PureTreeFc: React.FC<{
   tree?: TreeData
   setTree: React.Dispatch<React.SetStateAction<TreeData | undefined>>
+  prodTreeData?: TreeData
+  setProdTreeData: React.Dispatch<React.SetStateAction<TreeData | undefined>>
   getNavListApi: () => Promise<ApiProjectRoutesResponse>
   activeNav?: TreeItem
   setActiveNav: React.Dispatch<React.SetStateAction<TreeItem | undefined>>
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   setNavType: React.Dispatch<React.SetStateAction<ApiProjectRouteType>>
-}> = ({ tree, setTree, getNavListApi, activeNav, setActiveNav, setOpen, setNavType }) => {
+}> = ({
+  tree,
+  setTree,
+  getNavListApi,
+  activeNav,
+  setActiveNav,
+  setOpen,
+  setNavType,
+  prodTreeData,
+  setProdTreeData
+}) => {
   const [activeTab, setActiveTab] = useState<'prod' | 'dev'>('dev')
   const [tabs, setTabs] = useState([
     {
@@ -65,7 +77,6 @@ const PureTreeFc: React.FC<{
       key: 'dev'
     }
   ])
-  const [prodTreeData, setProdTreeData] = useState<TreeData>()
   const [changeTitleId, setChangeTitleId] = useState()
   const { id, routeId } = useParams()
   const navigate = useNavigate()
@@ -341,9 +352,6 @@ const PureTreeFc: React.FC<{
         key: 'dev'
       }
     ])
-    if (latestVersion) {
-      setProdTreeData(latestVersion.navList as TreeData)
-    }
   }, [latestVersion])
 
   useEffect(() => {
@@ -478,14 +486,16 @@ const PureTreeFc: React.FC<{
         `}</style>
       </div>
       <div className='p-[8px_19px] flex-auto overflow-y-auto mr-[-10px] tree-wrap'>
-        <TreeWrapper
-          activeTree={activeTree}
-          renderItem={renderItem}
-          onExpand={onExpand}
-          onCollapse={onCollapse}
-          onDragEnd={onDragEnd}
-          isDragEnabled={activeTab === 'dev'}
-        />
+        {activeTree && (
+          <TreeWrapper
+            activeTree={activeTree}
+            renderItem={renderItem}
+            onExpand={onExpand}
+            onCollapse={onCollapse}
+            onDragEnd={onDragEnd}
+            isDragEnabled={activeTab === 'dev'}
+          />
+        )}
 
         <style jsx>{`
           .tree-wrap > :global(div) {

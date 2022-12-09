@@ -5,10 +5,13 @@
 import { factories } from "@strapi/strapi";
 
 export default factories.createCoreRouter("api::page-version.page-version", {
-  only: ['create'],
+  only: ["create", "findOne"],
   config: {
     create: {
       middlewares: ["api::project.project-role"],
+    },
+    findOne: {
+      auth: false,
     },
   },
 });

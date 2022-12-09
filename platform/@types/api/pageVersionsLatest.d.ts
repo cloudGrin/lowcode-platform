@@ -1,5 +1,5 @@
 interface ApiTypes {
-  ['/api/page-versions/latest']: ApiPageVersionsLatestLatest
+  ['/api/page-versions/latest']: ApiPageVersionsLatest
 }
 
 interface ApiPageVersionsLatest {
