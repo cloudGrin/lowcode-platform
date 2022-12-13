@@ -221,7 +221,7 @@ async function setPluginPermissions(
 async function setCommonAuthRolePermission() {
   for (let role in allRole) {
     await setApiPermissions(<keyof typeof allRole>role, {
-      "page-version": ["create", "findLatestVersion"],
+      "page-version": ["create", "findLatestVersion","find"],
       project: ["find", "findUserAndRoleById"],
       "project-route": ["create", "deleteNav", "update", "updateOrder"],
       "project-version": ["create", "find"],

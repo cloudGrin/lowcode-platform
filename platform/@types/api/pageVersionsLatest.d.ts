@@ -24,13 +24,10 @@ interface ApiPageVersionsLatestResponse {
     id: number
     description: string
     schema: Record<string, any>
-  }[]
-  meta: {
-    pagination: {
-      page: number
-      pageSize: number
-      pageCount: number
-      total: number
+    createdAt?: string
+    operator?: {
+      id: number
+      username: string
     }
   }
 }

@@ -58,7 +58,7 @@ const Designer: React.FC = () => {
       try {
         await registerPlugins({
           project: projectResult.data,
-          schema: pageVersionsResult.data.schema,
+          pageVersion: pageVersionsResult.data,
           route: routeResult.data
         })
         config.setConfig({

@@ -264,9 +264,6 @@ export default factories.createCoreController(
     async findLatestVersion(ctx) {
       try {
         const { navUuid } = ctx.request.query;
-        if (!navUuid) {
-          return ctx.badRequest("参数错误");
-        }
         const { results } = (await strapi
           .service("api::page-version.page-version")
           .find({
@@ -315,7 +312,8 @@ export default factories.createCoreController(
      * 权限：该应用成员
      */
     async create(ctx) {
-      const { navUuid, schema, description } = ctx.request.body;
+      const { navUuid, schema, description, baseVersion, force } =
+        ctx.request.body;
 
       const {
         selfGlobalState: { userId, isPlatformAdmin },
@@ -359,22 +357,65 @@ export default factories.createCoreController(
               return ctx.forbidden();
             }
           }
-          await strapi.service("api::page-version.page-version").create({
-            data: {
-              route: {
-                id: projectRouteResult[0].id,
+          if (baseVersion && !force) {
+            // 需要判断提交的版本是否是当前最新版本，不是的话可能存在多人编辑，需要提醒版本覆盖
+            const { results: pageVersionResults } = (await strapi
+              .service("api::page-version.page-version")
+              .find({
+                pagination: {
+                  page: 1,
+                  pageSize: 1,
+                },
+                populate: {
+                  route: false,
+                  operator: false,
+                },
+                sort: "id:desc",
+                filters: {
+                  route: {
+                    navUuid: {
+                      $eq: navUuid,
+                    },
+                  },
+                },
+              })) as any;
+            if (
+              pageVersionResults[0] &&
+              pageVersionResults[0].id > baseVersion
+            ) {
+              return {
+                data: {
+                  success: false,
+                  code: 19601,
+                  message:
+                    "当前版本落后于云端版本，可能存在多人编辑，请仔细确认防止覆盖",
+                },
+              };
+            }
+          }
+          const createResult = await strapi
+            .service("api::page-version.page-version")
+            .create({
+              data: {
+                route: {
+                  id: projectRouteResult[0].id,
+                },
+                schema,
+                description,
+                operator: {
+                  id: userId,
+                },
               },
-              schema,
-              description,
-              operator: {
-                id: userId,
-              },
-            },
-          });
+            });
 
           return {
             data: {
               success: true,
+              version: {
+                id: createResult.id,
+                description: createResult.description,
+                createdAt: createResult.createdAt,
+              },
             },
           };
         } else {
@@ -414,6 +455,49 @@ export default factories.createCoreController(
         } else {
           return ctx.notFound();
         }
+      } catch (error) {
+        console.log(error);
+        return ctx.throw("发生错误");
+      }
+    },
+    async find(ctx) {
+      try {
+        const { navUuid, pagination } = ctx.request.query;
+
+        const { results, pagination: paginationResult } = (await strapi
+          .service("api::page-version.page-version")
+          .find({
+            pagination,
+            populate: {
+              route: false,
+              operator: {
+                fields: ["username"],
+              },
+            },
+            sort: "id:desc",
+            filters: {
+              route: {
+                navUuid: {
+                  $eq: navUuid,
+                },
+              },
+            },
+          })) as any;
+        return {
+          data: results.map((item) => {
+            const { id, description, createdAt, schema, operator } = item;
+            return {
+              id,
+              description,
+              createdAt,
+              schema,
+              operator,
+            };
+          }),
+          meta: {
+            pagination: paginationResult,
+          },
+        };
       } catch (error) {
         console.log(error);
         return ctx.throw("发生错误");

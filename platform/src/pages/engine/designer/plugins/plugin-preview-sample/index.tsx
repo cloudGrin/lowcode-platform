@@ -25,6 +25,6 @@ const PreviewSamplePlugin = (ctx: ILowCodePluginContext) => {
 }
 PreviewSamplePlugin.pluginName = 'PreviewSamplePlugin'
 PreviewSamplePlugin.meta = {
-  dependencies: ['EditorInitPlugin']
+  dependencies: ['CloudSyncPlugin']
 }
 export default PreviewSamplePlugin

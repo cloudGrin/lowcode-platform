@@ -1,9 +1,11 @@
+import { FC } from 'react'
+
 type Props = {
   name: string
   className?: string | undefined
 }
 
-const Icon = (props: Props) => {
+const Icon: FC<Props> = (props) => {
   return (
     <svg className={props.className}>
       <use xlinkHref={'#' + props.name} />

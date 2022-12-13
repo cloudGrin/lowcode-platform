@@ -13,26 +13,35 @@ import { AssetLoader, buildComponents } from '@alilc/lowcode-utils'
 /**
  * 保存schema
  */
-export const saveSchema = async ({ navUuid }: any) => {
-  try {
-    const saveResult = await strapiRequestInstance(
-      '/api/page-versions__POST',
-      {
-        description: 'test',
-        navUuid,
-        schema: project.exportSchema(TransformStage.Save)
-      },
-      {}
-    )
-    if (saveResult.data?.success) {
-      message.success('保存成功')
-    }
-    // // 保存packages到localStorage
-    // const packages = await filterPackages(material.getAssets().packages)
-    // window.localStorage.setItem('packages', JSON.stringify(packages))
-  } catch (error) {
-    console.log(error)
+export const saveSchema = async ({
+  navUuid,
+  baseVersion,
+  force,
+  description = '快捷键保存'
+}: {
+  navUuid: string
+  baseVersion?: number
+  force?: boolean
+  description?: string
+}) => {
+  const saveResult = await strapiRequestInstance(
+    '/api/page-versions__POST',
+    {
+      description,
+      navUuid,
+      schema: project.exportSchema(TransformStage.Save),
+      baseVersion,
+      force
+    },
+    {}
+  )
+  if (saveResult.data?.success) {
+    message.success('保存成功')
   }
+  return saveResult.data
+  // // 保存packages到localStorage
+  // const packages = await filterPackages(material.getAssets().packages)
+  // window.localStorage.setItem('packages', JSON.stringify(packages))
 }
 
 // export const resetSchema = async () => {

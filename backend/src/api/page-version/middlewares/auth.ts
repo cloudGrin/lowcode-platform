@@ -7,8 +7,7 @@ export default (config, { strapi }) => {
       routerPath,
       request: {
         method,
-        query: { projectId },
-        body: { projectId: bodyProjectId },
+        query: { navUuid },
       },
     } = context;
     // 平台管理员无视规则
@@ -16,16 +15,32 @@ export default (config, { strapi }) => {
       // 查找最新版本
       // 该应用成员才可以查
       if (
-        routerPath === "/api/page-versions/latest" &&
-        "GET" === method &&
-        (await isProjectBelongsToUser({
-          strapi,
-          projectId: projectId,
-          userId
-        }))
+        ["/api/page-versions/latest", "/api/page-versions"].includes(
+          routerPath
+        ) &&
+        "GET" === method
       ) {
-        await next();
-        return;
+        if (!navUuid) {
+          return context.badRequest("参数错误");
+        }
+        const projectRoute = await strapi.db
+          .query("api::project-route.project-route")
+          .findOne({
+            populate: ["project"],
+            where: { navUuid },
+          });
+        if (projectRoute) {
+          if (
+            await isProjectBelongsToUser({
+              strapi,
+              projectId: projectRoute.project.id,
+              userId,
+            })
+          ) {
+            await next();
+            return;
+          }
+        }
       }
 
       context.status = 403;

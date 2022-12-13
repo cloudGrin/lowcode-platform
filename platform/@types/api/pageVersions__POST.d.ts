@@ -11,10 +11,19 @@ interface ApiPageVersionsRequest__POST {
   schema: Record<string, any>
   description: string
   navUuid: string
+  baseVersion?: number
+  force?: boolean
 }
 
 interface ApiPageVersionsResponse__POST {
   data: {
     success: boolean
+    version: {
+      id: number
+      description: string
+      createdAt: string
+    }
+    code?: number
+    message?: string
   }
 }
