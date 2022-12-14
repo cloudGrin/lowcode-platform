@@ -7,6 +7,7 @@ import assets from './assets.json'
 
 import { injectComponents } from '@alilc/lowcode-plugin-inject'
 import { AssetLoader, buildComponents } from '@alilc/lowcode-utils'
+import localForage from 'localforage'
 
 // const defaultPageSchema: RootSchema = { componentName: 'Page', fileName: 'sample' }
 
@@ -67,8 +68,8 @@ export const getPagePackages = () => {
   return assets.packages
 }
 
-export const preview = () => {
-  window.open(`/app/page${location.search}`)
+export const preview = ({ navUuid, versionId }: { navUuid: string; versionId: number }) => {
+  window.open(`/app/page?navUuid=${navUuid}&versionId=${versionId}`)
 }
 
 export async function initPage({ projectSchema }: any) {

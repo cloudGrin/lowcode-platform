@@ -1,20 +1,18 @@
 import ReactRenderer from '@alilc/lowcode-react-renderer'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import createAxiosHandler from '../datasource-axios-handler'
 
 import useQuery from '@/hooks/useQuery'
 import { useStrapiRequest } from '@/lib/request'
 import { initPage } from '../helper'
+import localForage from 'localforage'
+import { message } from 'antd'
 
 const SamplePreview: React.FC = () => {
   const [data, setData] = useState<any>({})
   const query = useQuery()
 
-  const {
-    data: pageVersionsResult,
-    loading: pageVersionsLoading,
-    run: getVersion
-  } = useStrapiRequest(
+  const { run: getVersion } = useStrapiRequest(
     '/api/page-versions/${id}',
     () => ({
       urlValue: {
@@ -23,26 +21,46 @@ const SamplePreview: React.FC = () => {
       hideErrorMessage: true
     }),
     {
-      manual: true
+      manual: true,
+      onSuccess(res) {
+        generateData(res.data.schema)
+      }
     }
   )
 
-  useEffect(() => {
-    if (query && query.get('versionId')) {
-      getVersion()
-    }
-  }, [getVersion, query])
+  const storeKey = useMemo(() => {
+    const navUuid = query.get('navUuid')
+    return navUuid ? `PAGE_HISTORY--__--${navUuid}` : ''
+  }, [query])
+
+  const generateData = useCallback((data) => {
+    initPage({ projectSchema: data }).then(({ schema, components }) => {
+      setData({
+        schema,
+        components
+      })
+    })
+  }, [])
 
   useEffect(() => {
-    if (pageVersionsResult) {
-      initPage({ projectSchema: pageVersionsResult.data.schema }).then(({ schema, components }) => {
-        setData({
-          schema,
-          components
+    const isProdPreview = query.get('tab') === 'prod'
+    if (isProdPreview) {
+      getVersion()
+    } else {
+      if (storeKey) {
+        localForage.getItem<any>(storeKey).then((value) => {
+          if (value) {
+            // 存在本地版本
+            generateData(value.schema)
+            message.info('存在本地版本, 预览将展示本地版本')
+          } else if (query.get('versionId')) {
+            getVersion()
+          }
         })
-      })
+      }
     }
-  }, [pageVersionsResult])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query])
 
   const { schema, components } = data
 

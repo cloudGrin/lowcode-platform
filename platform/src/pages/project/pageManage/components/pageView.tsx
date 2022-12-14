@@ -75,11 +75,13 @@ const PageView: FC<{
 
   const iframeUrl = useMemo(() => {
     if (activeNav!.data.type === 'PAGE') {
-      return `${location.origin}/app/page?navUuid=${activeNav?.id}&versionId=${activeNav?.data.version?.id ?? ''}`
+      return `${location.origin}/app/page?navUuid=${activeNav?.id}&versionId=${
+        activeNav?.data.version?.id ?? ''
+      }&tab=${query.get('tab')}`
     } else if (activeNav!.data.type === 'LINK') {
       return activeNav!.data.url
     }
-  }, [activeNav])
+  }, [activeNav, query])
 
   return (
     <div className='flex flex-col flex-auto'>

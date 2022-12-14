@@ -22,6 +22,11 @@ interface ApiPageVersionsResponse__POST {
       id: number
       description: string
       createdAt: string
+      schema: Record<string, any>
+      operator?: {
+        id: number
+        username: string
+      }
     }
     code?: number
     message?: string

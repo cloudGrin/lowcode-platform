@@ -1,15 +1,11 @@
-import { useStrapiRequest } from '@/lib/request'
-import { FC, useCallback, useEffect, useState } from 'react'
+import { findFirstPage, getAncestorIds } from '@/pages/project/pageManage/utils'
+import { ItemId, TreeData, TreeItem } from '@atlaskit/tree'
+import { useMemoizedFn } from 'ahooks'
+import { Layout, Menu, MenuProps, Spin } from 'antd'
+import { FC, useEffect, useState } from 'react'
 import { Outlet, useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
-import { DesktopOutlined, FileOutlined, PieChartOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
-import { Breadcrumb, Layout, Menu, MenuProps, message, Spin } from 'antd'
-import { ItemId, TreeData, TreeItem } from '@atlaskit/tree'
-import { findFirstPage, getAncestorIds } from '@/pages/project/pageManage/utils'
-import { useMemoizedFn } from 'ahooks'
-
 const { Content, Footer, Sider } = Layout
-
 type MenuItem = Required<MenuProps>['items'][number]
 
 function getItem(label: React.ReactNode, key: React.Key, icon?: React.ReactNode, children?: MenuItem[]): MenuItem {
@@ -53,7 +49,7 @@ const AppPreview: FC = () => {
       setNavStatus('PAGE')
       // 选中PAGE后则将其父级的组展开
       const uuidPath = getAncestorIds(projectInfo.version.navList.items as Record<ItemId, TreeItem>, [nav.id]).slice(1)
-      setOpenKeys(uuidPath as string[])
+      setOpenKeys(uuidPath.slice(0, -1) as string[])
     }
 
     const routes = projectInfo.version.navList
@@ -114,6 +110,9 @@ const AppPreview: FC = () => {
               onClick={clickMenu}
               selectedKeys={currentNav ? [currentNav.id as string] : []}
               openKeys={openKeys}
+              onOpenChange={(openKeys) => {
+                setOpenKeys(openKeys)
+              }}
             />
           </Sider>
           <Layout className='site-layout p-[16px_16px_0_16px]'>

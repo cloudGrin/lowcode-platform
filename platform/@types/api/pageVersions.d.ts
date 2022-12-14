@@ -17,8 +17,8 @@ interface ApiPageVersionsResponse {
     id: number
     description: string
     schema: Record<string, any>
-    createdAt?: string
-    operator?: {
+    createdAt: string
+    operator: {
       id: number
       username: string
     }

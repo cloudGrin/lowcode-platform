@@ -1,5 +1,5 @@
 import { ILowCodePluginContext } from '@alilc/lowcode-engine'
-import { Button, Input, Modal } from 'antd'
+import { Button, Input, message, Modal } from 'antd'
 import { saveSchema } from '../../../helper'
 import localForage from 'localforage'
 
@@ -8,20 +8,24 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
   return {
     async init() {
       const { skeleton, config, hotkey } = ctx
-      const { project: projectInfo, route, emitter } = options
+      const { route, emitter } = options
 
       const cloudSync = (inputValue: string) => {
-        const sotreKey = `PAGE_HISTORY-${projectInfo.appId}--__--${route.navUuid}}`
+        const storeKey = `PAGE_HISTORY--__--${route.navUuid}`
 
         const saveCallback = (result: ApiPageVersionsResponse__POST['data']) => {
           config.set('pageVersion', result.version)
-          localForage.removeItem(sotreKey).finally(() => {
-            emitter.emit('CloudSync:UPDATE_STATUS', 'same')
+          localForage.removeItem(storeKey).finally(() => {
+            emitter.emit('CloudSync:UPDATE_STATUS', {
+              status: 'same',
+              cloudVersion: result.version,
+              localVersion: null
+            })
           })
         }
         // 判断当前基于的版本，如果小于线上需要提醒一下覆盖了
-        localForage
-          .getItem<any>(sotreKey)
+        return localForage
+          .getItem<any>(storeKey)
           .then((value) => {
             if (value) {
               return {
@@ -37,28 +41,38 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
             }
           })
           .then((payload) => {
-            return saveSchema(payload).then((res) => {
-              if (res!.success) {
-                saveCallback(res)
-              } else if (res!.code === 19601) {
-                // 云端有更新，覆盖提醒
-                Modal.confirm({
-                  width: 350,
-                  title: (
-                    <>
-                      <div className='text-[16px]'>{res!.message}</div>
-                    </>
-                  ),
-                  okText: '继续保存',
-                  onOk() {
-                    return saveSchema({ ...payload, force: true }).then((res) => {
-                      if (res!.success) {
-                        saveCallback(res)
-                      }
-                    })
-                  }
-                })
-              }
+            return new Promise((resolve, reject) => {
+              saveSchema(payload).then((res) => {
+                if (res!.success) {
+                  saveCallback(res)
+                  resolve(true)
+                } else if (res!.code === 19601) {
+                  // 云端有更新，覆盖提醒
+                  Modal.confirm({
+                    width: 350,
+                    title: (
+                      <>
+                        <div className='text-[16px]'>{res!.message}</div>
+                      </>
+                    ),
+                    okText: '继续保存',
+                    onOk() {
+                      return saveSchema({ ...payload, force: true })
+                        .then((res) => {
+                          if (res!.success) {
+                            saveCallback(res)
+                          }
+                        })
+                        .finally(() => {
+                          resolve(true)
+                        })
+                    },
+                    onCancel() {
+                      resolve(true)
+                    }
+                  })
+                }
+              })
             })
           })
       }
@@ -77,7 +91,12 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
           ),
           title: <span className='text-[18px] leading-[22px]'>保存应用记录</span>,
           onOk() {
-            cloudSync(inputValue)
+            if (inputValue.trim()) {
+              return cloudSync(inputValue.trim())
+            } else {
+              message.error('请填写版本描述')
+              return Promise.reject()
+            }
           }
         })
       }
@@ -106,11 +125,6 @@ SaveSamplePlugin.meta = {
   preferenceDeclaration: {
     title: '插件配置',
     properties: [
-      {
-        key: 'project',
-        type: 'object',
-        description: '应用信息'
-      },
       {
         key: 'route',
         type: 'object',

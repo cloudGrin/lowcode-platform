@@ -3,10 +3,18 @@ import { Button } from 'antd'
 import { preview } from '../../../helper'
 
 // 保存功能示例
-const PreviewSamplePlugin = (ctx: ILowCodePluginContext) => {
+const PreviewSamplePlugin = (
+  ctx: ILowCodePluginContext,
+  options: {
+    route: ApiProjectRoutesFindByUuidResponse['data']
+    pageVersion: ApiPageVersionsLatestResponse['data']
+  }
+) => {
   return {
     async init() {
       const { skeleton, config } = ctx
+      const { route, pageVersion } = options
+      let lastPageVerisonId = pageVersion.id
       skeleton.add({
         name: 'previewSample',
         area: 'topArea',
@@ -15,16 +23,44 @@ const PreviewSamplePlugin = (ctx: ILowCodePluginContext) => {
           align: 'right'
         },
         content: (
-          <Button type='primary' onClick={preview}>
+          <Button
+            type='primary'
+            onClick={() =>
+              preview({
+                navUuid: route.navUuid,
+                versionId: lastPageVerisonId
+              })
+            }
+          >
             预览
           </Button>
         )
+      })
+
+      // 页面保存到云端，刷新pageVersion
+      config.onGot('pageVersion', (data: ApiPageVersionsResponse__POST['data']['version']) => {
+        lastPageVerisonId = data.id
       })
     }
   }
 }
 PreviewSamplePlugin.pluginName = 'PreviewSamplePlugin'
 PreviewSamplePlugin.meta = {
-  dependencies: ['CloudSyncPlugin']
+  dependencies: ['CloudSyncPlugin'],
+  preferenceDeclaration: {
+    title: '插件配置',
+    properties: [
+      {
+        key: 'route',
+        type: 'object',
+        description: '页面信息'
+      },
+      {
+        key: 'pageVersion',
+        type: 'object',
+        description: '页面版本信息'
+      }
+    ]
+  }
 }
 export default PreviewSamplePlugin
