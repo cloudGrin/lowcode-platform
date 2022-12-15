@@ -57,7 +57,7 @@ export default async function registerPlugins({
   // 注册回退/前进
   await plugins.register(UndoRedoPlugin)
 
-  await plugins.register(SaveSamplePlugin, { route, emitter })
+  await plugins.register(SaveSamplePlugin, { route, pageVersion, emitter })
 
   await plugins.register(PreviewSamplePlugin, { route, pageVersion })
 

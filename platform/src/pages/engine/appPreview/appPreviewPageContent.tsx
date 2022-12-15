@@ -10,7 +10,11 @@ const AppPreviewPageContent: FC = () => {
   const [nav] = useOutletContext<[TreeItem]>()
   const [data, setData] = useState<any>({})
 
-  const { data: pageVersionsResult, loading: pageVersionsLoading } = useStrapiRequest(
+  const {
+    run: getPageVersion,
+    data: pageVersionsResult,
+    loading: pageVersionsLoading
+  } = useStrapiRequest(
     '/api/page-versions/${id}',
     () => ({
       urlValue: {
@@ -19,9 +23,16 @@ const AppPreviewPageContent: FC = () => {
       hideErrorMessage: true
     }),
     {
-      refreshDeps: [nav]
+      manual: true
     }
   )
+
+  useEffect(() => {
+    if (nav?.data?.version?.id) {
+      getPageVersion()
+    }
+  }, [getPageVersion, nav])
+
   useEffect(() => {
     if (pageVersionsResult) {
       initPage({ projectSchema: pageVersionsResult.data.schema }).then(({ schema, components }) => {

@@ -406,7 +406,7 @@ const PureTreeFc: React.FC<{
   return (
     <div className='flex flex-col w-full h-full'>
       <div className='h-[32px] flex-none px-[19px] flex items-center justify-between bg-c_white'>
-        <Tabs className='' activeKey={activeTab} centered items={tabs} onChange={changeTab} />
+        <Tabs className='flex-auto' activeKey={activeTab} centered items={tabs} onChange={changeTab} />
         <Popover
           placement='topRight'
           content={
@@ -449,7 +449,7 @@ const PureTreeFc: React.FC<{
           }
           trigger='hover'
         >
-          <div className='w-[32px] h-[32px] bg-[#0089ff] rounded-[6px] justify-center flex items-center cursor-pointer'>
+          <div className='w-[32px] h-[32px] bg-[#0089ff] rounded-[6px] justify-center flex items-center cursor-pointer flex-none'>
             <PlusOutlined className='text-[16px] text-white' />
           </div>
         </Popover>

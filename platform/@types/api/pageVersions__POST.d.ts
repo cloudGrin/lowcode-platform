@@ -11,6 +11,7 @@ interface ApiPageVersionsRequest__POST {
   schema: Record<string, any>
   description: string
   navUuid: string
+  currentVersion?: number
   baseVersion?: number
   force?: boolean
 }

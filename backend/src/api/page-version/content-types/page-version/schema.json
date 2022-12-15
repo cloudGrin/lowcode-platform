@@ -32,6 +32,11 @@
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user",
       "configurable": false
+    },
+    "baseVersion": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::page-version.page-version"
     }
   }
 }

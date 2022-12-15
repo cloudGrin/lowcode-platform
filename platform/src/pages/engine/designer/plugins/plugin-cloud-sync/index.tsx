@@ -1,6 +1,6 @@
 import Icon from '@/components/icon'
 import assets from '@/pages/engine/assets.json'
-import { ILowCodePluginContext, project } from '@alilc/lowcode-engine'
+import { ILowCodePluginContext, project, config } from '@alilc/lowcode-engine'
 import { TransformStage } from '@alilc/lowcode-types'
 import { message, Modal, Tooltip } from 'antd'
 import dayjs from 'dayjs'
@@ -10,6 +10,7 @@ import { PureComponent } from 'react'
 import { debounce } from 'lodash'
 import PageVersionDrawer from '@/pages/engine/designer/components/pageVersionDrawer'
 import isToday from 'dayjs/plugin/isToday'
+import { saveSchema } from '@/pages/engine/helper'
 dayjs.extend(isToday)
 
 interface IState {
@@ -26,10 +27,89 @@ interface IState {
 interface IProps {
   emitter: any
   navUuid: string
+  changeProjectSchema: (schema: any) => void
+  rollback: (version: any) => Promise<void>
+  syncCloudVersion: (version: any) => Promise<void>
 }
 
 function getStoreKey({ route }: { route: any }) {
   return `PAGE_HISTORY--__--${route.navUuid}`
+}
+
+const cloudSyncService = ({
+  navUuid,
+  description,
+  emitter,
+  roolbackBaseVersion,
+  lastPageVerison,
+  updateLatestPageVersion
+}: {
+  navUuid: string
+  description: string
+  emitter: any
+  roolbackBaseVersion: number
+  lastPageVerison: ApiPageVersionsLatestResponse['data']
+  updateLatestPageVersion: (version: any) => void
+}) => {
+  const saveCallback = (result: ApiPageVersionsResponse__POST['data']) => {
+    updateLatestPageVersion(result.version)
+    localForage
+      .removeItem(
+        getStoreKey({
+          route: {
+            navUuid
+          }
+        })
+      )
+      .finally(() => {
+        emitter.emit('CloudSync:UPDATE_STATUS', {
+          status: 'same',
+          cloudVersion: result.version,
+          localVersion: null
+        })
+      })
+  }
+
+  return new Promise((resolve, reject) => {
+    const payload = {
+      navUuid: navUuid,
+      description,
+      baseVersion: roolbackBaseVersion,
+      currentVersion: lastPageVerison.id
+    }
+    saveSchema(payload).then((res) => {
+      if (res!.success) {
+        message.success('回滚成功')
+        saveCallback(res)
+        resolve(true)
+      } else if (res!.code === 19601) {
+        // 云端有更新，覆盖提醒
+        Modal.confirm({
+          width: 350,
+          title: (
+            <>
+              <div className='text-[16px]'>{res!.message}</div>
+            </>
+          ),
+          okText: '继续保存',
+          onOk() {
+            return saveSchema({ ...payload, force: true })
+              .then((res) => {
+                if (res!.success) {
+                  saveCallback(res)
+                }
+              })
+              .finally(() => {
+                resolve(true)
+              })
+          },
+          onCancel() {
+            resolve(true)
+          }
+        })
+      }
+    })
+  })
 }
 
 class CloudSync extends PureComponent<IProps, IState> {
@@ -65,7 +145,7 @@ class CloudSync extends PureComponent<IProps, IState> {
 
   render(): React.ReactNode {
     const { status, open, cloudVersion, localVersion } = this.state
-    const { navUuid } = this.props
+    const { navUuid, changeProjectSchema, emitter, rollback, syncCloudVersion } = this.props
     return (
       <div className='flex items-center'>
         {status === 'before' ? (
@@ -93,6 +173,7 @@ class CloudSync extends PureComponent<IProps, IState> {
           <div
             onClick={() => {
               this.setState({ open: true })
+              emitter.emit('SaveSample:UPDATE_HISTORY_RECORDS_STATUS', 'open')
             }}
           >
             <Icon
@@ -104,14 +185,17 @@ class CloudSync extends PureComponent<IProps, IState> {
         <PageVersionDrawer
           open={open}
           setOpen={(val: boolean) => {
+            if (!val) {
+              emitter.emit('SaveSample:UPDATE_HISTORY_RECORDS_STATUS', 'close')
+            }
             this.setState({ open: val })
           }}
           navUuid={navUuid}
           cloudVersion={cloudVersion}
           localVersion={localVersion}
-          onOk={(version) => {
-            console.log(version)
-          }}
+          changeProjectSchema={changeProjectSchema}
+          rollback={rollback}
+          update={syncCloudVersion}
         />
       </div>
     )
@@ -131,7 +215,7 @@ const CloudSyncPlugin = (
     async init() {
       const { skeleton, config, material } = ctx
       const { route, pageVersion, emitter } = options
-      let lastPageVerison = pageVersion
+      let lastPageVerison: ApiPageVersionsLatestResponse['data'] = pageVersion
 
       // 设置物料描述前，使用插件提供的 injectAssets 进行处理
       material.setAssets(await injectAssets(assets))
@@ -144,7 +228,106 @@ const CloudSyncPlugin = (
         },
         contentProps: {
           emitter,
-          navUuid: route.navUuid
+          navUuid: route.navUuid,
+          // 切换页面schema
+          changeProjectSchema: (schema: any) => {
+            project.currentDocument?.importSchema(schema.componentsTree?.[0])
+            project.simulatorHost?.rerender()
+          },
+          // 回滚
+          rollback: (version: any) => {
+            return new Promise((resolve, reject) => {
+              localForage.getItem<any>(getStoreKey({ route })).then((value) => {
+                if (value) {
+                  // 存在本地版本
+                  Modal.confirm({
+                    width: 350,
+                    okText: '继续回滚',
+                    title: (
+                      <>
+                        <div className='text-[16px]'>存在本地版本，回滚将清空本地版本</div>
+                      </>
+                    ),
+                    onOk() {
+                      return cloudSyncService({
+                        description: version.description,
+                        emitter,
+                        navUuid: route.navUuid,
+                        roolbackBaseVersion: version.id,
+                        lastPageVerison,
+                        updateLatestPageVersion(version: any) {
+                          lastPageVerison = version
+                        }
+                      }).then(resolve)
+                    },
+                    onCancel() {
+                      reject()
+                    }
+                  })
+                } else {
+                  Modal.confirm({
+                    title: <span className='text-[16px]'>确定要回滚该版本吗？</span>,
+                    onOk() {
+                      return cloudSyncService({
+                        description: version.description,
+                        emitter,
+                        navUuid: route.navUuid,
+                        roolbackBaseVersion: version.id,
+                        lastPageVerison,
+                        updateLatestPageVersion(version: any) {
+                          lastPageVerison = version
+                        }
+                      }).then(resolve)
+                    },
+                    onCancel() {
+                      reject()
+                    }
+                  })
+                }
+              })
+            })
+          },
+          // 云端有更新，在历史记录里已显示，更新页面到这个版本
+          syncCloudVersion: (version: any) => {
+            return new Promise((resolve, reject) => {
+              localForage.getItem<any>(getStoreKey({ route })).then((value) => {
+                if (value) {
+                  // 存在本地版本
+                  Modal.confirm({
+                    width: 350,
+                    okText: '继续更新',
+                    title: (
+                      <>
+                        <div className='text-[16px]'>存在本地版本，更新将清空本地版本</div>
+                      </>
+                    ),
+                    onOk() {
+                      return localForage
+                        .removeItem(
+                          getStoreKey({
+                            route
+                          })
+                        )
+                        .then(resolve)
+                    },
+                    onCancel() {
+                      reject()
+                    }
+                  })
+                } else {
+                  resolve(true)
+                }
+              })
+            }).then(() => {
+              lastPageVerison = version
+              emitter.emit('CloudSync:UPDATE_STATUS', {
+                status: 'same',
+                cloudVersion: version,
+                localVersion: null
+              })
+              message.success('更新成功')
+            })
+          }
         },
         content: CloudSync
       })
@@ -233,7 +416,7 @@ const CloudSyncPlugin = (
       })
 
       // 页面保存到云端，刷新pageVersion
-      config.onGot('pageVersion', (data: ApiPageVersionsResponse__POST['data']['version']) => {
+      config.onGot('pageVersion', (data: ApiPageVersionsLatestResponse['data']) => {
         lastPageVerison = data
         emitter.emit('CloudSync:UPDATE_LAST_VERSION', data)
       })

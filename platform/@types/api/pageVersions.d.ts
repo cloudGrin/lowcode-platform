@@ -22,6 +22,9 @@ interface ApiPageVersionsResponse {
       id: number
       username: string
     }
+    baseVersion: {
+      id: number
+    }
   }[]
   meta: {
     pagination: {

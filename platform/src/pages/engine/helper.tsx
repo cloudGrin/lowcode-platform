@@ -7,7 +7,6 @@ import assets from './assets.json'
 
 import { injectComponents } from '@alilc/lowcode-plugin-inject'
 import { AssetLoader, buildComponents } from '@alilc/lowcode-utils'
-import localForage from 'localforage'
 
 // const defaultPageSchema: RootSchema = { componentName: 'Page', fileName: 'sample' }
 
@@ -16,12 +15,14 @@ import localForage from 'localforage'
  */
 export const saveSchema = async ({
   navUuid,
+  currentVersion,
   baseVersion,
   force,
   description = '快捷键保存'
 }: {
   navUuid: string
   baseVersion?: number
+  currentVersion?: number
   force?: boolean
   description?: string
 }) => {
@@ -32,13 +33,11 @@ export const saveSchema = async ({
       navUuid,
       schema: project.exportSchema(TransformStage.Save),
       baseVersion,
+      currentVersion,
       force
     },
     {}
   )
-  if (saveResult.data?.success) {
-    message.success('保存成功')
-  }
   return saveResult.data
   // // 保存packages到localStorage
   // const packages = await filterPackages(material.getAssets().packages)

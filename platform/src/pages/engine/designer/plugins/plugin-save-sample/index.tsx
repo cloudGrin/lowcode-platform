@@ -1,6 +1,6 @@
+import { saveSchema } from '@/pages/engine/helper'
 import { ILowCodePluginContext } from '@alilc/lowcode-engine'
 import { Button, Input, message, Modal } from 'antd'
-import { saveSchema } from '../../../helper'
 import localForage from 'localforage'
 
 // 保存功能示例
@@ -8,10 +8,11 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
   return {
     async init() {
       const { skeleton, config, hotkey } = ctx
-      const { route, emitter } = options
-
-      const cloudSync = (inputValue: string) => {
-        const storeKey = `PAGE_HISTORY--__--${route.navUuid}`
+      const { route, pageVersion, emitter } = options
+      let historyRecordsStatus: 'close' | 'open' = 'close'
+      let lastPageVerison = pageVersion
+      const cloudSync = ({ navUuid, description, emitter }: { navUuid: string; description: string; emitter: any }) => {
+        const storeKey = `PAGE_HISTORY--__--${navUuid}`
 
         const saveCallback = (result: ApiPageVersionsResponse__POST['data']) => {
           config.set('pageVersion', result.version)
@@ -29,14 +30,17 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
           .then((value) => {
             if (value) {
               return {
-                navUuid: route.navUuid,
+                navUuid: navUuid,
+                description,
                 baseVersion: value.currentCloudVersion,
-                description: inputValue
+                currentVersion: value.currentCloudVersion
               }
             } else {
               return {
-                navUuid: route.navUuid,
-                description: inputValue
+                navUuid: navUuid,
+                description,
+                baseVersion: lastPageVerison.id,
+                currentVersion: lastPageVerison.id
               }
             }
           })
@@ -44,6 +48,7 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
             return new Promise((resolve, reject) => {
               saveSchema(payload).then((res) => {
                 if (res!.success) {
+                  message.success('保存成功')
                   saveCallback(res)
                   resolve(true)
                 } else if (res!.code === 19601) {
@@ -60,6 +65,7 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
                       return saveSchema({ ...payload, force: true })
                         .then((res) => {
                           if (res!.success) {
+                            message.success('保存成功')
                             saveCallback(res)
                           }
                         })
@@ -91,12 +97,11 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
           ),
           title: <span className='text-[18px] leading-[22px]'>保存应用记录</span>,
           onOk() {
-            if (inputValue.trim()) {
-              return cloudSync(inputValue.trim())
-            } else {
-              message.error('请填写版本描述')
-              return Promise.reject()
-            }
+            return cloudSync({
+              emitter,
+              navUuid: route.navUuid,
+              description: inputValue.trim() || '按钮保存'
+            })
           }
         })
       }
@@ -111,10 +116,25 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
         content: <Button onClick={hotkeySave}>保存到云端</Button>
       })
 
+      emitter.on('SaveSample:UPDATE_HISTORY_RECORDS_STATUS', (status: typeof historyRecordsStatus) => {
+        historyRecordsStatus = status
+      })
+
+      // 页面保存到云端，刷新pageVersion
+      config.onGot('pageVersion', (data: ApiPageVersionsResponse__POST['data']['version']) => {
+        lastPageVerison = data
+      })
+
       // 绑定保存快捷键
       hotkey.bind('command+s', (e) => {
         e.preventDefault()
-        cloudSync('快捷键保存')
+        if (historyRecordsStatus === 'close') {
+          cloudSync({
+            emitter,
+            navUuid: route.navUuid,
+            description: '快捷键保存'
+          })
+        }
       })
     }
   }
@@ -129,6 +149,11 @@ SaveSamplePlugin.meta = {
         key: 'route',
         type: 'object',
         description: '页面信息'
+      },
+      {
+        key: 'pageVersion',
+        type: 'object',
+        description: '页面版本信息'
       },
       {
         key: 'emitter',

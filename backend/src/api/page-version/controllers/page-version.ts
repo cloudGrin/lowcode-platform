@@ -312,8 +312,14 @@ export default factories.createCoreController(
      * 权限：该应用成员
      */
     async create(ctx) {
-      const { navUuid, schema, description, baseVersion, force } =
-        ctx.request.body;
+      const {
+        navUuid,
+        schema,
+        description,
+        baseVersion,
+        currentVersion,
+        force,
+      } = ctx.request.body;
 
       const {
         selfGlobalState: { userId, isPlatformAdmin },
@@ -357,42 +363,43 @@ export default factories.createCoreController(
               return ctx.forbidden();
             }
           }
-          if (baseVersion && !force) {
-            // 需要判断提交的版本是否是当前最新版本，不是的话可能存在多人编辑，需要提醒版本覆盖
-            const { results: pageVersionResults } = (await strapi
-              .service("api::page-version.page-version")
-              .find({
-                pagination: {
-                  page: 1,
-                  pageSize: 1,
-                },
-                populate: {
-                  route: false,
-                  operator: false,
-                },
-                sort: "id:desc",
-                filters: {
-                  route: {
-                    navUuid: {
-                      $eq: navUuid,
-                    },
+          const { results: pageVersionResults } = (await strapi
+            .service("api::page-version.page-version")
+            .find({
+              pagination: {
+                page: 1,
+                pageSize: 1,
+              },
+              populate: {
+                route: false,
+                operator: false,
+              },
+              sort: "id:desc",
+              filters: {
+                route: {
+                  navUuid: {
+                    $eq: navUuid,
                   },
                 },
-              })) as any;
+              },
+            })) as any;
+          if (currentVersion && !force) {
+            // 需要判断提交的版本是否是当前最新版本，不是的话可能存在多人编辑，需要提醒版本覆盖
             if (
               pageVersionResults[0] &&
-              pageVersionResults[0].id > baseVersion
+              pageVersionResults[0].id > currentVersion
             ) {
               return {
                 data: {
                   success: false,
                   code: 19601,
                   message:
-                    "当前版本落后于云端版本，可能存在多人编辑，请仔细确认防止覆盖",
+                    "云端版本有更新，请确认是否存在多人编辑，防止覆盖",
                 },
               };
             }
           }
+
           const createResult = await strapi
             .service("api::page-version.page-version")
             .create({
@@ -405,6 +412,7 @@ export default factories.createCoreController(
                 operator: {
                   id: userId,
                 },
+                baseVersion: baseVersion || pageVersionResults[0]?.id,
               },
             });
 
@@ -470,6 +478,9 @@ export default factories.createCoreController(
             pagination,
             populate: {
               route: false,
+              baseVersion: {
+                fields: ["id"],
+              },
               operator: {
                 fields: ["username"],
               },
@@ -485,13 +496,21 @@ export default factories.createCoreController(
           })) as any;
         return {
           data: results.map((item) => {
-            const { id, description, createdAt, schema, operator } = item;
+            const {
+              id,
+              description,
+              createdAt,
+              schema,
+              operator,
+              baseVersion,
+            } = item;
             return {
               id,
               description,
               createdAt,
               schema,
               operator,
+              baseVersion,
             };
           }),
           meta: {
