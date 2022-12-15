@@ -1,11 +1,13 @@
 import Icon from '@/components/icon'
 import { strapiRequestInstance } from '@/lib/request'
+import { project } from '@alilc/lowcode-engine'
+import { TransformStage } from '@alilc/lowcode-types'
 import { useMemoizedFn, usePagination, useUpdateEffect } from 'ahooks'
-import { Drawer, Empty, List, message, Modal, Tag, Tooltip } from 'antd'
+import { Drawer, Empty, List, message, Tag, Tooltip } from 'antd'
 import classNames from 'classnames'
 import dayjs from 'dayjs'
 import VirtualList from 'rc-virtual-list'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 
 function handlerVersionCoherence(data: any[]) {
   return data.map((item, idx) => {
@@ -283,6 +285,12 @@ const PageVersionDrawer: React.FC<{
                             className='flex items-center cursor-pointer hover:text-c_primary ml-[10px]'
                             onClick={(e) => {
                               e.stopPropagation()
+                              console.log(
+                                item.schema.componentsTree[0],
+                                currentVersionIdx === -1
+                                  ? project.exportSchema(TransformStage.Save).componentsTree[0]
+                                  : formatData[currentVersionIdx].schema.componentsTree[0]
+                              )
                               message.info('开发中')
                             }}
                           >

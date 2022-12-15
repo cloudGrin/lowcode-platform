@@ -78,7 +78,6 @@
     "antd": "5.0.7",
     "axios": "1.2.1",
     "classnames": "^2.3.2",
-    "emittery": "0.13.1",
     "immer": "^9.0.16",
     "localforage": "^1.10.0",
     "react-router-dom": "6.4.5",

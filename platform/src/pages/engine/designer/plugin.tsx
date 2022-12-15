@@ -12,7 +12,6 @@ import PreviewSamplePlugin from './plugins/plugin-preview-sample'
 import SaveSamplePlugin from './plugins/plugin-save-sample'
 import TopAreaLeftPlugin from './plugins/plugin-topArea-left'
 import CloudSyncPlugin from './plugins/plugin-cloud-sync'
-import Emittery from 'emittery'
 
 export default async function registerPlugins({
   project,
@@ -23,8 +22,6 @@ export default async function registerPlugins({
   pageVersion: ApiPageVersionsLatestResponse['data']
   route: ApiProjectRoutesFindByUuidResponse['data']
 }) {
-  const emitter = new Emittery()
-
   // await plugins.register(EditorInitPlugin, {
   //   schema: pageVersion.schema
   // })
@@ -52,12 +49,12 @@ export default async function registerPlugins({
 
   await plugins.register(CodeEditorPlugin)
 
-  await plugins.register(CloudSyncPlugin, { route, pageVersion, emitter })
+  await plugins.register(CloudSyncPlugin, { route, pageVersion })
 
   // 注册回退/前进
   await plugins.register(UndoRedoPlugin)
 
-  await plugins.register(SaveSamplePlugin, { route, pageVersion, emitter })
+  await plugins.register(SaveSamplePlugin, { route, pageVersion })
 
   await plugins.register(PreviewSamplePlugin, { route, pageVersion })
 

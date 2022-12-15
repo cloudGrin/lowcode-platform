@@ -1,16 +1,16 @@
 import Icon from '@/components/icon'
 import assets from '@/pages/engine/assets.json'
-import { ILowCodePluginContext, project, config } from '@alilc/lowcode-engine'
+import PageVersionDrawer from '@/pages/engine/designer/components/pageVersionDrawer'
+import { saveSchema } from '@/pages/engine/helper'
+import { event, ILowCodePluginContext, project } from '@alilc/lowcode-engine'
+import { injectAssets } from '@alilc/lowcode-plugin-inject'
 import { TransformStage } from '@alilc/lowcode-types'
 import { message, Modal, Tooltip } from 'antd'
 import dayjs from 'dayjs'
-import { injectAssets } from '@alilc/lowcode-plugin-inject'
-import localForage from 'localforage'
-import { PureComponent } from 'react'
-import { debounce } from 'lodash'
-import PageVersionDrawer from '@/pages/engine/designer/components/pageVersionDrawer'
 import isToday from 'dayjs/plugin/isToday'
-import { saveSchema } from '@/pages/engine/helper'
+import localForage from 'localforage'
+import { debounce } from 'lodash'
+import { PureComponent } from 'react'
 dayjs.extend(isToday)
 
 interface IState {
@@ -25,7 +25,6 @@ interface IState {
 }
 
 interface IProps {
-  emitter: any
   navUuid: string
   changeProjectSchema: (schema: any) => void
   rollback: (version: any) => Promise<void>
@@ -39,14 +38,12 @@ function getStoreKey({ route }: { route: any }) {
 const cloudSyncService = ({
   navUuid,
   description,
-  emitter,
   roolbackBaseVersion,
   lastPageVerison,
   updateLatestPageVersion
 }: {
   navUuid: string
   description: string
-  emitter: any
   roolbackBaseVersion: number
   lastPageVerison: ApiPageVersionsLatestResponse['data']
   updateLatestPageVersion: (version: any) => void
@@ -62,7 +59,7 @@ const cloudSyncService = ({
         })
       )
       .finally(() => {
-        emitter.emit('CloudSync:UPDATE_STATUS', {
+        event.emit('CloudSync.UPDATE_STATUS', {
           status: 'same',
           cloudVersion: result.version,
           localVersion: null
@@ -126,26 +123,27 @@ class CloudSync extends PureComponent<IProps, IState> {
     this.bind()
   }
   bind() {
-    this.props.emitter.on(
-      'CloudSync:UPDATE_STATUS',
-      ({ status, cloudVersion, localVersion }: Pick<IState, 'status' | 'cloudVersion' | 'localVersion'>) => {
-        this.setState({
-          status: status,
-          cloudVersion,
-          localVersion
-        })
-      }
-    )
-    this.props.emitter.on('CloudSync:UPDATE_LAST_VERSION', (version: IState['cloudVersion']) => {
+    event.on('common:CloudSync.UPDATE_STATUS', (({
+      status,
+      cloudVersion,
+      localVersion
+    }: Pick<IState, 'status' | 'cloudVersion' | 'localVersion'>) => {
+      this.setState({
+        status: status,
+        cloudVersion,
+        localVersion
+      })
+    }) as any)
+    event.on('common:CloudSync.UPDATE_LAST_VERSION', ((version: IState['cloudVersion']) => {
       this.setState({
         cloudVersion: version
       })
-    })
+    }) as any)
   }
 
   render(): React.ReactNode {
     const { status, open, cloudVersion, localVersion } = this.state
-    const { navUuid, changeProjectSchema, emitter, rollback, syncCloudVersion } = this.props
+    const { navUuid, changeProjectSchema, rollback, syncCloudVersion } = this.props
     return (
       <div className='flex items-center'>
         {status === 'before' ? (
@@ -173,7 +171,7 @@ class CloudSync extends PureComponent<IProps, IState> {
           <div
             onClick={() => {
               this.setState({ open: true })
-              emitter.emit('SaveSample:UPDATE_HISTORY_RECORDS_STATUS', 'open')
+              event.emit('SaveSample.UPDATE_HISTORY_RECORDS_STATUS', 'open')
             }}
           >
             <Icon
@@ -186,7 +184,7 @@ class CloudSync extends PureComponent<IProps, IState> {
           open={open}
           setOpen={(val: boolean) => {
             if (!val) {
-              emitter.emit('SaveSample:UPDATE_HISTORY_RECORDS_STATUS', 'close')
+              event.emit('SaveSample.UPDATE_HISTORY_RECORDS_STATUS', 'close')
             }
             this.setState({ open: val })
           }}
@@ -208,13 +206,13 @@ const CloudSyncPlugin = (
     project: ApiProjectsIdResponse['data']
     route: ApiProjectRoutesFindByUuidResponse['data']
     pageVersion: ApiPageVersionsLatestResponse['data']
-    emitter: any
+    event: any
   }
 ) => {
   return {
     async init() {
       const { skeleton, config, material } = ctx
-      const { route, pageVersion, emitter } = options
+      const { route, pageVersion } = options
       let lastPageVerison: ApiPageVersionsLatestResponse['data'] = pageVersion
 
       // 设置物料描述前，使用插件提供的 injectAssets 进行处理
@@ -227,7 +225,7 @@ const CloudSyncPlugin = (
           align: 'right'
         },
         contentProps: {
-          emitter,
+          event,
           navUuid: route.navUuid,
           // 切换页面schema
           changeProjectSchema: (schema: any) => {
@@ -251,7 +249,6 @@ const CloudSyncPlugin = (
                     onOk() {
                       return cloudSyncService({
                         description: version.description,
-                        emitter,
                         navUuid: route.navUuid,
                         roolbackBaseVersion: version.id,
                         lastPageVerison,
@@ -270,7 +267,6 @@ const CloudSyncPlugin = (
                     onOk() {
                       return cloudSyncService({
                         description: version.description,
-                        emitter,
                         navUuid: route.navUuid,
                         roolbackBaseVersion: version.id,
                         lastPageVerison,
@@ -320,7 +316,7 @@ const CloudSyncPlugin = (
               })
             }).then(() => {
               lastPageVerison = version
-              emitter.emit('CloudSync:UPDATE_STATUS', {
+              event.emit('CloudSync.UPDATE_STATUS', {
                 status: 'same',
                 cloudVersion: version,
                 localVersion: null
@@ -369,7 +365,7 @@ const CloudSyncPlugin = (
           project.openDocument(pageVersion.schema.componentsTree?.[0])
         }
 
-        emitter.emit('CloudSync:UPDATE_STATUS', {
+        event.emit('CloudSync.UPDATE_STATUS', {
           status,
           cloudVersion: pageVersion,
           localVersion: value
@@ -385,7 +381,7 @@ const CloudSyncPlugin = (
             createdAt: new Date().getTime()
           }
           localForage.setItem(getStoreKey({ route }), localVersion)
-          emitter.emit('CloudSync:UPDATE_STATUS', {
+          event.emit('CloudSync.UPDATE_STATUS', {
             status: isBeforeCloudVersion ? 'before' : 'after',
             cloudVersion: lastPageVerison,
             localVersion: localVersion
@@ -418,7 +414,7 @@ const CloudSyncPlugin = (
       // 页面保存到云端，刷新pageVersion
       config.onGot('pageVersion', (data: ApiPageVersionsLatestResponse['data']) => {
         lastPageVerison = data
-        emitter.emit('CloudSync:UPDATE_LAST_VERSION', data)
+        event.emit('CloudSync.UPDATE_LAST_VERSION', data)
       })
     }
   }
@@ -437,11 +433,6 @@ CloudSyncPlugin.meta = {
         key: 'pageVersion',
         type: 'object',
         description: '页面版本信息'
-      },
-      {
-        key: 'emitter',
-        type: 'object',
-        description: '事件总线'
       }
     ]
   }

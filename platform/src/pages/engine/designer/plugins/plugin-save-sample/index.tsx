@@ -1,5 +1,5 @@
 import { saveSchema } from '@/pages/engine/helper'
-import { ILowCodePluginContext } from '@alilc/lowcode-engine'
+import { ILowCodePluginContext, event } from '@alilc/lowcode-engine'
 import { Button, Input, message, Modal } from 'antd'
 import localForage from 'localforage'
 
@@ -8,16 +8,16 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
   return {
     async init() {
       const { skeleton, config, hotkey } = ctx
-      const { route, pageVersion, emitter } = options
+      const { route, pageVersion } = options
       let historyRecordsStatus: 'close' | 'open' = 'close'
       let lastPageVerison = pageVersion
-      const cloudSync = ({ navUuid, description, emitter }: { navUuid: string; description: string; emitter: any }) => {
+      const cloudSync = ({ navUuid, description }: { navUuid: string; description: string }) => {
         const storeKey = `PAGE_HISTORY--__--${navUuid}`
 
         const saveCallback = (result: ApiPageVersionsResponse__POST['data']) => {
           config.set('pageVersion', result.version)
           localForage.removeItem(storeKey).finally(() => {
-            emitter.emit('CloudSync:UPDATE_STATUS', {
+            event.emit('CloudSync.UPDATE_STATUS', {
               status: 'same',
               cloudVersion: result.version,
               localVersion: null
@@ -98,7 +98,6 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
           title: <span className='text-[18px] leading-[22px]'>保存应用记录</span>,
           onOk() {
             return cloudSync({
-              emitter,
               navUuid: route.navUuid,
               description: inputValue.trim() || '按钮保存'
             })
@@ -116,9 +115,9 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
         content: <Button onClick={hotkeySave}>保存到云端</Button>
       })
 
-      emitter.on('SaveSample:UPDATE_HISTORY_RECORDS_STATUS', (status: typeof historyRecordsStatus) => {
+      event.on('common:SaveSample.UPDATE_HISTORY_RECORDS_STATUS', ((status: typeof historyRecordsStatus) => {
         historyRecordsStatus = status
-      })
+      }) as any)
 
       // 页面保存到云端，刷新pageVersion
       config.onGot('pageVersion', (data: ApiPageVersionsResponse__POST['data']['version']) => {
@@ -130,7 +129,6 @@ const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
         e.preventDefault()
         if (historyRecordsStatus === 'close') {
           cloudSync({
-            emitter,
             navUuid: route.navUuid,
             description: '快捷键保存'
           })
@@ -154,11 +152,6 @@ SaveSamplePlugin.meta = {
         key: 'pageVersion',
         type: 'object',
         description: '页面版本信息'
-      },
-      {
-        key: 'emitter',
-        type: 'object',
-        description: '事件总线'
       }
     ]
   }
