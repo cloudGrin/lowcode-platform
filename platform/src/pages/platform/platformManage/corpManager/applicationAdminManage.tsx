@@ -102,7 +102,7 @@ const ApplicationAdminManage: React.FC<{ tabType: 'application' | 'platform' }> 
   }, [data])
 
   const openAddPeopleDialog = useCallback(() => {
-    getUsersForAdmin()
+    getUsersForAdmin().catch(() => {})
     setOpen(true)
   }, [getUsersForAdmin])
 

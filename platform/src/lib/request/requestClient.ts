@@ -22,7 +22,8 @@ requestInstance.interceptors.request.use((request) => {
     url: urlFormat,
     headers: {
       ...request.headers,
-      ...(token && needAuth ? { Authorization: `Bearer ${token}` } : {})
+      // TODO 传入 123456 解决strapi在不传入token时调需要鉴权的接口返回403而不是401的问题
+      ...(needAuth ? { Authorization: `Bearer ${token || '123456'}` } : {})
     }
   }
 })

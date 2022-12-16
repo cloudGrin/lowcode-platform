@@ -1,11 +1,25 @@
+import useQuery from '@/hooks/useQuery'
+import { getLoginState, useStrapiRequest } from '@/lib/request'
 import { common, config, plugins, skeleton } from '@alilc/lowcode-engine'
+import { useMemoizedFn } from 'ahooks'
 import { message, Spin } from 'antd'
 import React, { useEffect, useRef, useState } from 'react'
-import registerPlugins from './plugin'
 import createAxiosHandler from '../datasource-axios-handler'
-import { useStrapiRequest } from '@/lib/request'
-import useQuery from '@/hooks/useQuery'
-import { useMemoizedFn } from 'ahooks'
+import registerPlugins from './plugin'
+
+async function authLoader() {
+  const TokenUserInfo = getLoginState()
+  if (TokenUserInfo.loginToken) {
+    // try {
+    //   const res = await strapiRequestInstance('/api/users/me')
+    //   TokenUserInfo.setUserInfo(res.data)
+    // } catch (error) {
+    //   console.log(error)
+    // }
+  } else {
+    location.href = '/login'
+  }
+}
 
 const Designer: React.FC = () => {
   const isInited = useRef<boolean>(false)
@@ -126,6 +140,10 @@ const Designer: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectResult, pageVersionsResult, routeResult])
+
+  useEffect(() => {
+    authLoader()
+  }, [])
 
   if (!hasPluginInited) {
     return <Spin />
