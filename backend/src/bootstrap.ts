@@ -15,7 +15,7 @@ const allRole = {
 
 async function isFirstRun() {
   const pluginStore = strapi.store({
-    environment: strapi.config.environment,
+    environment: "",
     type: "type",
     name: "setup",
   });
