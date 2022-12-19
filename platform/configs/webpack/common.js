@@ -14,7 +14,7 @@ module.exports = {
   },
   stats: 'errors-only',
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.json', '.ttf'],
     alias: {
       '@': resolve(__dirname, '../../src')
     }
@@ -121,6 +121,10 @@ module.exports = {
           { loader: 'svg-sprite-loader', options: {} },
           { loader: 'svgo-loader', options: {} }
         ]
+      },
+      {
+        test: /\.ttf$/,
+        use: ['file-loader']
       }
     ]
   },

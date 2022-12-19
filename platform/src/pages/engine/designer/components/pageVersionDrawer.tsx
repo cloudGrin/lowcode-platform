@@ -3,11 +3,12 @@ import { strapiRequestInstance } from '@/lib/request'
 import { project } from '@alilc/lowcode-engine'
 import { TransformStage } from '@alilc/lowcode-types'
 import { useMemoizedFn, usePagination, useUpdateEffect } from 'ahooks'
-import { Drawer, Empty, List, message, Tag, Tooltip } from 'antd'
+import { Drawer, Empty, List, message, Modal, Tag, Tooltip } from 'antd'
 import classNames from 'classnames'
 import dayjs from 'dayjs'
 import VirtualList from 'rc-virtual-list'
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { editor } from 'monaco-editor'
 
 function handlerVersionCoherence(data: any[]) {
   return data.map((item, idx) => {
@@ -42,6 +43,28 @@ const PageVersionDrawer: React.FC<{
   const listWrapper = useRef<HTMLDivElement>(null)
   const [selectedVersionId, setSelectedVersionId] = useState<number>()
   const isJumpReCurrentVersion = useRef(false)
+
+  //diff弹窗
+  const [isShowModal, setIsShowModal] = useState<boolean>(false)
+
+  const diffContainer = useRef<HTMLDivElement>(null)
+  const editorContainer = diffContainer.current
+  const diffEditor: any = useMemo(() => {
+    if (editorContainer) {
+      return editor.createDiffEditor(editorContainer, {
+        enableSplitViewResizing: false,
+        automaticLayout: true,
+        dragAndDrop: true
+      })
+    }
+  }, [editorContainer])
+
+  const diff = (oldSchema: any, newSchema: any) => {
+    diffEditor?.setModel({
+      original: editor.createModel(oldSchema),
+      modified: editor.createModel(newSchema)
+    })
+  }
 
   const getVersionsApi = useCallback(
     async ({ current, pageSize }: { current: number; pageSize: number }) => {
@@ -285,13 +308,19 @@ const PageVersionDrawer: React.FC<{
                             className='flex items-center cursor-pointer hover:text-c_primary ml-[10px]'
                             onClick={(e) => {
                               e.stopPropagation()
-                              console.log(
-                                item.schema.componentsTree[0],
+
+                              setIsShowModal(true)
+                              const currentVersion = JSON.stringify(item.schema.componentsTree[0], null, ' ')
+                              const diffVersion = JSON.stringify(
                                 currentVersionIdx === -1
                                   ? project.exportSchema(TransformStage.Save).componentsTree[0]
-                                  : formatData[currentVersionIdx].schema.componentsTree[0]
+                                  : formatData[currentVersionIdx].schema.componentsTree[0],
+                                null,
+                                ' '
                               )
-                              message.info('开发中')
+                              diff(currentVersion, diffVersion)
+
+                              // message.info('开发中')
                             }}
                           >
                             <span>diff</span>
@@ -314,12 +343,29 @@ const PageVersionDrawer: React.FC<{
           </div>
         )}
       </div>
+      <Modal
+        title='schema diff'
+        open={isShowModal}
+        onCancel={() => {
+          setIsShowModal(false)
+        }}
+        style={{ width: '100%', height: '100%' }}
+        forceRender={true}
+        getContainer={false}
+        width={1150}
+      >
+        <div style={{ height: 900 }} ref={diffContainer}></div>
+      </Modal>
       <style jsx>{`
         :global(.history-wrapper .ant-drawer-body) {
           padding: 0 !important;
         }
         :global(.history-wrapper .ant-list-item) {
           padding: 0 !important;
+        }
+        :global(.history-wrapper .ant-modal-conten) {
+          width: 100% !important;
+          height: 100% !important;
         }
       `}</style>
     </Drawer>
