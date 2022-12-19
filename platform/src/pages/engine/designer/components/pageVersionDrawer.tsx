@@ -49,7 +49,7 @@ const PageVersionDrawer: React.FC<{
 
   const diffContainer = useRef<HTMLDivElement>(null)
   const editorContainer = diffContainer.current
-  const diffEditor: any = useMemo(() => {
+  const diffEditor = useMemo(() => {
     if (editorContainer) {
       return editor.createDiffEditor(editorContainer, {
         enableSplitViewResizing: false,
@@ -59,12 +59,12 @@ const PageVersionDrawer: React.FC<{
     }
   }, [editorContainer])
 
-  const diff = (oldSchema: any, newSchema: any) => {
+  const diff = useMemoizedFn((oldSchema: any, newSchema: any) => {
     diffEditor?.setModel({
       original: editor.createModel(oldSchema),
       modified: editor.createModel(newSchema)
     })
-  }
+  })
 
   const getVersionsApi = useCallback(
     async ({ current, pageSize }: { current: number; pageSize: number }) => {
