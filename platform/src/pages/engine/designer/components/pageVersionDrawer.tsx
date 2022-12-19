@@ -352,9 +352,10 @@ const PageVersionDrawer: React.FC<{
         style={{ width: '100%', height: '100%' }}
         forceRender={true}
         getContainer={false}
-        width={1150}
+        centered={false}
+        footer={() => {}}
       >
-        <div style={{ height: 900 }} ref={diffContainer}></div>
+        <div style={{ height: 'calc(100vh - 80px)' }} ref={diffContainer}></div>
       </Modal>
       <style jsx>{`
         :global(.history-wrapper .ant-drawer-body) {
@@ -363,9 +364,11 @@ const PageVersionDrawer: React.FC<{
         :global(.history-wrapper .ant-list-item) {
           padding: 0 !important;
         }
-        :global(.history-wrapper .ant-modal-conten) {
-          width: 100% !important;
+        :global(.history-wrapper .ant-modal) {
+          width: calc(100vw - 300px) !important;
           height: 100% !important;
+          margin: 0;
+          top: 0;
         }
       `}</style>
     </Drawer>
