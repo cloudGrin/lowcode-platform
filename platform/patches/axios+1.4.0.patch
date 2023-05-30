@@ -1,14 +1,14 @@
 diff --git a/node_modules/axios/index.d.ts b/node_modules/axios/index.d.ts
-index a6cb8ff..8725d6b 100644
+index e194461..16dc282 100644
 --- a/node_modules/axios/index.d.ts
 +++ b/node_modules/axios/index.d.ts
-@@ -319,6 +319,12 @@ export interface AxiosRequestConfig<D = any> {
+@@ -340,6 +340,12 @@ export interface AxiosRequestConfig<D = any> {
    transitional?: TransitionalOptions;
    signal?: GenericAbortSignal;
    insecureHTTPParser?: boolean;
 +  /**
 +   * 接口是否登录鉴权（配置此参数后，会携带jwtToken）
-+   */
++  */
 +  needAuth?: boolean;
 +  urlValue?: Record<string, string | number>;
 +  hideErrorMessage?: boolean;
