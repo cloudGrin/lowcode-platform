@@ -1,10 +1,11 @@
 import { saveSchema } from '@/pages/engine/helper'
-import { ILowCodePluginContext, event } from '@alilc/lowcode-engine'
+import { event } from '@alilc/lowcode-engine'
 import { Button, Input, message, Modal } from 'antd'
 import localForage from 'localforage'
+import { IPublicModelPluginContext } from '@alilc/lowcode-types'
 
 // 保存功能示例
-const SaveSamplePlugin = (ctx: ILowCodePluginContext, options: any) => {
+const SaveSamplePlugin = (ctx: IPublicModelPluginContext, options: any) => {
   return {
     async init() {
       const { skeleton, config, hotkey } = ctx

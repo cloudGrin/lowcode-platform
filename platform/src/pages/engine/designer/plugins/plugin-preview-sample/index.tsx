@@ -1,10 +1,11 @@
-import { ILowCodePluginContext } from '@alilc/lowcode-engine'
+import { IPublicModelPluginContext } from '@alilc/lowcode-types';
+
 import { Button } from 'antd'
 import { preview } from '../../../helper'
 
 // 保存功能示例
 const PreviewSamplePlugin = (
-  ctx: ILowCodePluginContext,
+  ctx: IPublicModelPluginContext,
   options: {
     route: ApiProjectRoutesFindByUuidResponse['data']
     pageVersion: ApiPageVersionsLatestResponse['data']

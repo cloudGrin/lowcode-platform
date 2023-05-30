@@ -1,6 +1,8 @@
-import { ILowCodePluginContext, project } from '@alilc/lowcode-engine'
-import ComponentsPane from '@alilc/lowcode-plugin-components-pane'
-const ComponentPanelPlugin = (ctx: ILowCodePluginContext) => {
+import { project } from '@alilc/lowcode-engine'
+import { IPublicModelPluginContext } from '@alilc/lowcode-types';
+
+import ComponentsPane from '@alilc/lowcode-plugin-components-pane/lib/pane'
+const ComponentPanelPlugin = (ctx: IPublicModelPluginContext) => {
   return {
     async init() {
       const { skeleton } = ctx

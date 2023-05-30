@@ -1,10 +1,10 @@
 import Icon from '@/components/icon'
-import { ILowCodePluginContext } from '@alilc/lowcode-engine'
+import { IPublicModelPluginContext } from '@alilc/lowcode-types';
 import { CodeOutlined, SettingOutlined, UnorderedListOutlined, UserOutlined, RightOutlined } from '@ant-design/icons'
 import { Divider, Popover } from 'antd'
 // 保存功能示例
 const topAreaLeftPlugin = (
-  ctx: ILowCodePluginContext,
+  ctx: IPublicModelPluginContext,
   options: { project: ApiProjectsIdResponse['data']; route: ApiProjectRoutesFindByUuidResponse['data'] }
 ) => {
   return {

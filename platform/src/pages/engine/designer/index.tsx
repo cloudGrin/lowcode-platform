@@ -89,6 +89,7 @@ const Designer: React.FC = () => {
            * 设置所有属性支持变量配置，默认值：false
            */
           supportVariableGlobally: true,
+          // enableWorkspaceMode: true,
           /**
            * 设置 simulator 相关的 url，默认值：undefined
            */

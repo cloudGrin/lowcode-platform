@@ -2,7 +2,9 @@ import Icon from '@/components/icon'
 import assets from '@/pages/engine/assets.json'
 import PageVersionDrawer from '@/pages/engine/designer/components/pageVersionDrawer'
 import { saveSchema } from '@/pages/engine/helper'
-import { event, ILowCodePluginContext, project } from '@alilc/lowcode-engine'
+import { event, project } from '@alilc/lowcode-engine'
+import { IPublicModelPluginContext } from '@alilc/lowcode-types';
+
 import { injectAssets } from '@alilc/lowcode-plugin-inject'
 import { TransformStage } from '@alilc/lowcode-types'
 import { message, Modal, Tooltip } from 'antd'
@@ -201,7 +203,7 @@ class CloudSync extends PureComponent<IProps, IState> {
 }
 
 const CloudSyncPlugin = (
-  ctx: ILowCodePluginContext,
+  ctx: IPublicModelPluginContext,
   options: {
     project: ApiProjectsIdResponse['data']
     route: ApiProjectRoutesFindByUuidResponse['data']
