@@ -72,20 +72,20 @@ async function deleteAuthenticatedRole() {
 /**
  * 设置注册默认角色位 engineer
  */
-async function setRegisterDefaultRoles() {
-  const advanced = await strapi
-    .store({ type: "plugin", name: "users-permissions", key: "advanced" })
-    .get();
+// async function setRegisterDefaultRoles() {
+//   const advanced = await strapi
+//     .store({ type: "plugin", name: "users-permissions", key: "advanced" })
+//     .get();
 
-  await strapi
-    .store({ type: "plugin", name: "users-permissions", key: "advanced" })
-    .set({
-      value: {
-        ...advanced,
-        default_role: "engineer",
-      },
-    });
-}
+//   await strapi
+//     .store({ type: "plugin", name: "users-permissions", key: "advanced" })
+//     .set({
+//       value: {
+//         ...advanced,
+//         default_role: "engineer",
+//       },
+//     });
+// }
 
 /**
  * 创建项目角色
@@ -114,7 +114,7 @@ async function importSeedData() {
   await createRole();
   await setPermission();
   await deleteAuthenticatedRole();
-  await setRegisterDefaultRoles();
+  // await setRegisterDefaultRoles();
   await createProjectRole();
 }
 

@@ -77,7 +77,7 @@ export default factories.createCoreController(
                 projectId,
               },
             },
-          })) as any;
+          },undefined)) as any;
         await strapi.service("api::project-version.project-version").create({
           data: {
             project: {

@@ -1,4 +1,6 @@
-const { getService } = require("@strapi/plugin-users-permissions/server/utils");
+// const { getService } = require("@strapi/plugin-users-permissions/server/utils");
+
+const getService = (a) => strapi.plugin('users-permissions').service(a)
 
 async function getUserInfoAndRole(userId) {
   let data = await getService("user").fetch(userId, {

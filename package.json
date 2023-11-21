@@ -10,8 +10,8 @@
     "develop": "cross-env FORCE_COLOR=1 npm-run-all -l -p develop:*"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.6.3",
-    "@commitlint/config-conventional": "^17.6.3",
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3",
     "commitizen": "^4.3.0",
     "cross-env": "7.0.3",
     "cz-customizable": "^7.0.0",
