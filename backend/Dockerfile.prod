@@ -1,23 +1,21 @@
-# syntax = docker/dockerfile:experimental
-FROM node:18.12.1-alpine as build
-# Installing libvips-dev for sharp Compatibility
-RUN apk update && apk add build-base gcc autoconf automake zlib-dev libpng-dev vips-dev && rm -rf /var/cache/apk/* > /dev/null 2>&1
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+# Creating multi-stage build for production
+FROM node:18-alpine as build
+RUN apk update && apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev git > /dev/null 2>&1
+ENV NODE_ENV=production
+
 WORKDIR /opt/
-COPY ./package.json ./yarn.lock ./
+COPY package.json yarn.lock ./
+RUN yarn global add node-gyp
+RUN yarn config set network-timeout 600000 -g && yarn install --production
 ENV PATH /opt/node_modules/.bin:$PATH
-RUN yarn config set network-timeout 600000 -g && yarn install
 WORKDIR /opt/app
-COPY ./ .
+COPY . .
 RUN yarn build
 
-
-FROM node:18.12.1-alpine
-RUN apk add vips-dev
-RUN rm -rf /var/cache/apk/*
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
+# Creating final production image
+FROM node:18-alpine
+RUN apk add --no-cache vips-dev
+ENV NODE_ENV=production
 ENV DATABASE_HOST=127.0.0.1
 ENV DATABASE_PORT=5432
 ENV DATABASE_USERNAME=strapi
@@ -27,9 +25,13 @@ ENV APP_KEYS="sdf3q324asdewad,qewr3eqwwqeqwe"
 ENV API_TOKEN_SALT=n0ezsd4D4qwedQ8Tkw9RqogULQ
 ENV ADMIN_JWT_SECRET=GR2QCd8cJqwgD1LvWMMsVfpw
 ENV JWT_SECRET=USJtUNeefo/S+AqLS+H4jvCA
-WORKDIR /opt/app
+WORKDIR /opt/
 COPY --from=build /opt/node_modules ./node_modules
-ENV PATH /opt/node_modules/.bin:$PATH
+WORKDIR /opt/app
 COPY --from=build /opt/app ./
+ENV PATH /opt/node_modules/.bin:$PATH
+
+RUN chown -R node:node /opt/app
+USER node
 EXPOSE 1337
 CMD ["yarn", "start"]

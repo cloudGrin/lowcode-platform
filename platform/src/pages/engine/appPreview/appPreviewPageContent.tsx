@@ -5,7 +5,9 @@ import { useOutletContext } from 'react-router'
 import ReactRenderer from '@alilc/lowcode-react-renderer'
 import createAxiosHandler from '../datasource-axios-handler'
 import { initPage } from '../helper'
+import { createStore } from 'zustand/vanilla'
 
+const store = createStore(() => ({}))
 const AppPreviewPageContent: FC = () => {
   const [nav] = useOutletContext<[TreeItem]>()
   const [data, setData] = useState<any>({})
@@ -59,6 +61,9 @@ const AppPreviewPageContent: FC = () => {
         appHelper={{
           requestHandlersMap: {
             axios: createAxiosHandler()
+          },
+          constants: {
+            store
           }
         }}
       />

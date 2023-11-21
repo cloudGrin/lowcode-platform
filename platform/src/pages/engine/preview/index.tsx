@@ -7,6 +7,9 @@ import { useStrapiRequest } from '@/lib/request'
 import { initPage } from '../helper'
 import localForage from 'localforage'
 import { message } from 'antd'
+import { createStore } from 'zustand/vanilla'
+
+const store = createStore(() => ({}))
 
 const SamplePreview: React.FC = () => {
   const [data, setData] = useState<any>({})
@@ -77,6 +80,9 @@ const SamplePreview: React.FC = () => {
         appHelper={{
           requestHandlersMap: {
             axios: createAxiosHandler()
+          },
+          constants: {
+            store
           }
         }}
       />

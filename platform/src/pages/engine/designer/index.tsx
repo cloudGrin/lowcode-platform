@@ -6,7 +6,9 @@ import { message, Spin } from 'antd'
 import React, { useEffect, useRef, useState } from 'react'
 import createAxiosHandler from '../datasource-axios-handler'
 import registerPlugins from './plugin'
+import { createStore } from 'zustand/vanilla'
 
+const store = createStore(() => ({}))
 async function authLoader() {
   const TokenUserInfo = getLoginState()
   if (TokenUserInfo.loginToken) {
@@ -103,7 +105,9 @@ const Designer: React.FC = () => {
            * 数据源引擎的请求处理器映射
            */
           requestHandlersMap: {
-            axios: createAxiosHandler()
+            axios: createAxiosHandler({
+              store
+            })
           },
           /**
            * 工具类扩展
@@ -117,8 +121,14 @@ const Designer: React.FC = () => {
             /**
              * 全局常量
              */
-            constants: {}
+            constants: {
+              store
+            }
           }
+          // focusNodeSelector: (rootNode: any) => {
+          //   console.log(rootNode)
+          //   return rootNode
+          // }
         })
 
         await plugins.init()

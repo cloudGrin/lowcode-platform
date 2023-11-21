@@ -233,9 +233,9 @@ const defaultPageSchema = {
           componentDidMount: {
             type: "JSFunction",
             value:
-              "function componentDidMount() {\n  console.log('did mount');\n}",
+              "function componentDidMount() {\n  console.log('did mount');\n  this.constants.store.subscribe(() => {\n    this.setState(state => ({\n      ...state\n    }));\n  });\n}",
             source:
-              "function componentDidMount() {\n  console.log('did mount');\n}",
+              "function componentDidMount() {\n  console.log('did mount');\n  this.constants.store.subscribe(() => {\n    this.setState(state => ({\n      ...state\n    }));\n  });\n}",
           },
           componentWillUnmount: {
             type: "JSFunction",
@@ -246,7 +246,7 @@ const defaultPageSchema = {
           },
         },
         originCode:
-          "class LowcodeComponent extends Component {\n  state = {}\n  componentDidMount() {\n    console.log('did mount');\n  }\n  componentWillUnmount() {\n    console.log('will unmount');\n  }\n}",
+          "class LowcodeComponent extends Component {\n  state = {}\n  componentDidMount() {\n    console.log('did mount');    \n    this.constants.store.subscribe(()=>{this.setState((state)=>({...state}))});\n  }\n  componentWillUnmount() {\n    console.log('will unmount');\n  }\n}",
         componentName: "Page",
         conditionGroup: "",
       },

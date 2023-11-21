@@ -1,8 +1,8 @@
 import { RuntimeOptionsConfig } from '@alilc/lowcode-datasource-types'
 import axios, { AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios'
 
-// config 留着扩展
 export default function createFetchHandler(config?: Record<string, unknown>) {
+  // const { store } = config
   return async function (options: RuntimeOptionsConfig) {
     const requestConfig: AxiosRequestConfig = {
       ...options,

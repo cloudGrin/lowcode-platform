@@ -1,8 +1,8 @@
 diff --git a/node_modules/axios/index.d.ts b/node_modules/axios/index.d.ts
-index e194461..16dc282 100644
+index 3a2840b..73e80fc 100644
 --- a/node_modules/axios/index.d.ts
 +++ b/node_modules/axios/index.d.ts
-@@ -340,6 +340,12 @@ export interface AxiosRequestConfig<D = any> {
+@@ -348,6 +348,12 @@ export interface AxiosRequestConfig<D = any> {
    transitional?: TransitionalOptions;
    signal?: GenericAbortSignal;
    insecureHTTPParser?: boolean;
