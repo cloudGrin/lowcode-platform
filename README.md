@@ -133,7 +133,7 @@ docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile.prod -t [do
 
 平台权限管理:
 
-<img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/平台权限管理.png" height="246">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/平台权限管理.png" height="246">
 
 
 ### 应用角色
@@ -147,15 +147,15 @@ docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile.prod -t [do
 
 应用角色管理:
 
-<img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/应用角色管理.png" height="280">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/应用角色管理.png" height="280">
 
 ### 应用路由管理
 
 支持新增普通路由、外部链接和路由分组。支持路由拖拽排序。
 
-<img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/应用路由新增.png" height="252">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/应用路由新增.png" height="252">
 
-<img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/应用路由排序.png" height="246"><img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/应用路由更名.png" height="246" style="margin-left:10px;">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/应用路由排序.png" height="246"><img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/应用路由更名.png" height="246" style="margin-left:10px;">
 
 ### 页面版本管理
 
@@ -163,7 +163,7 @@ docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile.prod -t [do
 
 页面版本管理:
 
-<img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/页面版本管理.png">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/页面版本管理.png">
 
 ### 数据源（请求）
 
@@ -171,38 +171,38 @@ docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile.prod -t [do
 
 数据源:
 
-<img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/数据源.png" height="400">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/数据源.png" height="400">
 
 ### 应用发布
 
 应用发布管理:
 
-<img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/应用发布管理.png" height="240">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/应用发布管理.png" height="240">
 
 应用发布展示:
 
-<img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/应用发布展示.png" height="231">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/应用发布展示.png" height="231">
 
 
 ### 全局状态管理
 
 使用[zustand](https://github.com/pmndrs/zustand)完成应用级跨页面共享全局状态
 
-![全局状态管理](https://q.210313.cn:2200/var//Grin/clip-images/lowcode/全局状态管理.gif)
+![全局状态管理](https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/全局状态管理.gif)
 
 使用低代码引擎提供的[apphelper](https://lowcode-engine.cn/site/docs/guide/expand/runtime/renderer#apphelper)接入store，通过 this.constants.store 进行操作
 
 store获取:
 
-<img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/store获取.png" height="281">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/store获取.png" height="281">
 
 store设置:
 
-<img src="https://q.210313.cn:2200/var//Grin/clip-images/lowcode/store设置.png" height="231">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/store设置.png" height="231">
 
 
 ### 管理后台
 
 strapi 提供了管理后台
 
-![strapi管理后台](https://q.210313.cn:2200/var//Grin/clip-images/lowcode/strapi管理后台.png)
+![strapi管理后台](https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/strapi管理后台.png)
