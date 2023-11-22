@@ -2,10 +2,11 @@ import Icon from '@/components/icon'
 import useQuery from '@/hooks/useQuery'
 import { useStrapiRequest } from '@/lib/request'
 import { DownOutlined, SettingOutlined } from '@ant-design/icons'
-import { TreeItem } from '@atlaskit/tree'
+import { TreeData, TreeItem } from '@atlaskit/tree'
+import { useMemoizedFn } from 'ahooks'
 import { Button, Checkbox, Dropdown, Form, Input, MenuProps, message, Modal, Tooltip } from 'antd'
 import produce from 'immer'
-import { FC, useCallback, useMemo, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 const onMenuClick: MenuProps['onClick'] = (e) => {
@@ -28,7 +29,8 @@ const pageActions = [
 const PageView: FC<{
   activeNav?: TreeItem
   setActiveNav: React.Dispatch<React.SetStateAction<TreeItem | undefined>>
-}> = ({ activeNav, setActiveNav }) => {
+  tree?: TreeData
+}> = ({ activeNav, setActiveNav, tree }) => {
   const { id } = useParams()
   const query = useQuery()
   const [open, setOpen] = useState(false)
@@ -73,15 +75,45 @@ const PageView: FC<{
     }
   }, [form, updateRouteApi, setActiveNav])
 
+  const [routeParams, setRouteParams] = useState({})
+
+  const getRouteParams = useMemoizedFn(() => {
+    const cache = routeParams
+    setRouteParams({})
+    return cache
+  })
+
   const iframeUrl = useMemo(() => {
     if (activeNav!.data.type === 'PAGE') {
-      return `${location.origin}/app/page?navUuid=${activeNav?.id}&versionId=${
-        activeNav?.data.version?.id ?? ''
-      }&tab=${query.get('tab')}`
+      return `${location.origin}/app/page?${new URLSearchParams({
+        navUuid: String(activeNav?.id ?? ''),
+        versionId: activeNav?.data.version?.id ?? '',
+        tab: query.get('tab')!,
+        ...getRouteParams()
+      }).toString()}`
     } else if (activeNav!.data.type === 'LINK') {
       return activeNav!.data.url
     }
-  }, [activeNav, query])
+  }, [activeNav, query, getRouteParams])
+
+  const getMessageHandler = useMemoizedFn((payload) => {
+    const { navUuid, ...rest } = payload
+    const nextNav = tree?.items?.[navUuid]
+    setRouteParams(rest)
+    nextNav && setActiveNav(nextNav)
+  })
+
+  useEffect(() => {
+    window.addEventListener('message', function (event) {
+      if (event.origin === location.origin) {
+        const { source, payload = {} } = event.data || {}
+        if (source === 'page-preview') {
+          console.log('Message from iframe:', payload)
+          getMessageHandler(payload)
+        }
+      }
+    })
+  }, [getMessageHandler])
 
   return (
     <div className='flex flex-col flex-auto'>

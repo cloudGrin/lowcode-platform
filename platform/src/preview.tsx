@@ -38,10 +38,18 @@ const projectLoader: LoaderFunction = async function ({ params }) {
 
 const router = createBrowserRouter(
   [
+    /**
+     * 单个页面预览
+     * 1.页面管理里的预览
+     * 2.页面编辑时点击右上角的预览
+     */
     {
       path: 'app/page',
       element: <Preview />
     },
+    /**
+     * 应用整体预览
+     */
     {
       path: 'app/:appId/workbench',
       id: 'project',

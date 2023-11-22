@@ -208,7 +208,7 @@ const PageManage: React.FC = () => {
               setNavType={setNavType}
             />
           </div>
-          <PageView activeNav={activeNav} setActiveNav={setActiveNav} />
+          <PageView activeNav={activeNav} setActiveNav={setActiveNav} tree={tree} />
         </div>
       ) : (
         <></>

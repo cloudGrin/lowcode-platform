@@ -437,13 +437,18 @@ export default factories.createCoreController(
     async findOne(ctx) {
       try {
         const { id } = ctx.params;
-        // const { navUuid } = ctx.request.query;
-        // if (!navUuid) {
-        //   return ctx.badRequest("参数错误");
-        // }
+        const { navUuid } = ctx.request.query;
+        if (!navUuid) {
+          return ctx.badRequest("参数错误");
+        }
         const result = (await strapi
           .service("api::page-version.page-version")
           .findOne(id, {
+            where: {
+              route: {
+                navUuid,
+              },
+            },
             populate: {
               route: true,
               operator: false,

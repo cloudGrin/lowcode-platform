@@ -67,6 +67,7 @@ export const getPagePackages = () => {
   return assets.packages
 }
 
+// 页面编辑页面右上角的预览
 export const preview = ({ navUuid, versionId }: { navUuid: string; versionId: number }) => {
   window.open(`/app/page?navUuid=${navUuid}&versionId=${versionId}`)
 }

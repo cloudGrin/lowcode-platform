@@ -7,7 +7,9 @@ interface ApiPageVersionsId {
   response: ApiPageVersionsIdResponse
 }
 
-interface ApiPageVersionsIdRequest {}
+interface ApiPageVersionsIdRequest {
+  navUuid: string
+}
 
 interface ApiPageVersionsIdResponse {
   data: {

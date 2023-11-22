@@ -8,20 +8,44 @@ import { initPage } from '../helper'
 import localForage from 'localforage'
 import { message } from 'antd'
 import { createStore } from 'zustand/vanilla'
+import { parseQuery, useNavigateTo } from '@/pages/engine/utils'
 
 const store = createStore(() => ({}))
 
 const SamplePreview: React.FC = () => {
   const [data, setData] = useState<any>({})
   const query = useQuery()
+  const navigateTo = useNavigateTo()
 
-  const { run: getVersion } = useStrapiRequest(
+  const { run: getVersionById } = useStrapiRequest(
     '/api/page-versions/${id}',
     () => ({
       urlValue: {
         id: query.get('versionId') as string
       },
-      hideErrorMessage: true
+      hideErrorMessage: true,
+      payload: {
+        navUuid: query.get('navUuid')!
+      }
+    }),
+    {
+      manual: true,
+      onSuccess(res) {
+        generateData(res.data.schema)
+      }
+    }
+  )
+
+  const { run: getLatestVersion } = useStrapiRequest(
+    '/api/page-versions/latest',
+    () => ({
+      payload: {
+        navUuid: query.get('navUuid')!,
+        pagination: {
+          page: 1,
+          pageSize: 1
+        }
+      }
     }),
     {
       manual: true,
@@ -45,6 +69,14 @@ const SamplePreview: React.FC = () => {
     })
   }, [])
 
+  const getVersion = () => {
+    if (query.get('versionId')) {
+      getVersionById()
+    } else {
+      getLatestVersion()
+    }
+  }
+
   useEffect(() => {
     const isProdPreview = query.get('tab') === 'prod'
     if (isProdPreview) {
@@ -56,7 +88,7 @@ const SamplePreview: React.FC = () => {
             // 存在本地版本
             generateData(value.schema)
             message.info('存在本地版本, 预览将展示本地版本')
-          } else if (query.get('versionId')) {
+          } else {
             getVersion()
           }
         })
@@ -83,6 +115,10 @@ const SamplePreview: React.FC = () => {
           },
           constants: {
             store
+          },
+          utils: {
+            navigateTo,
+            parseQuery
           }
         }}
       />

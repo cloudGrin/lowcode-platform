@@ -6,11 +6,15 @@ import ReactRenderer from '@alilc/lowcode-react-renderer'
 import createAxiosHandler from '../datasource-axios-handler'
 import { initPage } from '../helper'
 import { createStore } from 'zustand/vanilla'
+import { useNavigateTo, parseQuery } from '@/pages/engine/utils'
+import { useParams } from 'react-router-dom'
 
 const store = createStore(() => ({}))
 const AppPreviewPageContent: FC = () => {
   const [nav] = useOutletContext<[TreeItem]>()
   const [data, setData] = useState<any>({})
+  const navigateTo = useNavigateTo()
+  const { navUuid } = useParams()
 
   const {
     run: getPageVersion,
@@ -22,7 +26,10 @@ const AppPreviewPageContent: FC = () => {
       urlValue: {
         id: nav.data?.version?.id
       },
-      hideErrorMessage: true
+      hideErrorMessage: true,
+      payload: {
+        navUuid: navUuid!
+      }
     }),
     {
       manual: true
@@ -64,6 +71,10 @@ const AppPreviewPageContent: FC = () => {
           },
           constants: {
             store
+          },
+          utils: {
+            navigateTo,
+            parseQuery
           }
         }}
       />

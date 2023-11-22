@@ -30,8 +30,9 @@
 - [x] 应用页面历史记录支持 diff
 - [x] 应用全局状态管理的支持
 - [x] 页面数据源面板中使用[axios@1.6.2](https://github.com/axios/axios)调用第三方api（不需要鉴权），渲染动态数据
-- [ ] 支持页面跳转全局方法
+- [x] 支持页面跳转全局方法
 - [ ] 支持定制请求拦截器，完成需要鉴权的第三方api调用
+- [ ] 支持在请求拦截器里，使用navigateTo和全局store
 
 ...more
 
@@ -194,11 +195,53 @@ docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile.prod -t [do
 
 store获取:
 
-<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/store获取.png" height="281">
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/store获取.png" height="380">
 
 store设置:
 
 <img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/store设置.png" height="231">
+
+
+### 路由跳转
+
+#### utils.navigateTo()
+
+该方法用来在应用程序的页面之间导航。
+
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/navigateTo.png" height="340">
+
+##### 定义
+
+navigateTo(pageNavId: string, params?: {}, replace: boolean): void
+
+##### 参数
+
+pageNavId
+
+要跳转到的页面 ID，从页面管理里点击页面后，在 url 中获取
+
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/页面NavId.png" height="200">
+
+
+params
+
+通过 URL 传递的查询参数。用于跨页面传递数据。
+
+replace
+
+默认 true，是否需要替换当前页面，不在历史记录中保留上一条路由信息
+
+#### utils.parseQuery()
+
+该方法用来在当前页面获取 URL 的查询参数
+
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/parseQuery.png" height="260">
+
+
+
+#### 演示
+
+<img src="https://cloudgrin.oss-cn-shanghai.aliyuncs.com/images/clip-images/路由跳转加获取urlparams.gif" height="260">
 
 
 ### 管理后台

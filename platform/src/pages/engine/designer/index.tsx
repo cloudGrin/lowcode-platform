@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import createAxiosHandler from '../datasource-axios-handler'
 import registerPlugins from './plugin'
 import { createStore } from 'zustand/vanilla'
+import { parseQuery } from '../utils'
 
 const store = createStore(() => ({}))
 async function authLoader() {
@@ -69,6 +70,7 @@ const Designer: React.FC = () => {
     }
   )
 
+
   const init = useMemoizedFn(() => {
     async function initPlugins(projectResult: any, pageVersionsResult: any, routeResult: any) {
       try {
@@ -114,9 +116,10 @@ const Designer: React.FC = () => {
            */
           appHelper: {
             utils: {
-              // xxx: () => {
-              //   console.log('123')
-              // }
+              navigateTo() {
+                message.info('编辑器中不支持跳转')
+              },
+              parseQuery
             },
             /**
              * 全局常量
