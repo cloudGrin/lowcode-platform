@@ -44,6 +44,7 @@ const router = createBrowserRouter(
         {
           path: '/',
           loader: authLoader,
+          shouldRevalidate: () => false,
           element: <UserAuth />,
           id: 'userAuth',
           children: [...platformRoutes, ...projectRoutes]
