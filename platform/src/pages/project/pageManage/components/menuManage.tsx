@@ -39,6 +39,8 @@ function removeRouteApi({ uuid, successCb }: { uuid: ItemId; successCb?: () => v
               message.success('删除成功')
               resolve('')
               successCb && successCb()
+            } else {
+              message.error(res.data.message || '操作失败')
             }
           })
           .catch((error) => {

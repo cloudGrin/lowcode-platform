@@ -14,5 +14,6 @@ interface ApiProjectRoutesDeleteByUuidRequest__DELETE {
 interface ApiProjectRoutesDeleteByUuidResponse__DELETE {
   data: {
     success: boolean
+    message?: string
   }
 }

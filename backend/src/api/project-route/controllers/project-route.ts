@@ -125,6 +125,7 @@ export default factories.createCoreController(
           .count({
             where: {
               parentNavUuid: navUuid,
+              status: "ONLINE",
             },
           })) as any;
         if (count > 0) {

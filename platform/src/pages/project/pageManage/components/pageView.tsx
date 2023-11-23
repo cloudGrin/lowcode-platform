@@ -6,7 +6,7 @@ import { TreeData, TreeItem } from '@atlaskit/tree'
 import { useMemoizedFn } from 'ahooks'
 import { Button, Checkbox, Dropdown, Form, Input, MenuProps, message, Modal, Tooltip } from 'antd'
 import produce from 'immer'
-import { FC, IframeHTMLAttributes, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { createStore } from 'zustand/vanilla'
 
@@ -130,12 +130,16 @@ const PageView: FC<{
   })
 
   useEffect(() => {
-    window.addEventListener('message', function (event) {
+    function messageHandler(event: MessageEvent) {
       if (event.origin === location.origin) {
         const { source, payload = {} } = event.data || {}
         getMessageHandler({ source, payload })
       }
-    })
+    }
+    window.addEventListener('message', messageHandler)
+    return () => {
+      window.removeEventListener('message', messageHandler)
+    }
   }, [getMessageHandler])
 
   return (
