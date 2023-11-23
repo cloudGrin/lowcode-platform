@@ -97,7 +97,7 @@ const AppPreview: FC = () => {
   return (
     <>
       {projectInfo && (
-        <Layout className='min-h-[100vh]'>
+        <Layout className='!min-h-[100vh]'>
           <Sider theme='light'>
             <div className=' text-[14px] h-[61px] pl-[20px] flex items-center border-b-[1px] border-c_line_2'>
               {projectInfo.name}

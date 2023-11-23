@@ -1,0 +1,51 @@
+{
+  "id": 0,
+  "description": "默认",
+  "schema": {
+    "i18n": {},
+    "version": "1.0.0",
+    "componentsMap": [
+      {
+        "devMode": "lowCode",
+        "componentName": "Page"
+      }
+    ],
+    "componentsTree": [
+      {
+        "componentName": "Page",
+        "id": "node_dockcviv8fo1",
+        "props": {
+          "ref": "outerView",
+          "style": {
+            "height": "100%"
+          }
+        },
+        "docId": "doclaqkk3b9",
+        "fileName": "/",
+        "dataSource": {
+          "list": []
+        },
+        "state": {},
+        "lifeCycles": {
+          "componentDidMount": {
+            "type": "JSFunction",
+            "value": "function componentDidMount() {\n  console.log('did mount');\n  this.constants.store.subscribe(() => {\n    this.setState(state => ({\n      ...state\n    }));\n  });\n}",
+            "source": "function componentDidMount() {\n  console.log('did mount');\n  this.constants.store.subscribe(() => {\n    this.setState(state => ({\n      ...state\n    }));\n  });\n}"
+          },
+          "componentWillUnmount": {
+            "type": "JSFunction",
+            "value": "function componentWillUnmount() {\n  console.log('will unmount');\n}",
+            "source": "function componentWillUnmount() {\n  console.log('will unmount');\n}"
+          }
+        },
+        "originCode": "class LowcodeComponent extends Component {\n  state = {}\n  componentDidMount() {\n    console.log('did mount');    \n    this.constants.store.subscribe(()=>{this.setState((state)=>({...state}))});\n  }\n  componentWillUnmount() {\n    console.log('will unmount');\n  }\n}",
+        "methods": {},
+        "hidden": false,
+        "title": "",
+        "isLocked": false,
+        "condition": true,
+        "conditionGroup": ""
+      }
+    ]
+  }
+}
