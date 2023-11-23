@@ -12,6 +12,38 @@ import { parseQuery, useNavigateTo } from '@/pages/engine/utils'
 
 const store = createStore(() => ({}))
 
+if (window.self !== window.top) {
+  // 在iframe中，可以判断当前在页面管理界面
+  store.subscribe(() => {
+    window.parent.postMessage(
+      {
+        source: 'store-update',
+        payload: {
+          data: store.getState()
+        }
+      },
+      location.origin
+    )
+  })
+
+  window.parent.postMessage(
+    {
+      source: 'store-get'
+    },
+    location.origin
+  )
+
+  window.addEventListener('message', function (event) {
+    if (event.origin === location.origin) {
+      const { source, payload = {} } = event.data || {}
+      if (source === 'store-sync') {
+        console.log('Message from parent:', source, payload)
+        store.setState({ ...(payload.data || {}) })
+      }
+    }
+  })
+}
+
 const SamplePreview: React.FC = () => {
   const [data, setData] = useState<any>({})
   const query = useQuery()

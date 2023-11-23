@@ -6,8 +6,9 @@ import { TreeData, TreeItem } from '@atlaskit/tree'
 import { useMemoizedFn } from 'ahooks'
 import { Button, Checkbox, Dropdown, Form, Input, MenuProps, message, Modal, Tooltip } from 'antd'
 import produce from 'immer'
-import { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import { FC, IframeHTMLAttributes, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { createStore } from 'zustand/vanilla'
 
 const onMenuClick: MenuProps['onClick'] = (e) => {
   console.log('click', e)
@@ -34,6 +35,7 @@ const PageView: FC<{
   const { id } = useParams()
   const query = useQuery()
   const [open, setOpen] = useState(false)
+  const refIframe = useRef<HTMLIFrameElement>(null)
 
   const pageType = activeNav?.data.type as 'PAGE' | 'LINK'
   const [form] = Form.useForm()
@@ -98,21 +100,40 @@ const PageView: FC<{
     }
   }, [activeNav, query, getRouteParams])
 
-  const getMessageHandler = useMemoizedFn((payload) => {
-    const { navUuid, ...rest } = payload
-    const nextNav = tree?.items?.[navUuid]
-    setRouteParams(rest)
-    nextNav && setActiveNav(nextNav)
+  const store = useMemo(() => {
+    return createStore(() => ({}))
+  }, [])
+
+  const getMessageHandler = useMemoizedFn(({ source, payload }) => {
+    if (source === 'page-preview') {
+      console.log('Message from iframe:', source, payload)
+      const { navUuid, ...rest } = payload
+      const nextNav = tree?.items?.[navUuid]
+      setRouteParams(rest)
+      nextNav && setActiveNav(nextNav)
+    } else if (source === 'store-update') {
+      console.log('Message from iframe:', source, payload)
+      const { data } = payload
+      store.setState(data || {})
+    } else if (source === 'store-get') {
+      console.log('Message from iframe:', source, payload)
+      refIframe.current?.contentWindow?.postMessage(
+        {
+          source: 'store-sync',
+          payload: {
+            data: store.getState() || {}
+          }
+        },
+        location.origin
+      )
+    }
   })
 
   useEffect(() => {
     window.addEventListener('message', function (event) {
       if (event.origin === location.origin) {
         const { source, payload = {} } = event.data || {}
-        if (source === 'page-preview') {
-          console.log('Message from iframe:', payload)
-          getMessageHandler(payload)
-        }
+        getMessageHandler({ source, payload })
       }
     })
   }, [getMessageHandler])
@@ -151,7 +172,7 @@ const PageView: FC<{
       </div>
       <div className='h-[calc(100%-74px)] p-[16px] overflow-hidden'>
         <div className='w-full h-full'>
-          <iframe src={iframeUrl} className='w-full h-full' key={iframeUrl} />
+          <iframe src={iframeUrl} className='w-full h-full' key={iframeUrl} ref={refIframe} />
         </div>
       </div>
       <Modal
