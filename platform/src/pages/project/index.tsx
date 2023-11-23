@@ -9,7 +9,9 @@ const Project: React.FC = () => {
   const { id } = useParams()
 
   const [info, setInfo] = useState<ApiProjectsIdResponse['data'] | null>(null)
-  const [latestVersion, setLatestVersion] = useState<ApiProjectVersionsResponse['data'][number] | null>(null)
+  const [latestVersion, setLatestVersion] = useState<ApiProjectVersionsResponse['data'][number] | null | 'NO_DATA'>(
+    null
+  )
 
   const getInfoApi = useCallback(async () => {
     const result = await strapiRequestInstance('/api/projects/${id}', {
@@ -34,7 +36,7 @@ const Project: React.FC = () => {
       },
       {}
     )
-    setLatestVersion(result.data?.[0] || null)
+    setLatestVersion(result.data?.[0] || 'NO_DATA')
     return result.data?.[0] || null
   }, [id])
 

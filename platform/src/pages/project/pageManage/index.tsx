@@ -3,7 +3,7 @@ import newPageImg from '@/assets/image/newPage.png'
 import { ItemId, TreeData, TreeItem } from '@atlaskit/tree'
 import { Card, Col, Row } from 'antd'
 import { produce } from 'immer'
-import React, { useCallback, useContext, useEffect } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import AddRoute from './components/addRouteDialog'
 import MenuManage from './components/menuManage'
@@ -30,6 +30,8 @@ const PageManage: React.FC = () => {
 
   const [activeNav, setActiveNav] = useState<TreeItem>()
 
+  const [activeTab, setActiveTab] = useState<'prod' | 'dev' | undefined>('dev')
+
   const jump = useCallback(
     (path) => {
       if (path === '' && routeId === 'empty') {
@@ -41,12 +43,32 @@ const PageManage: React.FC = () => {
     [id, navigate, routeId]
   )
 
+  const [originalLatestVersion] = useContext(LatestVersionsContext)
+
+  const latestVersion = useMemo(() => {
+    return originalLatestVersion === 'NO_DATA' ? null : originalLatestVersion
+  }, [originalLatestVersion])
+
   const handleDevTreeAndRouteId = useCallback(
     (tree: TreeData) => {
+      if (Object.keys(tree.items).length === 1) {
+        // 当前dev路由菜单已全部删除
+        if (originalLatestVersion === 'NO_DATA') {
+          setType('EMPTY')
+          jump('empty?tab=prod')
+        } else {
+          setActiveTab('prod')
+          jump(routeId + '?tab=prod')
+        }
+        return
+      }
       let currentNav = tree?.items?.[routeId as ItemId] as TreeItem | undefined
       if (!currentNav || currentNav.data.type === 'NAV') {
         // 去第一个页面
         currentNav = findFirstPage(tree)
+        if (currentNav && currentNav.data.type !== 'NAV') {
+          jump(currentNav!.id + '?tab=dev')
+        }
       }
       if (currentNav && currentNav.data.type !== 'NAV') {
         // 找到对应页面
@@ -70,7 +92,7 @@ const PageManage: React.FC = () => {
         setType('EMPTY')
       }
     },
-    [jump, routeId]
+    [jump, routeId, originalLatestVersion]
   )
 
   const { runAsync: getNavListApi } = useStrapiRequest(
@@ -94,12 +116,13 @@ const PageManage: React.FC = () => {
             }
           }
           setTree(res.data as TreeData)
-          if (!tree && (query.get('tab') !== 'prod' || !routeId)) {
+          if (query.get('tab') !== 'prod' && (!tree || (tree && routeId && !(res.data as TreeData).items[routeId]))) {
             handleDevTreeAndRouteId(res.data as TreeData)
           }
         } else {
           setType('EMPTY')
         }
+        return res
       },
       onError() {
         setType('EMPTY')
@@ -107,11 +130,16 @@ const PageManage: React.FC = () => {
     }
   )
 
-  const [latestVersion] = useContext(LatestVersionsContext)
-
   const handleProdTree = useMemoizedFn(() => {
     if (query && query.get('tab') === 'prod' && latestVersion && routeId) {
-      const currentNav = latestVersion.navList.items[routeId]
+      let currentNav = latestVersion.navList.items[routeId] as TreeItem | undefined
+      if (!currentNav || currentNav.data.type === 'NAV') {
+        // 去第一个页面
+        currentNav = findFirstPage(latestVersion.navList as TreeData)
+        if (currentNav && currentNav.data.type !== 'NAV') {
+          jump(currentNav!.id + '?tab=prod')
+        }
+      }
       if (currentNav && currentNav.data.type !== 'NAV') {
         // 找到对应页面
         setActiveNav(currentNav as TreeItem)
@@ -129,11 +157,12 @@ const PageManage: React.FC = () => {
           })
         )
       } else {
-        if (tree) {
+        if (tree && Object.keys(tree.items).length > 1) {
           handleDevTreeAndRouteId(tree)
-        } else {
-          // TODO 可能会有问题
           jump(routeId + '?tab=dev')
+          setActiveTab('dev')
+        } else {
+          setType('EMPTY')
         }
       }
     }
@@ -150,6 +179,41 @@ const PageManage: React.FC = () => {
       handleProdTree()
     }
   }, [handleProdTree, query, latestVersion, activeNav, routeId])
+
+  const checkOriginalLatestVersion = useMemoizedFn(() => {
+    if (query.get('tab') === 'prod' && originalLatestVersion === 'NO_DATA') {
+      setActiveTab('dev')
+      if (tree) {
+        if (Object.keys(tree?.items).length > 1) {
+          jump(routeId + '?tab=dev')
+          handleDevTreeAndRouteId(tree)
+        } else {
+          jump('empty' + '?tab=dev')
+          setType('EMPTY')
+        }
+      }
+    }
+  })
+
+  useEffect(() => {
+    checkOriginalLatestVersion()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [originalLatestVersion, query])
+
+  const createSuccessCallback = useCallback(
+    (val) => {
+      const navUuid = val?.data?.navUuid
+      getNavListApi().then((res) => {
+        const nav = res?.data?.items?.[navUuid]
+        if (navUuid && nav && nav.data.type !== 'NAV') {
+          jump(navUuid + '?tab=dev')
+          setActiveTab('dev')
+          setActiveNav(nav as TreeItem)
+        }
+      })
+    },
+    [getNavListApi, jump]
+  )
 
   return (
     <>
@@ -204,6 +268,8 @@ const PageManage: React.FC = () => {
               getNavListApi={getNavListApi}
               activeNav={activeNav}
               setActiveNav={setActiveNav}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
               setOpen={setOpen}
               setNavType={setNavType}
             />
@@ -213,7 +279,7 @@ const PageManage: React.FC = () => {
       ) : (
         <></>
       )}
-      <AddRoute open={open} setOpen={setOpen} type={navType} onOk={getNavListApi} tree={tree} />
+      <AddRoute open={open} setOpen={setOpen} type={navType} onOk={createSuccessCallback} tree={tree} />
     </>
   )
 }

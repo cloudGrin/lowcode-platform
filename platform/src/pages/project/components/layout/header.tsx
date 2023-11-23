@@ -99,7 +99,7 @@ export default function Header() {
         <Button
           className='leading-none text-[14px]'
           onClick={() => {
-            if (latestVersion) {
+            if (latestVersion && latestVersion !== 'NO_DATA') {
               window.open(`/app/${projectInfo?.appId}/workbench`)
             } else {
               message.error('请先进行应用发布')

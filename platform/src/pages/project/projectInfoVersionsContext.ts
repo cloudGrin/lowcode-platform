@@ -6,8 +6,8 @@ export const InfoContext = createContext<
 
 export const LatestVersionsContext = createContext<
   [
-    data: ApiProjectVersionsResponse['data'][number] | null,
-    getData: () => Promise<ApiProjectVersionsResponse['data'][number] | null>,
-    mutateData: Dispatch<SetStateAction<ApiProjectVersionsResponse['data'][number] | null>>
+    data: ApiProjectVersionsResponse['data'][number] | null | 'NO_DATA',
+    getData: () => Promise<ApiProjectVersionsResponse['data'][number] | null | 'NO_DATA'>,
+    mutateData: Dispatch<SetStateAction<ApiProjectVersionsResponse['data'][number] | null | 'NO_DATA'>>
   ]
 >([null, () => Promise.resolve(null), () => {}])

@@ -57,6 +57,8 @@ const PureTreeFc: React.FC<{
   getNavListApi: () => Promise<ApiProjectRoutesResponse>
   activeNav?: TreeItem
   setActiveNav: React.Dispatch<React.SetStateAction<TreeItem | undefined>>
+  activeTab?: 'prod' | 'dev'
+  setActiveTab: React.Dispatch<React.SetStateAction<'prod' | 'dev' | undefined>>
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
   setNavType: React.Dispatch<React.SetStateAction<ApiProjectRouteType>>
 }> = ({
@@ -65,12 +67,13 @@ const PureTreeFc: React.FC<{
   getNavListApi,
   activeNav,
   setActiveNav,
+  activeTab,
+  setActiveTab,
   setOpen,
   setNavType,
   prodTreeData,
   setProdTreeData
 }) => {
-  const [activeTab, setActiveTab] = useState<'prod' | 'dev'>('dev')
   const [tabs, setTabs] = useState([
     {
       label: '开发中',
@@ -81,7 +84,12 @@ const PureTreeFc: React.FC<{
   const { id, routeId } = useParams()
   const navigate = useNavigate()
   const query = useQuery()
-  const [latestVersion] = useContext(LatestVersionsContext)
+
+  const [originalLatestVersion] = useContext(LatestVersionsContext)
+  const latestVersion = useMemo(() => {
+    return originalLatestVersion === 'NO_DATA' ? null : originalLatestVersion
+  }, [originalLatestVersion])
+
   const activeTree = useMemo(() => {
     return activeTab === 'dev' ? tree : prodTreeData
   }, [activeTab, prodTreeData, tree])
@@ -153,6 +161,9 @@ const PureTreeFc: React.FC<{
       removeRouteApi({
         uuid: item.id,
         successCb() {
+          if (item === activeNav) {
+            setActiveNav(undefined)
+          }
           getNavListApi()
         }
       })
@@ -413,7 +424,6 @@ const PureTreeFc: React.FC<{
             <div className='w-[120px]'>
               <div
                 onClick={() => {
-                  setActiveTab('dev')
                   setNavType('PAGE')
                   setOpen(true)
                 }}
@@ -424,7 +434,6 @@ const PureTreeFc: React.FC<{
               </div>
               <div
                 onClick={() => {
-                  setActiveTab('dev')
                   setNavType('LINK')
                   setOpen(true)
                 }}
@@ -436,7 +445,6 @@ const PureTreeFc: React.FC<{
               <Divider className='my-[12px]' />
               <div
                 onClick={() => {
-                  setActiveTab('dev')
                   setNavType('NAV')
                   setOpen(true)
                 }}

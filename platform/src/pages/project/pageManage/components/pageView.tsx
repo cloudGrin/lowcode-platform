@@ -84,15 +84,17 @@ const PageView: FC<{
   })
 
   const iframeUrl = useMemo(() => {
-    if (activeNav!.data.type === 'PAGE') {
-      return `${location.origin}/app/page?${new URLSearchParams({
-        navUuid: String(activeNav?.id ?? ''),
-        versionId: activeNav?.data.version?.id ?? '',
-        tab: query.get('tab')!,
-        ...getRouteParams()
-      }).toString()}`
-    } else if (activeNav!.data.type === 'LINK') {
-      return activeNav!.data.url
+    if (activeNav) {
+      if (activeNav.data.type === 'PAGE') {
+        return `${location.origin}/app/page?${new URLSearchParams({
+          navUuid: String(activeNav.id ?? ''),
+          versionId: activeNav.data.version?.id ?? '',
+          tab: query.get('tab')!,
+          ...getRouteParams()
+        }).toString()}`
+      } else if (activeNav.data.type === 'LINK') {
+        return activeNav.data.url
+      }
     }
   }, [activeNav, query, getRouteParams])
 
@@ -119,7 +121,7 @@ const PageView: FC<{
     <div className='flex flex-col flex-auto'>
       <div className='bg-c_white p-[23px_24px] h-[74px] flex items-center justify-between flex-none'>
         <div className='text-[16px] min-w-[310px] w-[calc(100%-310px)] overflow-hidden text-ellipsis whitespace-nowrap'>
-          {activeNav!.data.title}
+          {activeNav?.data?.title || ''}
         </div>
         <div>
           <Tooltip
@@ -134,7 +136,7 @@ const PageView: FC<{
                 menu={{ items: pageActions, onClick: onMenuClick }}
                 icon={<DownOutlined />}
                 onClick={() => {
-                  location.href = `/pageDesigner?navUuid=${activeNav!.id}&projectId=${id}`
+                  location.href = `/pageDesigner?navUuid=${activeNav?.id}&projectId=${id}`
                 }}
               >
                 编辑自定义页

@@ -4,10 +4,10 @@ import React, { useCallback, useEffect, useMemo } from 'react'
 import type { ItemId, TreeData } from '@atlaskit/tree'
 import { useParams } from 'react-router-dom'
 
-const AddOrEditProjectDialog: React.FC<{
+const AddRouteDialog: React.FC<{
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
-  onOk: () => void
+  onOk: (val: any) => void
   type: ApiProjectRouteType
   tree?: TreeData
   actionType?: 'add' | 'edit'
@@ -32,10 +32,10 @@ const AddOrEditProjectDialog: React.FC<{
   const handleOk = useCallback(async () => {
     try {
       const values = await form.validateFields()
-      await createRouteApi(values)
+      const createResult = await createRouteApi(values)
       setOpen(false)
       message.success('新增成功')
-      onOk()
+      onOk(createResult)
     } catch (errorInfo) {
       console.log('Failed:', errorInfo)
       // message.success('新增失败')
@@ -147,7 +147,7 @@ const AddOrEditProjectDialog: React.FC<{
   )
 }
 
-export default AddOrEditProjectDialog
+export default AddRouteDialog
 
 type FlattenTree = {
   value: ItemId

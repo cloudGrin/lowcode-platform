@@ -2,7 +2,7 @@ import { strapiRequestInstance, useStrapiRequest } from '@/lib/request'
 import { usePagination } from 'ahooks'
 import { Button, Card, Form, Input, message, Modal, Table } from 'antd'
 import dayjs from 'dayjs'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import semver from 'semver'
 import { LatestVersionsContext } from '../projectInfoVersionsContext'
@@ -38,7 +38,10 @@ const Publish: React.FC = () => {
   const { id } = useParams()
   const [open, setOpen] = useState(false)
 
-  const [latestVersion, getLastVersion] = useContext(LatestVersionsContext)
+  const [originalLatestVersion, getLastVersion] = useContext(LatestVersionsContext)
+  const latestVersion = useMemo(() => {
+    return originalLatestVersion === 'NO_DATA' ? null : originalLatestVersion
+  }, [originalLatestVersion])
 
   const [form] = Form.useForm()
 
